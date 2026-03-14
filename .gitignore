@@ -1,1 +1,25 @@
+# Visual Studio
+.vs/
+*.slnx
+*.slnx.user
+*.suo
+*.user
+VSWorkspaceState.json
+FileContentIndex/
 
+# Build
+bin/
+obj/
+
+# SQL Server
+*.mdf
+*.ldf
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Sistema
+.DS_Store
+Thumbs.db
