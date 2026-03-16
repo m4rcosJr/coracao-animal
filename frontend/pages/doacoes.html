@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<!--
+  doacoes.html — Página de Doações
+  ONG Coração Animal — PIM III — UNIP
+
+  Permite que visitantes façam doações financeiras à ONG.
+  O formulário envia para o endpoint POST /api/doacoes.
+  Suporta doações anônimas (campo idAdotante fica null no banco).
+
+  Arquivos necessários:
+    css/style.css    — estilos globais
+    css/doacoes.css  — estilos desta página
+    js/tema.js       — dark/light mode
+    js/doacoes.js    — lógica do formulário e API
+-->
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doações — Coração Animal</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/doacoes.css" />
+</head>
+
+<body>
+
+  <!-- ── NAVBAR ──────────────────────────── -->
+  <nav>
+    <a href="../index.html" class="nav-logo">
+      <div class="nav-logo-icon">🐾</div>
+      Coração Animal
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Início</a></li>
+      <li><a href="animais.html">Animais</a></li>
+      <li><a href="adocao.html">Adoção</a></li>
+      <li><a href="doacoes.html" class="active">Doações</a></li>
+      <li><a href="voluntarios.html">Voluntários</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn-tema" id="btnTema" onclick="alternarTema()">
+        <span id="temaIcone">🌙</span>
+        <span id="temaTexto">Dark</span>
+      </button>
+      <a href="adocao.html" class="btn-primary">Adote Agora</a>
+    </div>
+  </nav>
+
+  <!-- ── HEADER ──────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <h1>Faça uma <span>doação</span></h1>
+      <p>Sua contribuição garante ração, vacinas, medicamentos e cuidados veterinários para os animais sob nossa proteção.</p>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+       CARDS DE IMPACTO
+       Mostram o que cada valor de doação
+       pode proporcionar para os animais.
+       São informativos — não têm interação JS.
+  ───────────────────────────────────────── -->
+  <div class="impacto-section">
+    <div class="section">
+      <div class="impacto-grid">
+
+        <!-- Cada card mostra o impacto de um valor de doação -->
+        <div class="impacto-card">
+          <div class="impacto-icone">🍖</div>
+          <div class="impacto-valor">R$ 20</div>
+          <div class="impacto-label">1 semana de ração para um animal</div>
+        </div>
+
+        <div class="impacto-card">
+          <div class="impacto-icone">💉</div>
+          <div class="impacto-valor">R$ 50</div>
+          <div class="impacto-label">1 dose de vacina essencial</div>
+        </div>
+
+        <div class="impacto-card">
+          <div class="impacto-icone">🏥</div>
+          <div class="impacto-valor">R$ 100</div>
+          <div class="impacto-label">1 consulta veterinária completa</div>
+        </div>
+
+        <div class="impacto-card">
+          <div class="impacto-icone">✂️</div>
+          <div class="impacto-valor">R$ 200</div>
+          <div class="impacto-valor">R$ 200</div>
+          <div class="impacto-label">Castração de 1 animal</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+       LAYOUT PRINCIPAL — Formulário + Sidebar
+       Usa CSS Grid com 2 colunas:
+         - Coluna 1 (maior): formulário de doação
+         - Coluna 2 (menor): informações e dicas
+       Em mobile vira 1 coluna (responsividade)
+  ───────────────────────────────────────── -->
+  <div id="formDoacaoWrap">
+    <div class="doacoes-layout">
+
+      <!-- ── FORMULÁRIO DE DOAÇÃO ─────────── -->
+      <div class="form-doacao-wrap">
+        <div class="form-titulo">Quanto você quer doar?</div>
+        <div class="form-subtitulo">Escolha um valor ou digite outro</div>
+
+        <!--
+          Botões de valor predefinido.
+          Cada botão chama selecionarValor() com o valor em reais.
+          O JS marca o botão clicado com a classe "selecionado".
+        -->
+        <div class="valores-grid">
+          <button class="btn-valor" onclick="selecionarValor(20, this)">R$ 20</button>
+          <button class="btn-valor" onclick="selecionarValor(50, this)">R$ 50</button>
+          <button class="btn-valor" onclick="selecionarValor(100, this)">R$ 100</button>
+          <button class="btn-valor" onclick="selecionarValor(200, this)">R$ 200</button>
+          <button class="btn-valor" onclick="selecionarValor(500, this)">R$ 500</button>
+
+          <!--
+            Botão "outro valor" — abre o campo de input customizado.
+            grid-column: 1/-1 faz ele ocupar toda a largura do grid.
+          -->
+          <button class="btn-valor-outro" onclick="ativarValorCustomizado(this)">
+            Outro valor
+          </button>
+        </div>
+
+        <!--
+          Campo de valor customizado — escondido por padrão.
+          Aparece quando o usuário clica em "Outro valor".
+          O prefixo "R$" é decorativo — não faz parte do input.
+        -->
+        <div class="input-valor-wrap" id="inputValorWrap">
+          <div class="input-valor-prefix">
+            <span class="prefix-label">R$</span>
+            <input
+              type="number"
+              class="input-valor"
+              id="valorCustom"
+              placeholder="0,00"
+              min="1"
+              step="0.01"
+              oninput="onValorCustom(this)"
+            />
+          </div>
+        </div>
+
+        <!--
+          Resumo do valor selecionado.
+          Atualizado pelo JS em atualizarResumo().
+          Mostra o valor formatado como moeda brasileira.
+        -->
+        <div class="resumo-valor">
+          <span class="resumo-valor-label">Valor da doação:</span>
+          <span class="resumo-valor-num" id="resumoValor">R$ 0,00</span>
+        </div>
+
+        <!-- Forma de pagamento — apenas informativo (sem gateway) -->
+        <div class="form-grupo">
+          <label>Forma de pagamento</label>
+          <select id="formaPagamento">
+            <option value="pix">PIX</option>
+            <option value="cartao_credito">Cartão de crédito</option>
+            <option value="cartao_debito">Cartão de débito</option>
+            <option value="boleto">Boleto bancário</option>
+            <option value="dinheiro">Dinheiro</option>
+          </select>
+        </div>
+
+        <!-- Campo de descricao opcional -->
+        <div class="form-grupo">
+          <label>Mensagem (opcional)</label>
+          <input
+            type="text"
+            id="descricao"
+            placeholder="Ex: Em nome dos meus pets, com carinho"
+          />
+        </div>
+
+        <!-- Separador -->
+        <div style="border-top: 0.5px solid var(--border); margin: 1.25rem 0;"></div>
+
+        <div class="form-titulo" style="font-size:15px; margin-bottom:4px;">
+          Seus dados (opcional)
+        </div>
+        <div class="form-subtitulo">
+          Preencha para receber confirmação por e-mail
+        </div>
+
+        <!--
+          Checkbox de doação anônima.
+          Quando marcado, o JS esconde os campos de dados pessoais
+          e o idAdotante fica null no banco de dados.
+        -->
+        <label class="checkbox-grupo">
+          <input
+            type="checkbox"
+            id="anonimo"
+            onchange="onAnonimo(this)"
+          />
+          <span class="checkbox-label">Quero fazer uma doação anônima</span>
+        </label>
+
+        <!--
+          Campos de dados pessoais do doador.
+          Ficam visíveis por padrão.
+          O JS esconde quando "anonimo" é marcado.
+        -->
+        <div id="camposDados">
+          <div class="form-grupo">
+            <label>Nome completo</label>
+            <input type="text" id="nomeDoador" placeholder="Seu nome" />
+          </div>
+
+          <div class="form-grupo">
+            <label>E-mail</label>
+            <input type="email" id="emailDoador" placeholder="seu@email.com" />
+          </div>
+
+          <div class="form-grupo">
+            <label>Telefone</label>
+            <input type="text" id="telefoneDoador" placeholder="(11) 99999-9999" />
+          </div>
+        </div>
+
+        <!--
+          Botão de confirmar doação.
+          Começa desabilitado — só habilita quando um valor é selecionado.
+          O JS gerencia isso em atualizarResumo().
+        -->
+        <button class="btn-doar" id="btnDoar" onclick="enviarDoacao()">
+          💛 Confirmar doação
+        </button>
+
+      </div>
+
+      <!-- ── SIDEBAR INFORMATIVA ──────────── -->
+      <div class="sidebar-info">
+
+        <!-- Card: Como a doação é usada -->
+        <div class="info-card">
+          <div class="info-card-titulo">
+            <span>💚</span> Como usamos sua doação
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">🍖</span>
+            <div class="info-item-texto">
+              <span class="info-item-valor">40%</span> — Alimentação dos animais
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">🏥</span>
+            <div class="info-item-texto">
+              <span class="info-item-valor">35%</span> — Cuidados veterinários
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">🏠</span>
+            <div class="info-item-texto">
+              <span class="info-item-valor">15%</span> — Manutenção do abrigo
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">📢</span>
+            <div class="info-item-texto">
+              <span class="info-item-valor">10%</span> — Divulgação e eventos
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Aviso sobre pagamento -->
+        <div class="info-card">
+          <div class="info-card-titulo">
+            <span>ℹ️</span> Sobre o pagamento
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">📋</span>
+            <div class="info-item-texto">
+              Este sistema registra sua intenção de doação.
+              O pagamento é combinado diretamente com a equipe da ONG.
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">📞</span>
+            <div class="info-item-texto">
+              Após o registro, entraremos em contato com as instruções de pagamento.
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Contato -->
+        <div class="info-card">
+          <div class="info-card-titulo">
+            <span>📬</span> Contato
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">📧</span>
+            <div class="info-item-texto">contato@coracaoanimal.org</div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">📱</span>
+            <div class="info-item-texto">(11) 99999-9999</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+       TELA DE SUCESSO
+       Aparece após o envio bem-sucedido da doação.
+       O JS em doacoes.js esconde o formulário e
+       exibe esta seção adicionando a classe "visivel".
+  ───────────────────────────────────────── -->
+  <div class="section">
+    <div class="sucesso-wrap" id="sucessoWrap">
+      <div class="sucesso-icone">💛</div>
+      <div class="sucesso-titulo">Obrigado pela doação!</div>
+      <div class="sucesso-desc">
+        Sua doação foi registrada com sucesso.
+        Em breve nossa equipe entrará em contato
+        com as instruções de pagamento. Você está
+        ajudando a transformar vidas! 🐾
+      </div>
+      <div class="sucesso-acoes">
+        <a href="animais.html" class="btn-outline">Ver animais</a>
+        <a href="../index.html" class="btn-primary">Voltar ao início</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ───────────────────────────── -->
+  <footer>
+    <div class="footer-inner">
+      <a href="../index.html" class="footer-logo">
+        <span>🐾</span> Coração Animal
+      </a>
+      <ul class="footer-links">
+        <li><a href="animais.html">Animais</a></li>
+        <li><a href="adocao.html">Adoção</a></li>
+        <li><a href="doacoes.html">Doações</a></li>
+        <li><a href="voluntarios.html">Voluntários</a></li>
+      </ul>
+      <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP</div>
+    </div>
+  </footer>
+
+  <script src="../js/tema.js"></script>
+  <script src="../js/doacoes.js"></script>
+
+</body>
+</html>

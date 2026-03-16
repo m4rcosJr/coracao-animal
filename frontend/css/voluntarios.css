@@ -1,0 +1,320 @@
+/* ─────────────────────────────────────────
+   CORACAO ANIMAL — Estilos da Pagina de Voluntarios
+   voluntarios.css
+   Contem: header, cards de areas, formulario,
+           lista de voluntarios, tela de sucesso
+───────────────────────────────────────── */
+
+/* ── Header da pagina ──────────────────── */
+.page-header {
+  background: var(--hero-bg);
+  padding: 3rem 2rem;
+  border-bottom: 0.5px solid var(--border);
+  transition: var(--transition);
+  text-align: center;
+}
+
+.page-header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.page-header h1 span { color: var(--laranja); }
+
+.page-header p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* ── Cards de areas de atuacao ─────────── */
+.areas-section {
+  background: var(--bg-secondary);
+  border-bottom: 0.5px solid var(--border);
+  transition: var(--transition);
+}
+
+.areas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.area-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.area-card:hover,
+.area-card.selecionada {
+  border-color: var(--laranja);
+  background: rgba(224,92,42,0.05);
+}
+
+.area-icone {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.area-nome {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.area-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ── Layout principal ──────────────────── */
+.voluntarios-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+/* ── Formulario de cadastro ────────────── */
+.form-voluntario-wrap {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  transition: var(--transition);
+}
+
+.form-titulo {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.form-subtitulo {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+/* Grupos de campos */
+.form-grupo {
+  margin-bottom: 1rem;
+}
+
+.form-grupo label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.form-grupo label span { color: var(--laranja); margin-left: 2px; }
+
+.form-grupo input,
+.form-grupo select,
+.form-grupo textarea {
+  width: 100%;
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.form-grupo input::placeholder,
+.form-grupo textarea::placeholder { color: var(--text-muted); }
+
+.form-grupo input:focus,
+.form-grupo select:focus,
+.form-grupo textarea:focus {
+  border-color: var(--laranja);
+  box-shadow: 0 0 0 3px rgba(224,92,42,0.1);
+}
+
+.form-grupo input.invalido {
+  border-color: #e53935;
+  box-shadow: 0 0 0 3px rgba(229,57,53,0.1);
+}
+
+.erro-msg {
+  font-size: 12px;
+  color: #e53935;
+  margin-top: 4px;
+  display: none;
+}
+
+.erro-msg.visivel { display: block; }
+
+.form-grupo textarea {
+  height: 90px;
+  resize: vertical;
+}
+
+/* Grid de 2 colunas */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* Botao de enviar */
+.btn-cadastrar {
+  width: 100%;
+  background: var(--laranja);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 0.5rem;
+}
+
+.btn-cadastrar:hover { background: var(--laranja-hover); }
+.btn-cadastrar:disabled { background: var(--tag-bg); color: var(--text-muted); cursor: not-allowed; }
+
+/* ── Sidebar ───────────────────────────── */
+.sidebar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.info-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  transition: var(--transition);
+}
+
+.info-card-titulo {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border);
+  font-size: 13px;
+}
+
+.info-item:last-child { border-bottom: none; }
+.info-item-icone { font-size: 18px; flex-shrink: 0; }
+.info-item-texto { color: var(--text-secondary); line-height: 1.5; }
+
+/* ── Lista de voluntarios ──────────────── */
+.voluntarios-lista-section {
+  background: var(--bg-secondary);
+  border-top: 0.5px solid var(--border);
+  transition: var(--transition);
+}
+
+.voluntarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.voluntario-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem;
+  transition: var(--transition);
+}
+
+.voluntario-card:hover { border-color: var(--laranja); }
+
+.voluntario-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(224,92,42,0.12);
+  color: var(--laranja);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.voluntario-nome {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.voluntario-area {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.voluntario-tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(224,92,42,0.1);
+  color: var(--laranja);
+  border: 0.5px solid rgba(224,92,42,0.2);
+}
+
+/* ── Tela de sucesso ───────────────────── */
+.sucesso-wrap {
+  display: none;
+  text-align: center;
+  padding: 3rem 1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.sucesso-wrap.visivel { display: block; }
+.sucesso-icone { font-size: 72px; margin-bottom: 1.5rem; }
+.sucesso-titulo { font-size: 26px; font-weight: 600; color: var(--text-primary); margin-bottom: 10px; }
+.sucesso-desc { font-size: 15px; color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.7; }
+.sucesso-acoes { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* ── Responsividade ────────────────────── */
+@media (max-width: 768px) {
+  .voluntarios-layout { grid-template-columns: 1fr; padding: 1.5rem 1rem; }
+  .form-row { grid-template-columns: 1fr; }
+  .page-header { padding: 2rem 1rem; }
+}

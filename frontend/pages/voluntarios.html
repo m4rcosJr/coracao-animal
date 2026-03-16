@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<!--
+  voluntarios.html — Página de Voluntários
+  ONG Coração Animal — PIM III — UNIP
+
+  Permite que pessoas se cadastrem como voluntários da ONG.
+  O formulário envia para o endpoint POST /api/voluntarios.
+  Também exibe a lista de voluntários cadastrados (GET /api/voluntarios).
+
+  Arquivos necessários:
+    css/style.css         — estilos globais
+    css/voluntarios.css   — estilos desta página
+    js/tema.js            — dark/light mode
+    js/voluntarios.js     — lógica do formulário e API
+-->
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voluntários — Coração Animal</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/voluntarios.css" />
+</head>
+
+<body>
+
+  <!-- ── NAVBAR ──────────────────────────── -->
+  <nav>
+    <a href="../index.html" class="nav-logo">
+      <div class="nav-logo-icon">🐾</div>
+      Coração Animal
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Início</a></li>
+      <li><a href="animais.html">Animais</a></li>
+      <li><a href="adocao.html">Adoção</a></li>
+      <li><a href="doacoes.html">Doações</a></li>
+      <li><a href="voluntarios.html" class="active">Voluntários</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="btn-tema" id="btnTema" onclick="alternarTema()">
+        <span id="temaIcone">🌙</span>
+        <span id="temaTexto">Dark</span>
+      </button>
+      <a href="adocao.html" class="btn-primary">Adote Agora</a>
+    </div>
+  </nav>
+
+  <!-- ── HEADER ──────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <h1>Seja um <span>voluntário</span></h1>
+      <p>Junte-se à nossa equipe e ajude a transformar a vida dos animais. Cada hora dedicada faz uma grande diferença.</p>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+       AREAS DE ATUACAO
+       Cards clicáveis que representam as áreas
+       de voluntariado disponíveis na ONG.
+       Ao clicar, a área é selecionada e o
+       select do formulário é preenchido.
+  ───────────────────────────────────────── -->
+  <div class="areas-section">
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Áreas de atuação</div>
+          <div class="section-subtitle">Clique na área que mais combina com você</div>
+        </div>
+      </div>
+      <div class="areas-grid">
+
+        <!--
+          Cada card chama selecionarArea() com:
+          - o valor que vai para o banco de dados
+          - a referência ao próprio card (this)
+        -->
+        <div class="area-card" onclick="selecionarArea('Cuidados animais', this)">
+          <div class="area-icone">🐾</div>
+          <div class="area-nome">Cuidados animais</div>
+          <div class="area-desc">Banho, tosa e cuidados diários</div>
+        </div>
+
+        <div class="area-card" onclick="selecionarArea('Veterinaria', this)">
+          <div class="area-icone">🏥</div>
+          <div class="area-nome">Veterinária</div>
+          <div class="area-desc">Apoio em consultas e medicação</div>
+        </div>
+
+        <div class="area-card" onclick="selecionarArea('Transporte', this)">
+          <div class="area-icone">🚗</div>
+          <div class="area-nome">Transporte</div>
+          <div class="area-desc">Buscar e levar animais resgatados</div>
+        </div>
+
+        <div class="area-card" onclick="selecionarArea('Fotografia', this)">
+          <div class="area-icone">📸</div>
+          <div class="area-nome">Fotografia</div>
+          <div class="area-desc">Fotos para divulgação e adoção</div>
+        </div>
+
+        <div class="area-card" onclick="selecionarArea('Adestramento', this)">
+          <div class="area-icone">🎓</div>
+          <div class="area-nome">Adestramento</div>
+          <div class="area-desc">Treinar animais para adoção</div>
+        </div>
+
+        <div class="area-card" onclick="selecionarArea('Divulgacao', this)">
+          <div class="area-icone">📢</div>
+          <div class="area-nome">Divulgação</div>
+          <div class="area-desc">Redes sociais e eventos</div>
+        </div>
+
+        <div class="area-card" onclick="selecionarArea('Tecnologia', this)">
+          <div class="area-icone">💻</div>
+          <div class="area-nome">Tecnologia</div>
+          <div class="area-desc">Apoio no sistema e site</div>
+        </div>
+
+        <div class="area-card" onclick="selecionarArea('Outros', this)">
+          <div class="area-icone">🤝</div>
+          <div class="area-nome">Outros</div>
+          <div class="area-desc">Outras formas de ajudar</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+       LAYOUT PRINCIPAL
+       Grid com formulário (esquerda) e sidebar (direita).
+  ───────────────────────────────────────── -->
+  <div id="formVoluntarioWrap">
+    <div class="voluntarios-layout">
+
+      <!-- ── FORMULÁRIO DE CADASTRO ──────── -->
+      <div class="form-voluntario-wrap">
+        <div class="form-titulo">Cadastre-se como voluntário</div>
+        <div class="form-subtitulo">Preencha seus dados para começar</div>
+
+        <!-- Nome e e-mail em 2 colunas -->
+        <div class="form-row">
+          <div class="form-grupo">
+            <label>Nome completo <span>*</span></label>
+            <input
+              type="text"
+              id="nomeCompleto"
+              placeholder="Seu nome completo"
+            />
+            <div class="erro-msg" id="erro-nomeCompleto"></div>
+          </div>
+          <div class="form-grupo">
+            <label>E-mail <span>*</span></label>
+            <input
+              type="email"
+              id="email"
+              placeholder="seu@email.com"
+            />
+            <div class="erro-msg" id="erro-email"></div>
+          </div>
+        </div>
+
+        <!-- Telefone e area em 2 colunas -->
+        <div class="form-row">
+          <div class="form-grupo">
+            <label>Telefone</label>
+            <input
+              type="text"
+              id="telefone"
+              placeholder="(11) 99999-9999"
+            />
+          </div>
+          <div class="form-grupo">
+            <label>Área de atuação</label>
+            <!--
+              Este select é preenchido automaticamente
+              quando o usuário clica em um card de área.
+              Também pode ser preenchido manualmente.
+            -->
+            <select id="areaAtuacao">
+              <option value="">Selecione uma área</option>
+              <option value="Cuidados animais">Cuidados animais</option>
+              <option value="Veterinaria">Veterinária</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Fotografia">Fotografia</option>
+              <option value="Adestramento">Adestramento</option>
+              <option value="Divulgacao">Divulgação</option>
+              <option value="Tecnologia">Tecnologia</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Campo de disponibilidade -->
+        <div class="form-grupo">
+          <label>Disponibilidade</label>
+          <select id="disponibilidade">
+            <option value="">Selecione sua disponibilidade</option>
+            <option value="fins_de_semana">Fins de semana</option>
+            <option value="dias_uteis">Dias úteis</option>
+            <option value="qualquer_dia">Qualquer dia</option>
+            <option value="eventualmente">Eventualmente</option>
+          </select>
+        </div>
+
+        <!-- Campo de motivacao -->
+        <div class="form-grupo">
+          <label>Por que quer ser voluntário? (opcional)</label>
+          <textarea
+            id="motivacao"
+            placeholder="Conte um pouco sobre sua motivação e experiência com animais..."
+          ></textarea>
+        </div>
+
+        <!--
+          Botão de envio — chama enviarCadastro() no JS.
+          O JS valida os campos antes de enviar para a API.
+        -->
+        <button class="btn-cadastrar" id="btnCadastrar" onclick="enviarCadastro()">
+          🤝 Quero ser voluntário
+        </button>
+
+      </div>
+
+      <!-- ── SIDEBAR INFORMATIVA ──────────── -->
+      <div class="sidebar-info">
+
+        <!-- O que esperar -->
+        <div class="info-card">
+          <div class="info-card-titulo">
+            <span>✨</span> O que esperar
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">📞</span>
+            <div class="info-item-texto">Entraremos em contato em até 48h após o cadastro</div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">📅</span>
+            <div class="info-item-texto">Agendaremos uma conversa para alinhar expectativas</div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">🎓</span>
+            <div class="info-item-texto">Orientação inicial sobre os cuidados e processos da ONG</div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">🐾</span>
+            <div class="info-item-texto">Início das atividades conforme sua disponibilidade</div>
+          </div>
+        </div>
+
+        <!-- Beneficios -->
+        <div class="info-card">
+          <div class="info-card-titulo">
+            <span>💚</span> Benefícios
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">🏅</span>
+            <div class="info-item-texto">Certificado de voluntariado para seu currículo</div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">🤝</span>
+            <div class="info-item-texto">Networking com pessoas que amam animais</div>
+          </div>
+          <div class="info-item">
+            <span class="info-item-icone">❤️</span>
+            <div class="info-item-texto">A satisfação de fazer a diferença na vida dos animais</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TELA DE SUCESSO ──────────────────── -->
+  <div class="section">
+    <div class="sucesso-wrap" id="sucessoWrap">
+      <div class="sucesso-icone">🤝</div>
+      <div class="sucesso-titulo">Cadastro realizado!</div>
+      <div class="sucesso-desc">
+        Bem-vindo à equipe Coração Animal! Seu cadastro foi
+        registrado com sucesso. Entraremos em contato em até
+        48 horas para alinhar os próximos passos. 🐾
+      </div>
+      <div class="sucesso-acoes">
+        <a href="animais.html" class="btn-outline">Ver animais</a>
+        <a href="../index.html" class="btn-primary">Voltar ao início</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────
+       LISTA DE VOLUNTARIOS CADASTRADOS
+       Exibe os voluntários já cadastrados no sistema.
+       Os cards são gerados pelo JS em carregarVoluntarios().
+       As iniciais do nome formam o avatar colorido.
+  ───────────────────────────────────────── -->
+  <div class="voluntarios-lista-section">
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Nossa equipe de voluntários</div>
+          <div class="section-subtitle">Pessoas incríveis que fazem a diferença</div>
+        </div>
+      </div>
+      <!--
+        Grid preenchido pelo JS em carregarVoluntarios().
+        Começa com estado de loading e é substituído
+        pelos cards quando a API responde.
+      -->
+      <div class="voluntarios-grid" id="voluntariosGrid">
+        <div class="loading" style="grid-column:1/-1">
+          <div class="spinner"></div>
+          <p>Carregando voluntários...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ───────────────────────────── -->
+  <footer>
+    <div class="footer-inner">
+      <a href="../index.html" class="footer-logo">
+        <span>🐾</span> Coração Animal
+      </a>
+      <ul class="footer-links">
+        <li><a href="animais.html">Animais</a></li>
+        <li><a href="adocao.html">Adoção</a></li>
+        <li><a href="doacoes.html">Doações</a></li>
+        <li><a href="voluntarios.html">Voluntários</a></li>
+      </ul>
+      <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP</div>
+    </div>
+  </footer>
+
+  <script src="../js/tema.js"></script>
+  <script src="../js/voluntarios.js"></script>
+
+</body>
+</html>
