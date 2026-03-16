@@ -1,0 +1,379 @@
+/* ─────────────────────────────────────────
+   CORACAO ANIMAL — Estilos da Galeria
+   animais.css
+   Contem: header da pagina, busca, filtros,
+           grid completo, modal de detalhes
+───────────────────────────────────────── */
+
+/* ── Header da pagina ──────────────────── */
+.page-header {
+  background: var(--hero-bg);
+  padding: 3rem 2rem;
+  border-bottom: 0.5px solid var(--border);
+  transition: var(--transition);
+}
+
+.page-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.page-header h1 span { color: var(--laranja); }
+
+.page-header p {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+/* ── Barra de busca e filtros ──────────── */
+.busca-filtros {
+  background: var(--bg-secondary);
+  border-bottom: 0.5px solid var(--border);
+  padding: 1rem 2rem;
+  transition: var(--transition);
+  position: sticky;
+  top: 60px;
+  z-index: 90;
+}
+
+.busca-filtros-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Campo de busca */
+.busca-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.busca-icone {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.input-busca {
+  width: 100%;
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 12px 9px 36px;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+}
+
+.input-busca::placeholder { color: var(--text-muted); }
+
+.input-busca:focus {
+  border-color: var(--laranja);
+  box-shadow: 0 0 0 3px rgba(224,92,42,0.1);
+}
+
+/* Grupos de filtro */
+.filtros-grupo {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filtro-btn {
+  background: var(--tag-bg);
+  border: 0.5px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.filtro-btn:hover,
+.filtro-btn.active {
+  background: var(--laranja);
+  border-color: var(--laranja);
+  color: white;
+}
+
+/* Select de ordenacao */
+.select-ordem {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition);
+}
+
+.select-ordem:focus { border-color: var(--laranja); }
+
+/* ── Contador de resultados ────────────── */
+.contador {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.contador span {
+  font-weight: 600;
+  color: var(--laranja);
+}
+
+/* ── Grid de animais ───────────────────── */
+.animal-grid-full {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.animal-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.animal-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--laranja);
+}
+
+.animal-foto {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.animal-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.animal-foto-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+}
+
+.cao-bg  { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+.gato-bg { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+
+.status-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-disponivel  { background: #e8f5e9; color: #2e7d32; }
+.status-em_processo { background: #fff3e0; color: #e65100; }
+.status-adotado     { background: #e3f2fd; color: #1565c0; }
+.status-em_tratamento { background: #fce4ec; color: #c62828; }
+
+.animal-info { padding: 16px; }
+
+.animal-nome {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.animal-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.animal-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--tag-bg);
+  color: var(--text-secondary);
+  border: 0.5px solid var(--border);
+}
+
+.animal-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;           /* propriedade padrao — resolve o aviso */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.btn-adotar {
+  width: 100%;
+  background: var(--laranja);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-adotar:hover { background: var(--laranja-hover); }
+
+.btn-adotar:disabled {
+  background: var(--tag-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* ── Modal de detalhes ─────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay.aberto { display: flex; }
+
+.modal {
+  background: var(--bg-card);
+  border: 0.5px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.modal-foto {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 96px;
+  position: relative;
+}
+
+.modal-foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-fechar {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  background: rgba(0,0,0,0.4);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.modal-fechar:hover { background: rgba(0,0,0,0.7); }
+
+.modal-body { padding: 1.5rem; }
+
+.modal-nome {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.modal-meta {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+.modal-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.modal-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--tag-bg);
+  border-radius: 10px;
+  border: 0.5px solid var(--border);
+}
+
+.modal-acoes {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-acoes .btn-primary { flex: 1; text-align: center; border-radius: 10px; padding: 12px; }
+.modal-acoes .btn-outline  { flex: 1; text-align: center; border-radius: 10px; padding: 12px; }
+
+/* ── Responsividade ────────────────────── */
+@media (max-width: 768px) {
+  .busca-filtros { padding: 1rem; top: 60px; }
+  .busca-filtros-inner { flex-direction: column; }
+  .busca-wrap { width: 100%; }
+  .page-header { padding: 2rem 1rem; }
+  .page-header h1 { font-size: 24px; }
+}
