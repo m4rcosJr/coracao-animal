@@ -88,3 +88,8 @@ namespace CoracaoAnimal.API.Controllers
 		}
 	}
 }
+
+
+public class Adodante2 { 
+return null;
+}

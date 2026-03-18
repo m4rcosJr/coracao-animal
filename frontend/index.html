@@ -1,154 +1,139 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Coração Animal — Adoção Responsável</title>
-
-  <!-- Estilos globais (navbar, footer, botoes, variaveis de tema) -->
+  <title>Coração Animal — Todo animal merece um lar</title>
   <link rel="stylesheet" href="css/style.css" />
-
-  <!-- Estilos especificos da home (hero, grid, features, banner) -->
   <link rel="stylesheet" href="css/home.css" />
 </head>
-
 <body>
 
-  <!-- ── NAVBAR ──────────────────────────── -->
-  <nav>
-    <a href="index.html" class="nav-logo">
-      <div class="nav-logo-icon">🐾</div>
-      Coração Animal
-    </a>
+<nav>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">🐾</div>
+    Coração Animal
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Sobre</a></li>
+    <li><a href="pages/animais.html">Adote</a></li>
+    <li><a href="pages/voluntarios.html">Como Ajudar</a></li>
+    <li><a href="pages/doacoes.html">Contato</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-tema" id="btnTema" onclick="alternarTema()">
+      <span id="temaIcone">🌙</span>
+    </button>
+    <a href="pages/doacoes.html" class="btn-cta">🧡 Doar</a>
+  </div>
+</nav>
 
-    <ul class="nav-links">
-      <li><a href="index.html" class="active">Início</a></li>
+<!-- HERO -->
+<section class="hero-section">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-badge anim-1">🐾 ONG de proteção animal</div>
+      <h1 class="anim-2">Todo animal merece <em>um lar</em> cheio de amor</h1>
+      <p class="anim-3">Resgatamos, cuidamos e encontramos famílias amorosas para animais abandonados. Junte-se a nós nessa missão.</p>
+      <div class="hero-btns anim-4">
+        <a href="pages/adocao.html" class="btn-cta">🧡 Quero Adotar</a>
+        <a href="pages/voluntarios.html" class="btn-sec">🤝 Quero Ajudar</a>
+      </div>
+      <div class="hero-stat anim-4">
+        <div class="hero-stat-icone">🏠</div>
+        <div>
+          <div class="hero-stat-num" id="statDisponiveis">—</div>
+          <div class="hero-stat-label">Animais disponíveis agora</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-foto-wrap">
+      <div class="deco-circle"></div>
+      <div class="hero-foto">
+        <div class="hero-foto-placeholder">
+          <span style="font-size:80px">🐕</span>
+          <span style="font-size:13px;color:rgba(255,255,255,0.6);font-family:'DM Sans',sans-serif">Adicione uma foto real aqui</span>
+        </div>
+      </div>
+      <div class="hero-foto-card">
+        <div class="hero-foto-card-icone">💚</div>
+        <div>
+          <div class="hero-foto-card-num">1.800+</div>
+          <div class="hero-foto-card-label">Vidas transformadas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MISSAO -->
+<section class="missao">
+  <div class="missao-inner">
+    <div class="section-label">Nossa Missão</div>
+    <h2>Resgatando vidas, transformando destinos</h2>
+    <p>A Coração Animal é uma ONG dedicada ao resgate, reabilitação e adoção responsável de animais em situação de abandono.</p>
+    <div class="missao-grid">
+      <div class="missao-card">
+        <div class="missao-icone">🛡️</div>
+        <h3>Resgate</h3>
+        <p>Resgatamos animais em situação de risco, oferecendo atendimento veterinário imediato e todo cuidado necessário.</p>
+      </div>
+      <div class="missao-card">
+        <div class="missao-icone">🏠</div>
+        <h3>Lar Temporário</h3>
+        <p>Nossos voluntários acolhem os animais com carinho até encontrarmos a família perfeita para cada um.</p>
+      </div>
+      <div class="missao-card">
+        <div class="missao-icone">👨‍👩‍👧</div>
+        <h3>Adoção Responsável</h3>
+        <p>Fazemos um processo cuidadoso para garantir que cada animal encontre um lar permanente e amoroso.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ANIMAIS -->
+<div class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Prontinhos para adoção</div>
+      <h2>Conheça nossos animais</h2>
+    </div>
+    <a href="pages/animais.html">Ver todos →</a>
+  </div>
+  <div class="filtros">
+    <button class="filtro-btn active" onclick="filtrar('todos',this)">Todos</button>
+    <button class="filtro-btn" onclick="filtrar('cao',this)">🐕 Cães</button>
+    <button class="filtro-btn" onclick="filtrar('gato',this)">🐱 Gatos</button>
+  </div>
+  <div class="animais-grid" id="animalGrid">
+    <div class="loading"><div class="spinner"></div><p>Buscando animais...</p></div>
+  </div>
+</div>
+
+<!-- BANNER -->
+<section class="banner">
+  <div class="banner-inner">
+    <h2>Ajude a Coração Animal 💛</h2>
+    <p>Sua doação garante ração, vacinas e cuidados veterinários para os animais sob nossa proteção.</p>
+    <a href="pages/doacoes.html" class="btn-banner">Fazer uma doação</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><span>🐾</span> Coração Animal</div>
+    <ul class="footer-links">
       <li><a href="pages/animais.html">Animais</a></li>
       <li><a href="pages/adocao.html">Adoção</a></li>
       <li><a href="pages/doacoes.html">Doações</a></li>
       <li><a href="pages/voluntarios.html">Voluntários</a></li>
     </ul>
-
-    <div class="nav-actions">
-      <button class="btn-tema" id="btnTema" onclick="alternarTema()">
-        <span id="temaIcone">🌙</span>
-        <span id="temaTexto">Dark</span>
-      </button>
-      <a href="pages/adocao.html" class="btn-primary">Adote Agora</a>
-    </div>
-  </nav>
-
-  <!-- ── HERO ────────────────────────────── -->
-  <section class="hero">
-    <div class="hero-badge">🐾 ONG de Adoção Responsável</div>
-    <h1>Encontre seu <span>companheiro</span><br>para a vida toda</h1>
-    <p>Conectamos cães e gatos abandonados a famílias amorosas. Cada adoção transforma duas vidas.</p>
-    <div class="hero-btns">
-      <a href="pages/animais.html" class="btn-primary">Ver animais disponíveis</a>
-      <a href="pages/adocao.html" class="btn-outline">Quero adotar</a>
-    </div>
-    <div class="hero-stats">
-      <div>
-        <div class="stat-num">247</div>
-        <div class="stat-label">Adoções realizadas</div>
-      </div>
-      <div>
-        <div class="stat-num" id="totalDisponiveis">—</div>
-        <div class="stat-label">Animais disponíveis</div>
-      </div>
-      <div>
-        <div class="stat-num">120</div>
-        <div class="stat-label">Voluntários ativos</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── ANIMAIS DESTAQUE ─────────────────── -->
-  <div class="section">
-    <div class="section-header">
-      <div>
-        <div class="section-title">Animais disponíveis</div>
-        <div class="section-subtitle">Encontre seu novo melhor amigo</div>
-      </div>
-      <a href="pages/animais.html" class="section-link">Ver todos →</a>
-    </div>
-
-    <div class="filtros">
-      <button class="filtro-btn active" onclick="filtrar('todos', this)">Todos</button>
-      <button class="filtro-btn" onclick="filtrar('cao', this)">🐕 Cães</button>
-      <button class="filtro-btn" onclick="filtrar('gato', this)">🐱 Gatos</button>
-    </div>
-
-    <div class="animal-grid" id="animalGrid">
-      <div class="loading">
-        <div class="spinner"></div>
-        <p>Buscando animais disponíveis...</p>
-      </div>
-    </div>
+    <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP</div>
   </div>
+</footer>
 
-  <!-- ── DIFERENCIAIS ─────────────────────── -->
-  <div class="features-section">
-    <div class="section">
-      <div class="section-header">
-        <div>
-          <div class="section-title">Por que adotar pela Coração Animal?</div>
-          <div class="section-subtitle">Processo seguro, transparente e amoroso</div>
-        </div>
-      </div>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon" style="background: rgba(224,92,42,0.12);">🏠</div>
-          <div class="feature-titulo">Adoção responsável</div>
-          <div class="feature-desc">Acompanhamos todo o processo com cuidado e transparência.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon" style="background: rgba(29,158,117,0.12);">💉</div>
-          <div class="feature-titulo">Animais saudáveis</div>
-          <div class="feature-desc">Todos vacinados, vermifugados e castrados antes da adoção.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon" style="background: rgba(55,138,221,0.12);">🤝</div>
-          <div class="feature-titulo">Suporte contínuo</div>
-          <div class="feature-desc">Nossa equipe de voluntários está sempre disponível para ajudar.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon" style="background: rgba(186,117,23,0.12);">🤟</div>
-          <div class="feature-titulo">Acessível em LIBRAS</div>
-          <div class="feature-desc">Site acessível com glossário em Língua Brasileira de Sinais.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── BANNER DE DOACAO ─────────────────── -->
-  <div class="banner-doacao">
-    <h2>Ajude a Coração Animal 💛</h2>
-    <p>Sua doação garante ração, vacinas e cuidados veterinários para os animais.</p>
-    <a href="pages/doacoes.html" class="btn-branco">Fazer uma doação</a>
-  </div>
-
-  <!-- ── FOOTER ───────────────────────────── -->
-  <footer>
-    <div class="footer-inner">
-      <a href="index.html" class="footer-logo">
-        <span>🐾</span> Coração Animal
-      </a>
-      <ul class="footer-links">
-        <li><a href="pages/animais.html">Animais</a></li>
-        <li><a href="pages/adocao.html">Adoção</a></li>
-        <li><a href="pages/doacoes.html">Doações</a></li>
-        <li><a href="pages/voluntarios.html">Voluntários</a></li>
-      </ul>
-      <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP</div>
-    </div>
-  </footer>
-
-  <!-- Tema (dark/light) — carrega primeiro para evitar flash -->
-  <script src="js/tema.js"></script>
-
-  <!-- Logica de animais — busca da API e filtros -->
-  <script src="js/animais.js"></script>
-
+<script src="js/tema.js"></script>
+<script src="js/animais.js"></script>
 </body>
 </html>

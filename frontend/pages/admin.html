@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Coração Animal</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="nav-logo"><div class="nav-logo-icon">🐾</div> Coração Animal</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Sobre</a></li>
+    <li><a href="animais.html">Adote</a></li>
+    <li><a href="voluntarios.html">Como Ajudar</a></li>
+    <li><a href="doacoes.html">Contato</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-tema" id="btnTema" onclick="alternarTema()"><span id="temaIcone">🌙</span></button>
+    <span style="font-size:13px;color:var(--laranja);font-weight:600;font-family:'DM Sans',sans-serif">⚙ Admin</span>
+  </div>
+</nav>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-titulo">Visão geral</div>
+    <a class="sidebar-link ativo" onclick="navegarPara('dashboard',this)"><span class="sidebar-icone">📊</span> Dashboard</a>
+    <div class="sidebar-titulo">Gerenciar</div>
+    <a class="sidebar-link" onclick="navegarPara('animais',this)"><span class="sidebar-icone">🐾</span> Animais</a>
+    <a class="sidebar-link" onclick="navegarPara('adotantes',this)"><span class="sidebar-icone">👤</span> Adotantes</a>
+    <a class="sidebar-link" onclick="navegarPara('adocoes',this)"><span class="sidebar-icone">🤝</span> Adoções</a>
+    <a class="sidebar-link" onclick="navegarPara('doacoes',this)"><span class="sidebar-icone">💰</span> Doações</a>
+    <a class="sidebar-link" onclick="navegarPara('voluntarios',this)"><span class="sidebar-icone">🙋</span> Voluntários</a>
+    <div class="sidebar-titulo">Site</div>
+    <a class="sidebar-link" href="../index.html"><span class="sidebar-icone">🏠</span> Ver site</a>
+  </aside>
+
+  <main class="admin-main">
+
+    <div class="admin-panel ativo" id="painel-dashboard">
+      <div class="painel-header">
+        <div><div class="painel-titulo">Dashboard</div><div class="painel-subtitulo">Visão geral do sistema</div></div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-card-label">🐾 Total de animais</div><div class="stat-card-valor" id="stat-animais">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">✅ Disponíveis</div><div class="stat-card-valor" id="stat-disponiveis">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">🏠 Adotados</div><div class="stat-card-valor" id="stat-adotados">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">👤 Adotantes</div><div class="stat-card-valor" id="stat-adotantes">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">🤝 Adoções</div><div class="stat-card-valor" id="stat-adocoes">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">💰 Total arrecadado</div><div class="stat-card-valor" id="stat-doacoes">—</div></div>
+        <div class="stat-card"><div class="stat-card-label">🙋 Voluntários</div><div class="stat-card-valor" id="stat-voluntarios">—</div></div>
+      </div>
+    </div>
+
+    <div class="admin-panel" id="painel-animais">
+      <div class="painel-header">
+        <div><div class="painel-titulo">Animais</div><div class="painel-subtitulo">Gerencie os animais cadastrados</div></div>
+        <button class="btn-novo" onclick="novoAnimal()">+ Novo animal</button>
+      </div>
+      <div class="tabela-wrap">
+        <div class="tabela-header"><input type="text" class="tabela-busca" placeholder="Buscar animal..." oninput="filtrarTabela('tabela-animais',this.value)" /></div>
+        <table><thead><tr><th>ID</th><th>Nome</th><th>Espécie</th><th>Raça</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody id="tabela-animais"><tr><td colspan="6" class="tabela-vazia">Carregando...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="admin-panel" id="painel-adotantes">
+      <div class="painel-header"><div><div class="painel-titulo">Adotantes</div><div class="painel-subtitulo">Pessoas cadastradas</div></div></div>
+      <div class="tabela-wrap">
+        <table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Ações</th></tr></thead>
+        <tbody id="tabela-adotantes"><tr><td colspan="5" class="tabela-vazia">Carregando...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="admin-panel" id="painel-adocoes">
+      <div class="painel-header"><div><div class="painel-titulo">Adoções</div><div class="painel-subtitulo">Histórico de processos</div></div></div>
+      <div class="tabela-wrap">
+        <table><thead><tr><th>ID</th><th>Animal</th><th>Adotante</th><th>Data</th><th>Status</th></tr></thead>
+        <tbody id="tabela-adocoes"><tr><td colspan="5" class="tabela-vazia">Carregando...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="admin-panel" id="painel-doacoes">
+      <div class="painel-header"><div><div class="painel-titulo">Doações</div><div class="painel-subtitulo">Contribuições recebidas</div></div></div>
+      <div class="tabela-wrap">
+        <table><thead><tr><th>ID</th><th>Doador</th><th>Valor</th><th>Forma</th><th>Status</th></tr></thead>
+        <tbody id="tabela-doacoes"><tr><td colspan="5" class="tabela-vazia">Carregando...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="admin-panel" id="painel-voluntarios">
+      <div class="painel-header"><div><div class="painel-titulo">Voluntários</div><div class="painel-subtitulo">Equipe da ONG</div></div></div>
+      <div class="tabela-wrap">
+        <table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Área</th></tr></thead>
+        <tbody id="tabela-voluntarios"><tr><td colspan="4" class="tabela-vazia">Carregando...</td></tr></tbody></table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modal animal -->
+<div class="modal-overlay" id="overlay-modal-animal" onclick="fecharModal('modal-animal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-titulo" id="modal-animal-titulo">Novo Animal</span>
+      <button class="modal-fechar" onclick="fecharModal('modal-animal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="modal-animal-id" />
+      <div class="form-row">
+        <div class="form-grupo"><label>Nome</label><input type="text" id="modal-animal-nome" placeholder="Nome do animal" /></div>
+        <div class="form-grupo"><label>Espécie</label><select id="modal-animal-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-grupo"><label>Raça</label><input type="text" id="modal-animal-raca" placeholder="Ex: Labrador" /></div>
+        <div class="form-grupo"><label>Idade (anos)</label><input type="number" id="modal-animal-idade" min="0" /></div>
+      </div>
+      <div class="form-row">
+        <div class="form-grupo"><label>Porte</label><select id="modal-animal-porte"><option value="pequeno">Pequeno</option><option value="medio">Médio</option><option value="grande">Grande</option></select></div>
+        <div class="form-grupo"><label>Status</label><select id="modal-animal-status"><option value="disponivel">Disponível</option><option value="em_processo">Em processo</option><option value="adotado">Adotado</option><option value="em_tratamento">Em tratamento</option></select></div>
+      </div>
+      <div class="form-grupo"><label>Descrição</label><textarea id="modal-animal-descricao" placeholder="Descreva o animal..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-sec" style="border-radius:8px;padding:9px 20px;font-size:14px;cursor:pointer" onclick="fecharModal('modal-animal')">Cancelar</button>
+      <button class="btn-cta" style="border-radius:8px;padding:9px 20px;border:none;font-size:14px;cursor:pointer" onclick="salvarAnimal()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/tema.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+function filtrarTabela(id, t) {
+  document.getElementById(id).querySelectorAll('tr').forEach(l => {
+    l.style.display = l.textContent.toLowerCase().includes(t.toLowerCase()) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

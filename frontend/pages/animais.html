@@ -1,338 +1,106 @@
 <!DOCTYPE html>
-<!--
-  animais.html — Página de Galeria de Animais
-  ONG Coração Animal — PIM III — UNIP
-
-  Esta página exibe todos os animais cadastrados no sistema,
-  permitindo busca por nome/raça, filtros por espécie, porte
-  e status, além de ordenação. Ao clicar em um animal, um
-  modal exibe os detalhes completos.
-
-  Arquivos necessários:
-    css/style.css    — estilos globais (navbar, footer, tema)
-    css/animais.css  — estilos específicos desta página
-    js/tema.js       — lógica do dark/light mode
-    js/galeria.js    — busca na API, filtros e modal
--->
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-
-  <!--
-    viewport: garante que o site seja responsivo em celulares.
-    width=device-width = usa a largura real do dispositivo
-    initial-scale=1.0  = sem zoom inicial
-  -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Título que aparece na aba do navegador -->
   <title>Animais — Coração Animal</title>
-
-  <!--
-    Importação dos arquivos CSS.
-    A ordem importa: style.css define as variáveis de tema
-    que animais.css usa. Style.css sempre vem primeiro.
-  -->
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="stylesheet" href="../css/animais.css" />
 </head>
-
 <body>
 
-  <!-- ─────────────────────────────────────────
-       NAVBAR — Barra de navegação principal
-       Aparece em todas as páginas do site.
-       O link "Animais" tem a classe "active" para
-       ficar destacado e indicar a página atual.
-  ───────────────────────────────────────── -->
-  <nav>
+<nav>
+  <a href="../index.html" class="nav-logo"><div class="nav-logo-icon">🐾</div> Coração Animal</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Sobre</a></li>
+    <li><a href="animais.html" class="active">Adote</a></li>
+    <li><a href="voluntarios.html">Como Ajudar</a></li>
+    <li><a href="doacoes.html">Contato</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-tema" id="btnTema" onclick="alternarTema()"><span id="temaIcone">🌙</span></button>
+    <a href="adocao.html" class="btn-cta">🧡 Adote Agora</a>
+  </div>
+</nav>
 
-    <!-- Logo com link para a home -->
-    <a href="../index.html" class="nav-logo">
-      <div class="nav-logo-icon">🐾</div>
-      Coração Animal
-    </a>
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="section-label">Adoção responsável</div>
+    <h1>Animais para <em>adoção</em></h1>
+    <p>Cada um deles está esperando por uma família. Quem sabe o seu melhor amigo está aqui?</p>
+  </div>
+</div>
 
-    <!-- Links de navegação entre páginas -->
-    <ul class="nav-links">
-      <li><a href="../index.html">Início</a></li>
-      <li><a href="animais.html" class="active">Animais</a></li>
+<div class="busca-filtros">
+  <div class="busca-filtros-inner">
+    <div class="busca-wrap">
+      <span class="busca-icone">🔍</span>
+      <input type="text" class="input-busca" placeholder="Buscar por nome ou raça..." oninput="onBusca(this.value)" />
+    </div>
+    <div class="filtros" style="margin:0">
+      <button class="filtro-btn active grupo-especie" onclick="setFiltroEspecie('todos',this)">Todos</button>
+      <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('cao',this)">🐕 Cães</button>
+      <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('gato',this)">🐱 Gatos</button>
+    </div>
+    <div class="filtros" style="margin:0">
+      <button class="filtro-btn active grupo-porte" onclick="setFiltroPorte('todos',this)">Todos os portes</button>
+      <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('pequeno',this)">Pequeno</button>
+      <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('medio',this)">Médio</button>
+      <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('grande',this)">Grande</button>
+    </div>
+    <div class="filtros" style="margin:0">
+      <button class="filtro-btn active grupo-status" onclick="setFiltroStatus('disponivel',this)">Disponíveis</button>
+      <button class="filtro-btn grupo-status" onclick="setFiltroStatus('todos',this)">Todos</button>
+    </div>
+    <select class="select-ordem" onchange="onOrdem(this.value)">
+      <option value="nome">Ordenar por nome</option>
+      <option value="idade">Ordenar por idade</option>
+    </select>
+  </div>
+</div>
+
+<div class="section">
+  <div class="contador" id="contador">Carregando...</div>
+  <div class="animal-grid-full" id="animalGrid">
+    <div class="loading"><div class="spinner"></div><p>Buscando animais...</p></div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-foto" id="modalFoto">
+      <button class="modal-fechar" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-nome-row">
+        <div class="modal-nome" id="modalNome"></div>
+        <span class="animal-badge" id="modalBadge"></span>
+      </div>
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-acoes">
+        <button class="btn-cta" id="modalBtnAdotar">🧡 Quero adotar</button>
+        <button class="btn-sec" onclick="fecharModal()">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><span>🐾</span> Coração Animal</div>
+    <ul class="footer-links">
+      <li><a href="animais.html">Animais</a></li>
       <li><a href="adocao.html">Adoção</a></li>
       <li><a href="doacoes.html">Doações</a></li>
       <li><a href="voluntarios.html">Voluntários</a></li>
     </ul>
-
-    <!-- Botões da direita: tema e CTA -->
-    <div class="nav-actions">
-
-      <!--
-        Botão de alternar tema dark/light.
-        O onclick chama alternarTema() definido em tema.js.
-        Os spans são atualizados pelo JavaScript conforme o tema.
-      -->
-      <button class="btn-tema" id="btnTema" onclick="alternarTema()">
-        <span id="temaIcone">🌙</span>
-        <span id="temaTexto">Dark</span>
-      </button>
-
-      <!-- Botão de call-to-action para o formulário de adoção -->
-      <a href="adocao.html" class="btn-primary">Adote Agora</a>
-
-    </div>
-  </nav>
-
-  <!-- ─────────────────────────────────────────
-       HEADER DA PÁGINA
-       Título e descrição da seção de animais.
-  ───────────────────────────────────────── -->
-  <div class="page-header">
-    <div class="page-header-inner">
-      <h1>Animais para <span>adoção</span></h1>
-      <p>Conheça os animais disponíveis e encontre seu novo companheiro</p>
-    </div>
+    <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP</div>
   </div>
+</footer>
 
-  <!-- ─────────────────────────────────────────
-       BARRA DE BUSCA E FILTROS
-       Fica fixada abaixo da navbar (sticky) para
-       que o usuário possa filtrar enquanto navega.
-
-       Os filtros são processados pelo JavaScript
-       em galeria.js sem precisar recarregar a página.
-  ───────────────────────────────────────── -->
-  <div class="busca-filtros">
-    <div class="busca-filtros-inner">
-
-      <!--
-        Campo de busca por nome ou raça.
-        oninput chama onBusca() a cada tecla digitada.
-        A função usa debounce — espera 300ms antes de filtrar
-        para não filtrar a cada letra digitada.
-      -->
-      <div class="busca-wrap">
-        <span class="busca-icone">🔍</span>
-        <input
-          type="text"
-          class="input-busca"
-          placeholder="Buscar por nome ou raça..."
-          oninput="onBusca(this.value)"
-        />
-      </div>
-
-      <!--
-        Filtro por espécie: Todos / Cães / Gatos.
-        A classe "grupo-especie" é usada pelo JS para
-        remover o "active" apenas dos botões deste grupo.
-      -->
-      <div class="filtros-grupo grupo-especie">
-        <button class="filtro-btn active"
-          onclick="setFiltroEspecie('todos', this)">
-          Todos
-        </button>
-        <button class="filtro-btn"
-          onclick="setFiltroEspecie('cao', this)">
-          🐕 Cães
-        </button>
-        <button class="filtro-btn"
-          onclick="setFiltroEspecie('gato', this)">
-          🐱 Gatos
-        </button>
-      </div>
-
-      <!--
-        Filtro por porte: pequeno, médio ou grande.
-        Os valores correspondem exatamente ao campo
-        "porte" da tabela Animais no banco de dados.
-      -->
-      <div class="filtros-grupo grupo-porte">
-        <button class="filtro-btn active"
-          onclick="setFiltroPorte('todos', this)">
-          Todos os portes
-        </button>
-        <button class="filtro-btn"
-          onclick="setFiltroPorte('pequeno', this)">
-          Pequeno
-        </button>
-        <button class="filtro-btn"
-          onclick="setFiltroPorte('medio', this)">
-          Médio
-        </button>
-        <button class="filtro-btn"
-          onclick="setFiltroPorte('grande', this)">
-          Grande
-        </button>
-      </div>
-
-      <!--
-        Filtro por status de adoção.
-        Por padrão mostra apenas disponíveis.
-        Os valores correspondem ao campo "statusAdocao"
-        no banco de dados: disponivel, adotado, etc.
-      -->
-      <div class="filtros-grupo grupo-status">
-        <button class="filtro-btn active"
-          onclick="setFiltroStatus('disponivel', this)">
-          Disponíveis
-        </button>
-        <button class="filtro-btn"
-          onclick="setFiltroStatus('todos', this)">
-          Todos
-        </button>
-        <button class="filtro-btn"
-          onclick="setFiltroStatus('adotado', this)">
-          Adotados
-        </button>
-      </div>
-
-      <!--
-        Select de ordenação.
-        onchange chama onOrdem() que re-aplica todos os filtros
-        com a nova ordenação. Os valores são: nome ou idade.
-      -->
-      <select class="select-ordem" onchange="onOrdem(this.value)">
-        <option value="nome">Ordenar por nome</option>
-        <option value="idade">Ordenar por idade</option>
-      </select>
-
-    </div>
-  </div>
-
-  <!-- ─────────────────────────────────────────
-       GRID DE ANIMAIS
-       Esta seção é preenchida dinamicamente pelo
-       JavaScript (galeria.js) ao carregar a página.
-
-       O contador mostra quantos animais foram
-       encontrados com os filtros ativos.
-
-       O grid começa com o estado de "loading" que
-       é substituído pelos cards quando a API responde.
-  ───────────────────────────────────────── -->
-  <div class="section">
-
-    <!-- Contador atualizado pelo JS a cada filtro -->
-    <div class="contador" id="contador">Carregando...</div>
-
-    <!--
-      Grid principal dos cards de animais.
-      O conteúdo é gerado pelo JS em galeria.js
-      na função renderizarGrid().
-      Começa com o spinner de loading.
-    -->
-    <div class="animal-grid-full" id="animalGrid">
-      <div class="loading" style="grid-column: 1 / -1">
-        <div class="spinner"></div>
-        <p>Buscando animais...</p>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ─────────────────────────────────────────
-       MODAL DE DETALHES DO ANIMAL
-       Aparece quando o usuário clica em um card.
-       O overlay escurece o fundo e o clique fora
-       do modal o fecha (onclick no overlay).
-
-       O conteúdo do modal é preenchido pelo JS
-       na função abrirModal() em galeria.js.
-  ───────────────────────────────────────── -->
-  <div class="modal-overlay" id="modalOverlay" onclick="fecharModal()">
-
-    <!--
-      event.stopPropagation() impede que o clique
-      dentro do modal feche o modal (evita propagar
-      o evento para o overlay que fecha).
-    -->
-    <div class="modal" onclick="event.stopPropagation()">
-
-      <!-- Foto do animal — preenchida pelo JS -->
-      <div class="modal-foto" id="modalFoto">
-        <!-- Botão X para fechar o modal -->
-        <button class="modal-fechar" onclick="fecharModal()">✕</button>
-      </div>
-
-      <!-- Corpo do modal com os dados do animal -->
-      <div class="modal-body">
-
-        <!-- Nome do animal — preenchido pelo JS -->
-        <div class="modal-nome" id="modalNome"></div>
-
-        <!-- Raça, idade e porte — preenchidos pelo JS -->
-        <div class="modal-meta" id="modalMeta"></div>
-
-        <!-- Tags de espécie, porte e status — preenchidas pelo JS -->
-        <div class="modal-tags" id="modalTags"></div>
-
-        <!-- Descrição do animal — preenchida pelo JS -->
-        <div class="modal-desc" id="modalDesc"></div>
-
-        <!-- Botões de ação do modal -->
-        <div class="modal-acoes">
-
-          <!--
-            Botão de adotar — habilitado apenas se o animal
-            estiver disponível. O onclick é definido pelo JS
-            em abrirModal() pois depende do animal selecionado.
-          -->
-          <button class="btn-primary" id="modalBtnAdotar">
-            Quero adotar
-          </button>
-
-          <!-- Botão para fechar o modal sem fazer nada -->
-          <button class="btn-outline" onclick="fecharModal()">
-            Fechar
-          </button>
-
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─────────────────────────────────────────
-       FOOTER — Rodapé do site
-       Aparece em todas as páginas.
-       Contém logo, links de navegação e copyright.
-  ───────────────────────────────────────── -->
-  <footer>
-    <div class="footer-inner">
-
-      <!-- Logo com link para a home -->
-      <a href="../index.html" class="footer-logo">
-        <span>🐾</span> Coração Animal
-      </a>
-
-      <!-- Links de navegação rápida -->
-      <ul class="footer-links">
-        <li><a href="animais.html">Animais</a></li>
-        <li><a href="adocao.html">Adoção</a></li>
-        <li><a href="doacoes.html">Doações</a></li>
-        <li><a href="voluntarios.html">Voluntários</a></li>
-      </ul>
-
-      <!-- Copyright -->
-      <div class="footer-copy">
-        © 2025 Coração Animal · PIM III — UNIP
-      </div>
-
-    </div>
-  </footer>
-
-  <!-- ─────────────────────────────────────────
-       SCRIPTS JAVASCRIPT
-       Carregados no final do body para garantir
-       que o HTML já está pronto antes de executar.
-
-       tema.js   — carregado primeiro pois aplica
-                   o tema salvo e evita flash de
-                   tema errado ao carregar a página.
-
-       galeria.js — carregado depois pois depende
-                    do HTML já estar renderizado
-                    para encontrar os elementos.
-  ───────────────────────────────────────── -->
-  <script src="../js/tema.js"></script>
-  <script src="../js/galeria.js"></script>
-
+<script src="../js/tema.js"></script>
+<script src="../js/galeria.js"></script>
 </body>
 </html>

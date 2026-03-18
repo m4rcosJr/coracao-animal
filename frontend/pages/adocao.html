@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adoção — Coração Animal</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/adocao.css" />
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="nav-logo"><div class="nav-logo-icon">🐾</div> Coração Animal</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Sobre</a></li>
+    <li><a href="animais.html">Adote</a></li>
+    <li><a href="voluntarios.html">Como Ajudar</a></li>
+    <li><a href="doacoes.html">Contato</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-tema" id="btnTema" onclick="alternarTema()"><span id="temaIcone">🌙</span></button>
+    <a href="adocao.html" class="btn-cta">🧡 Adote Agora</a>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="section-label">Processo de adoção</div>
+    <h1>Formulário de <em>adoção</em></h1>
+    <p>Preencha abaixo para iniciar o processo. Nossa equipe entrará em contato em até 48 horas.</p>
+  </div>
+</div>
+
+<div class="steps-wrap" id="stepsWrap">
+  <div class="steps">
+    <div class="step-item ativo" id="step-1"><div class="step-num">1</div><div class="step-label">Escolha o animal</div></div>
+    <div class="step-linha" id="linha-1"></div>
+    <div class="step-item" id="step-2"><div class="step-num">2</div><div class="step-label">Seus dados</div></div>
+    <div class="step-linha" id="linha-2"></div>
+    <div class="step-item" id="step-3"><div class="step-num">3</div><div class="step-label">Confirmar</div></div>
+  </div>
+</div>
+
+<div id="formWrap">
+  <div class="form-container">
+
+    <div class="form-panel ativo" id="panel-1">
+      <div class="form-titulo">Escolha o animal</div>
+      <div class="form-subtitulo">Selecione o animal que deseja adotar</div>
+      <div class="animal-selecao-grid" id="selecaoAnimais">
+        <div class="loading" style="grid-column:1/-1"><div class="spinner"></div><p>Carregando animais disponíveis...</p></div>
+      </div>
+      <div class="form-acoes"><button class="btn-cta" style="border-radius:10px;padding:12px 24px;border:none;font-size:14px;cursor:pointer" onclick="proximoStep()">Próximo →</button></div>
+    </div>
+
+    <div class="form-panel" id="panel-2">
+      <div class="form-titulo">Seus dados</div>
+      <div class="form-subtitulo">Preencha seus dados pessoais</div>
+      <div class="form-row">
+        <div class="form-grupo"><label>Nome completo <span>*</span></label><input type="text" id="nomeCompleto" placeholder="Ex: João da Silva" /><div class="erro-msg" id="erro-nomeCompleto"></div></div>
+        <div class="form-grupo"><label>CPF <span>*</span></label><input type="text" id="cpf" placeholder="000.000.000-00" oninput="mascaraCpf(this)" maxlength="14" /><div class="erro-msg" id="erro-cpf"></div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-grupo"><label>E-mail <span>*</span></label><input type="email" id="email" placeholder="seu@email.com" /><div class="erro-msg" id="erro-email"></div></div>
+        <div class="form-grupo"><label>Telefone <span>*</span></label><input type="text" id="telefone" placeholder="(11) 99999-9999" oninput="mascaraTelefone(this)" maxlength="15" /><div class="erro-msg" id="erro-telefone"></div></div>
+      </div>
+      <div class="form-grupo"><label>Endereço completo <span>*</span></label><input type="text" id="endereco" placeholder="Rua, número, bairro, cidade — UF" /><div class="erro-msg" id="erro-endereco"></div></div>
+      <div class="form-grupo"><label>Observações</label><textarea id="observacoes" placeholder="Conte sobre você, sua casa e experiência com animais..."></textarea></div>
+      <label class="checkbox-grupo"><input type="checkbox" id="termos" /><span class="checkbox-label">Li e concordo com os termos de adoção responsável da ONG Coração Animal.</span></label>
+      <div class="form-acoes">
+        <button class="btn-sec" style="border-radius:10px;padding:12px 20px;font-size:14px;cursor:pointer" onclick="stepAnterior()">← Voltar</button>
+        <button class="btn-cta" style="border-radius:10px;padding:12px 24px;border:none;font-size:14px;cursor:pointer;flex:1" onclick="proximoStep()">Próximo →</button>
+      </div>
+    </div>
+
+    <div class="form-panel" id="panel-3">
+      <div class="form-titulo">Confirmar adoção</div>
+      <div class="form-subtitulo">Revise antes de confirmar</div>
+      <div class="resumo-card"><div class="resumo-titulo">Animal escolhido</div><div id="resumo-animal"></div></div>
+      <div class="resumo-card"><div class="resumo-titulo">Seus dados</div><div id="resumo-adotante"></div></div>
+      <div class="form-acoes">
+        <button class="btn-sec" style="border-radius:10px;padding:12px 20px;font-size:14px;cursor:pointer" onclick="stepAnterior()">← Voltar</button>
+        <button class="btn-cta" style="border-radius:10px;padding:12px 24px;border:none;font-size:14px;cursor:pointer;flex:1" id="btnEnviar" onclick="enviarAdocao()">Confirmar adoção ✓</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="form-container">
+  <div class="sucesso-wrap" id="sucessoWrap">
+    <div class="sucesso-icone">🎉</div>
+    <div class="sucesso-titulo">Solicitação enviada!</div>
+    <div class="sucesso-desc">Sua solicitação foi registrada. Nossa equipe entrará em contato em até 48 horas.</div>
+    <div class="sucesso-acoes">
+      <a href="animais.html" class="btn-sec" style="border-radius:50px;padding:12px 24px;font-size:14px">Ver mais animais</a>
+      <a href="../index.html" class="btn-cta" style="border-radius:50px;padding:12px 24px;font-size:14px">Voltar ao início</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><span>🐾</span> Coração Animal</div>
+    <ul class="footer-links">
+      <li><a href="animais.html">Animais</a></li>
+      <li><a href="adocao.html">Adoção</a></li>
+      <li><a href="doacoes.html">Doações</a></li>
+      <li><a href="voluntarios.html">Voluntários</a></li>
+    </ul>
+    <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP</div>
+  </div>
+</footer>
+
+<script src="../js/tema.js"></script>
+<script src="../js/adocao.js"></script>
+</body>
+</html>

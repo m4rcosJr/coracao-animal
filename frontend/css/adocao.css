@@ -1,0 +1,38 @@
+/* adocao.css */
+.steps-wrap { background: var(--bg-muted); border-bottom: 1px solid var(--border); padding: 1.5rem 2.5rem; transition: var(--transition); }
+.steps { max-width: 640px; margin: 0 auto; display: flex; align-items: center; }
+.step-item { display: flex; align-items: center; gap: 8px; flex: 1; }
+.step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; border: 2px solid var(--border); color: var(--text-muted); background: var(--bg-card); flex-shrink: 0; transition: var(--transition); font-family: 'DM Sans', sans-serif; }
+.step-label { font-size: 13px; color: var(--text-muted); transition: var(--transition); font-family: 'DM Sans', sans-serif; }
+.step-linha { flex: 1; height: 2px; background: var(--border); margin: 0 8px; transition: var(--transition); }
+.step-item.ativo .step-num { background: var(--laranja); border-color: var(--laranja); color: white; }
+.step-item.ativo .step-label { color: var(--text); font-weight: 500; }
+.step-item.concluido .step-num { background: var(--verde); border-color: var(--verde); color: white; }
+.step-linha.concluida { background: var(--verde); }
+
+.form-container { max-width: 680px; margin: 0 auto; padding: 2.5rem 2rem; }
+.form-panel { display: none; }
+.form-panel.ativo { display: block; }
+
+.animal-selecao-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+.animal-opcao { background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--radius); padding: 1rem; text-align: center; cursor: pointer; transition: var(--transition); }
+.animal-opcao:hover { border-color: var(--laranja); }
+.animal-opcao.selecionado { border-color: var(--laranja); background: rgba(224,92,42,0.05); }
+.animal-opcao-emoji { font-size: 32px; margin-bottom: 8px; }
+.animal-opcao-nome { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; color: var(--text); }
+.animal-opcao-info { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-family: 'DM Sans', sans-serif; }
+
+.resumo-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+.resumo-titulo { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; font-family: 'DM Sans', sans-serif; }
+.resumo-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; font-family: 'DM Sans', sans-serif; }
+.resumo-item:last-child { border-bottom: none; }
+.resumo-item-label { color: var(--text-sec); }
+.resumo-item-valor { color: var(--text); font-weight: 500; }
+
+.form-acoes { display: flex; gap: 12px; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+
+@media (max-width: 768px) {
+  .steps-wrap { padding: 1rem; }
+  .step-label { display: none; }
+  .form-container { padding: 1.5rem 1rem; }
+}
