@@ -33,29 +33,45 @@
 
 <div class="busca-filtros">
   <div class="busca-filtros-inner">
-    <div class="busca-wrap">
-      <span class="busca-icone">🔍</span>
-      <input type="text" class="input-busca" placeholder="Buscar por nome ou raça..." oninput="onBusca(this.value)" />
+
+    <!-- Linha superior: busca + ordenar -->
+    <div class="busca-linha">
+      <div class="busca-wrap">
+        <span class="busca-icone">🔍</span>
+        <input
+          type="text"
+          class="input-busca"
+          placeholder="Buscar por nome ou raça..."
+          oninput="onBusca(this.value)"
+        />
+      </div>
+      <select class="select-ordem" onchange="onOrdem(this.value)">
+        <option value="nome">Ordenar por nome</option>
+        <option value="idade">Ordenar por idade</option>
+      </select>
     </div>
-    <div class="filtros" style="margin:0">
-      <button class="filtro-btn active grupo-especie" onclick="setFiltroEspecie('todos',this)">Todos</button>
-      <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('cao',this)">🐕 Cães</button>
-      <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('gato',this)">🐱 Gatos</button>
+
+    <!-- Linha inferior: filtros agrupados -->
+    <div class="filtros-linha">
+      <div class="filtros">
+        <button class="filtro-btn active grupo-especie" onclick="setFiltroEspecie('todos',this)">Todos</button>
+        <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('cao',this)">🐕 Cães</button>
+        <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('gato',this)">🐱 Gatos</button>
+      </div>
+      <div class="filtro-sep"></div>
+      <div class="filtros">
+        <button class="filtro-btn active grupo-porte" onclick="setFiltroPorte('todos',this)">Todos os portes</button>
+        <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('pequeno',this)">Pequeno</button>
+        <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('medio',this)">Médio</button>
+        <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('grande',this)">Grande</button>
+      </div>
+      <div class="filtro-sep"></div>
+      <div class="filtros">
+        <button class="filtro-btn active grupo-status" onclick="setFiltroStatus('disponivel',this)">Disponíveis</button>
+        <button class="filtro-btn grupo-status" onclick="setFiltroStatus('todos',this)">Todos</button>
+      </div>
     </div>
-    <div class="filtros" style="margin:0">
-      <button class="filtro-btn active grupo-porte" onclick="setFiltroPorte('todos',this)">Todos os portes</button>
-      <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('pequeno',this)">Pequeno</button>
-      <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('medio',this)">Médio</button>
-      <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('grande',this)">Grande</button>
-    </div>
-    <div class="filtros" style="margin:0">
-      <button class="filtro-btn active grupo-status" onclick="setFiltroStatus('disponivel',this)">Disponíveis</button>
-      <button class="filtro-btn grupo-status" onclick="setFiltroStatus('todos',this)">Todos</button>
-    </div>
-    <select class="select-ordem" onchange="onOrdem(this.value)">
-      <option value="nome">Ordenar por nome</option>
-      <option value="idade">Ordenar por idade</option>
-    </select>
+
   </div>
 </div>
 
