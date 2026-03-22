@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,8 +9,12 @@
 </head>
 <body>
 
+<!-- ── NAVBAR ──────────────────────────── -->
 <nav>
-  <a href="../index.html" class="nav-logo"><div class="nav-logo-icon">🐾</div> Coração Animal</a>
+  <a href="../index.html" class="nav-logo">
+    <div class="nav-logo-icon">🐾</div>
+    Coração Animal
+  </a>
   <ul class="nav-links">
     <li><a href="../index.html">Sobre</a></li>
     <li><a href="animais.html" class="active">Adote</a></li>
@@ -18,11 +22,14 @@
     <li><a href="doacoes.html">Contato</a></li>
   </ul>
   <div class="nav-actions">
-    <button class="btn-tema" id="btnTema" onclick="alternarTema()"><span id="temaIcone">🌙</span></button>
+    <button class="btn-tema" id="btnTema" onclick="alternarTema()">
+      <span id="temaIcone">🌙</span>
+    </button>
     <a href="adocao.html" class="btn-cta">🧡 Adote Agora</a>
   </div>
 </nav>
 
+<!-- ── HEADER ──────────────────────────── -->
 <div class="page-header">
   <div class="page-header-inner">
     <div class="section-label">Adoção responsável</div>
@@ -31,10 +38,11 @@
   </div>
 </div>
 
+<!-- ── BARRA DE BUSCA E FILTROS ─────────── -->
 <div class="busca-filtros">
   <div class="busca-filtros-inner">
 
-    <!-- Linha superior: busca + ordenar -->
+    <!-- Linha 1: campo de busca + ordenacao -->
     <div class="busca-linha">
       <div class="busca-wrap">
         <span class="busca-icone">🔍</span>
@@ -51,38 +59,46 @@
       </select>
     </div>
 
-    <!-- Linha inferior: filtros agrupados -->
+    <!-- Linha 2: filtro por especie -->
     <div class="filtros-linha">
-      <div class="filtros">
-        <button class="filtro-btn active grupo-especie" onclick="setFiltroEspecie('todos',this)">Todos</button>
-        <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('cao',this)">🐕 Cães</button>
-        <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('gato',this)">🐱 Gatos</button>
-      </div>
-      <div class="filtro-sep"></div>
-      <div class="filtros">
-        <button class="filtro-btn active grupo-porte" onclick="setFiltroPorte('todos',this)">Todos os portes</button>
-        <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('pequeno',this)">Pequeno</button>
-        <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('medio',this)">Médio</button>
-        <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('grande',this)">Grande</button>
-      </div>
-      <div class="filtro-sep"></div>
-      <div class="filtros">
-        <button class="filtro-btn active grupo-status" onclick="setFiltroStatus('disponivel',this)">Disponíveis</button>
-        <button class="filtro-btn grupo-status" onclick="setFiltroStatus('todos',this)">Todos</button>
-      </div>
+      <span class="filtros-label">Espécie</span>
+      <button class="filtro-btn active grupo-especie" onclick="setFiltroEspecie('todos',this)">Todos</button>
+      <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('cao',this)">🐕 Cães</button>
+      <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('gato',this)">🐱 Gatos</button>
+    </div>
+
+    <!-- Linha 3: filtro por porte -->
+    <div class="filtros-linha">
+      <span class="filtros-label">Porte</span>
+      <button class="filtro-btn active grupo-porte" onclick="setFiltroPorte('todos',this)">Todos</button>
+      <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('pequeno',this)">Pequeno</button>
+      <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('medio',this)">Médio</button>
+      <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('grande',this)">Grande</button>
+    </div>
+
+    <!-- Linha 4: filtro por status -->
+    <div class="filtros-linha">
+      <span class="filtros-label">Status</span>
+      <button class="filtro-btn active grupo-status" onclick="setFiltroStatus('disponivel',this)">Disponíveis</button>
+      <button class="filtro-btn grupo-status" onclick="setFiltroStatus('todos',this)">Todos</button>
+      <button class="filtro-btn grupo-status" onclick="setFiltroStatus('adotado',this)">Adotados</button>
     </div>
 
   </div>
 </div>
 
+<!-- ── GRID DE ANIMAIS ──────────────────── -->
 <div class="section">
   <div class="contador" id="contador">Carregando...</div>
   <div class="animal-grid-full" id="animalGrid">
-    <div class="loading"><div class="spinner"></div><p>Buscando animais...</p></div>
+    <div class="loading" style="grid-column:1/-1">
+      <div class="spinner"></div>
+      <p>Buscando animais...</p>
+    </div>
   </div>
 </div>
 
-<!-- Modal -->
+<!-- ── MODAL DE DETALHES ────────────────── -->
 <div class="modal-overlay" id="modalOverlay" onclick="fecharModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-foto" id="modalFoto">
@@ -103,6 +119,7 @@
   </div>
 </div>
 
+<!-- ── FOOTER ───────────────────────────── -->
 <footer>
   <div class="footer-inner">
     <div class="footer-logo"><span>🐾</span> Coração Animal</div>
@@ -118,5 +135,6 @@
 
 <script src="../js/tema.js"></script>
 <script src="../js/galeria.js"></script>
+
 </body>
 </html>
