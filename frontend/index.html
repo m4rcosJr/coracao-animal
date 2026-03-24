@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +9,7 @@
 </head>
 <body>
 
+<!-- ── NAVBAR ──────────────────────────── -->
 <nav>
   <a href="index.html" class="nav-logo">
     <div class="nav-logo-icon">🐾</div>
@@ -24,11 +25,24 @@
     <button class="btn-tema" id="btnTema" onclick="alternarTema()">
       <span id="temaIcone">🌙</span>
     </button>
+    <button class="nav-hamburguer" id="navHamburguer" onclick="toggleMenu()" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
     <a href="pages/doacoes.html" class="btn-cta">🧡 Doar</a>
   </div>
 </nav>
 
-<!-- HERO -->
+<!-- Menu mobile dropdown -->
+<div class="nav-mobile" id="navMobile">
+  <a href="index.html" class="active">Sobre</a>
+  <a href="pages/animais.html">Adote</a>
+  <a href="pages/voluntarios.html">Como Ajudar</a>
+  <div class="nav-mobile-divider"></div>
+  <a href="pages/doacoes.html">Contato</a>
+  <a href="pages/doacoes.html" style="color:var(--laranja);font-weight:600">🧡 Fazer uma doação</a>
+</div>
+
+<!-- ── HERO ────────────────────────────── -->
 <section class="hero-section">
   <div class="hero">
     <div class="hero-content">
@@ -66,7 +80,7 @@
   </div>
 </section>
 
-<!-- MISSAO -->
+<!-- ── MISSAO ───────────────────────────── -->
 <section class="missao">
   <div class="missao-inner">
     <div class="section-label">Nossa Missão</div>
@@ -92,7 +106,7 @@
   </div>
 </section>
 
-<!-- ANIMAIS -->
+<!-- ── ANIMAIS ──────────────────────────── -->
 <div class="section">
   <div class="section-header">
     <div>
@@ -111,7 +125,7 @@
   </div>
 </div>
 
-<!-- BANNER -->
+<!-- ── BANNER ────────────────────────────── -->
 <section class="banner">
   <div class="banner-inner">
     <h2>Ajude a Coração Animal 💛</h2>
@@ -120,6 +134,7 @@
   </div>
 </section>
 
+<!-- ── FOOTER ───────────────────────────── -->
 <footer>
   <div class="footer-inner">
     <div class="footer-logo"><span>🐾</span> Coração Animal</div>
@@ -135,5 +150,22 @@
 
 <script src="js/tema.js"></script>
 <script src="js/animais.js"></script>
+<script>
+  // Abre e fecha o menu mobile
+  function toggleMenu() {
+    const menu = document.getElementById('navMobile');
+    const btn  = document.getElementById('navHamburguer');
+    menu.classList.toggle('aberto');
+    btn.classList.toggle('aberto');
+  }
+
+  // Fecha o menu ao clicar em qualquer link dele
+  document.querySelectorAll('.nav-mobile a').forEach(link => {
+    link.addEventListener('click', () => {
+      document.getElementById('navMobile').classList.remove('aberto');
+      document.getElementById('navHamburguer').classList.remove('aberto');
+    });
+  });
+</script>
 </body>
 </html>
