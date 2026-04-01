@@ -1,170 +1,76 @@
-// ============================================================
-// auth.js — Módulo de Autenticação Coração Animal
-// Login fictício: dados simulados, sem backend real
-// ============================================================
+/*
+ * auth.js — Sistema de autenticacao do frontend
+ *
+ * Gerencia login/logout e protecao de acoes que exigem autenticacao.
+ *
+ * Como funciona:
+ * 1. Qualquer botao de acao (adotar, doar, voluntario) chama exigirLogin()
+ * 2. Se o usuario nao estiver logado, salva a pagina de destino e redireciona para login
+ * 3. Apos o login, redireciona automaticamente para onde o usuario queria ir
+ * 4. O admin tem protecao separada — so admin pode acessar
+ */
 
-const Auth = {
-  TOKEN_KEY: 'ca_token',
-  USER_KEY:  'ca_user',
+// Chave do sessionStorage para usuario comum (adotante)
+const CHAVE_USER  = 'coracao_user_auth';
 
-  // ── Usuários fictícios ──────────────────────────────────
-  FAKE_USERS: [
-    {
-      id: 1,
-      nome: 'Admin Coração Animal',
-      email: 'admin@coracaoanimal.org',
-      senha: 'admin123',
-      role: 'admin',
-      avatar: 'A'
-    },
-    {
-      id: 2,
-      nome: 'Maria Silva',
-      email: 'maria@email.com',
-      senha: '123456',
-      role: 'usuario',
-      avatar: 'M'
-    },
-    {
-      id: 3,
-      nome: 'João Santos',
-      email: 'joao@email.com',
-      senha: '123456',
-      role: 'usuario',
-      avatar: 'J'
-    }
-  ],
+// Chave do sessionStorage para admin
+const CHAVE_ADMIN = 'coracao_admin_auth';
 
-  // ── Gerenciamento de sessão ─────────────────────────────
-  setSession(user) {
-    // Gera token fictício
-    const token = btoa(JSON.stringify({ id: user.id, role: user.role, ts: Date.now() }));
-    const userData = { id: user.id, nome: user.nome, email: user.email, role: user.role, avatar: user.avatar };
-    localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
-  },
+// Chave para salvar o destino apos login
+const CHAVE_REDIRECT = 'coracao_redirect';
 
-  clearSession() {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
-  },
+/* ── Verifica se usuario esta logado ─────*/
+function estaLogado() {
+  return sessionStorage.getItem(CHAVE_USER) === 'true'
+      || sessionStorage.getItem(CHAVE_ADMIN) === 'true';
+}
 
-  getUser() {
-    const u = localStorage.getItem(this.USER_KEY);
-    return u ? JSON.parse(u) : null;
-  },
+/* ── Verifica se e admin ─────────────────*/
+function eAdmin() {
+  return sessionStorage.getItem(CHAVE_ADMIN) === 'true';
+}
 
-  getToken() {
-    return localStorage.getItem(this.TOKEN_KEY);
-  },
+/*
+ * Exige login antes de executar uma acao.
+ * Se nao estiver logado, salva o destino e vai para o login.
+ *
+ * @param {string} destino - URL para redirecionar apos login
+ *                           ex: 'adocao.html', 'doacoes.html'
+ */
+function exigirLogin(destino) {
+  if (estaLogado()) {
+    // Ja esta logado — vai direto para o destino
+    window.location.href = destino;
+  } else {
+    // Salva o destino para redirecionar apos o login
+    sessionStorage.setItem(CHAVE_REDIRECT, destino);
 
-  isLoggedIn() {
-    return !!this.getToken();
-  },
+    // Descobre o prefixo do caminho (raiz ou pages/)
+    const estaEmPages = window.location.pathname.includes('/pages/');
+    const caminhoLogin = estaEmPages ? 'login.html' : 'pages/login.html';
 
-  isAdmin() {
-    const user = this.getUser();
-    return user?.role === 'admin';
-  },
-
-  // ── Login fictício ──────────────────────────────────────
-  login(email, senha) {
-    const user = this.FAKE_USERS.find(
-      u => u.email.toLowerCase() === email.toLowerCase() && u.senha === senha
-    );
-    if (user) {
-      this.setSession(user);
-      return { success: true, user };
-    }
-    return { success: false, message: 'E-mail ou senha incorretos.' };
-  },
-
-  // ── Cadastro fictício ───────────────────────────────────
-  register(nome, email, senha) {
-    const existe = this.FAKE_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (existe) {
-      return { success: false, message: 'Este e-mail já está cadastrado.' };
-    }
-    const newUser = {
-      id: this.FAKE_USERS.length + 1,
-      nome,
-      email,
-      senha,
-      role: 'usuario',
-      avatar: nome.charAt(0).toUpperCase()
-    };
-    this.FAKE_USERS.push(newUser);
-    this.setSession(newUser);
-    return { success: true, user: newUser };
-  },
-
-  logout() {
-    this.clearSession();
-    window.location.href = this._getBasePath() + 'index.html';
-  },
-
-  // ── Guards de rota ──────────────────────────────────────
-  requireLogin(redirectAfter = null) {
-    if (!this.isLoggedIn()) {
-      if (redirectAfter) {
-        sessionStorage.setItem('ca_redirect', redirectAfter);
-      }
-      window.location.href = this._getBasePath() + 'pages/login.html';
-      return false;
-    }
-    return true;
-  },
-
-  requireAdmin() {
-    if (!this.isLoggedIn() || !this.isAdmin()) {
-      sessionStorage.setItem('ca_redirect', window.location.href);
-      window.location.href = this._getBasePath() + 'pages/login.html';
-      return false;
-    }
-    return true;
-  },
-
-  redirectAfterLogin() {
-    const dest = sessionStorage.getItem('ca_redirect');
-    sessionStorage.removeItem('ca_redirect');
-    if (dest) {
-      window.location.href = dest;
-    } else {
-      const user = this.getUser();
-      window.location.href = this._getBasePath() + (user?.role === 'admin' ? 'pages/admin.html' : 'index.html');
-    }
-  },
-
-  // ── Helpers ─────────────────────────────────────────────
-  _getBasePath() {
-    const path = window.location.pathname;
-    if (path.includes('/pages/')) return '../';
-    return '';
-  },
-
-  // ── Renderiza navbar dinâmica ───────────────────────────
-  // Chame Auth.renderNavbar('nav-auth-slot') nos HTMLs existentes
-  renderNavbar(slotId) {
-    const slot = document.getElementById(slotId);
-    if (!slot) return;
-
-    if (this.isLoggedIn()) {
-      const user = this.getUser();
-      slot.innerHTML = `
-        <div class="nav-user">
-          <div class="nav-avatar" title="${user.nome}">${user.avatar}</div>
-          <span class="nav-user-name">${user.nome.split(' ')[0]}</span>
-          ${user.role === 'admin' ? '<a href="../pages/admin.html" class="nav-admin-badge">Admin</a>' : ''}
-          <button onclick="Auth.logout()" class="btn-logout">Sair</button>
-        </div>
-      `;
-    } else {
-      slot.innerHTML = `
-        <a href="${this._getBasePath()}pages/login.html" class="btn-login-nav">Entrar / Cadastrar</a>
-      `;
-    }
+    window.location.href = caminhoLogin;
   }
-};
+}
 
-// Expõe globalmente
-window.Auth = Auth;
+/*
+ * Protege a pagina do admin.
+ * Chame no topo do admin.html — redireciona se nao for admin.
+ */
+function protegerAdmin() {
+  if (!eAdmin()) {
+    window.location.replace('login.html');
+  }
+}
+
+/*
+ * Realiza o logout do usuario comum ou admin.
+ */
+function fazerLogout() {
+  sessionStorage.removeItem(CHAVE_USER);
+  sessionStorage.removeItem(CHAVE_ADMIN);
+  sessionStorage.removeItem(CHAVE_REDIRECT);
+
+  const estaEmPages = window.location.pathname.includes('/pages/');
+  window.location.href = estaEmPages ? '../index.html' : 'index.html';
+}

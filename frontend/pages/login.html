@@ -1,380 +1,447 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Entrar — Coração Animal</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="../css/login.css" />
+  <title>Login — Coração Animal</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      padding: 1rem;
+    }
+
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeUp .5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .login-logo-icon {
+      width: 48px; height: 48px;
+      background: var(--laranja);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+
+    .login-logo-texto {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px; font-weight: 700;
+      color: var(--text);
+    }
+
+    .login-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px; font-weight: 700;
+      color: var(--text);
+      text-align: center; margin-bottom: 6px;
+    }
+
+    .login-subtitulo {
+      font-size: 14px; color: var(--text-sec);
+      text-align: center; margin-bottom: 2rem;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* Abas: Usuario / Admin */
+    .login-abas {
+      display: flex;
+      background: var(--bg-muted);
+      border-radius: 50px;
+      padding: 4px;
+      margin-bottom: 1.5rem;
+      gap: 4px;
+    }
+
+    .login-aba {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-sec);
+      transition: var(--transition);
+    }
+
+    .login-aba.ativa {
+      background: var(--bg-card);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .login-grupo { margin-bottom: 1rem; }
+
+    .login-grupo label {
+      display: block;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-sec);
+      margin-bottom: 6px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .login-input-wrap { position: relative; }
+
+    .login-input-icone {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px; pointer-events: none;
+    }
+
+    .login-grupo input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 42px;
+      font-size: 14px; color: var(--text);
+      outline: none; transition: var(--transition);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .login-grupo input::placeholder { color: var(--text-muted); }
+
+    .login-grupo input:focus {
+      border-color: var(--laranja);
+      box-shadow: 0 0 0 3px rgba(224,92,42,0.12);
+    }
+
+    .login-grupo input.invalido {
+      border-color: #e53935;
+      box-shadow: 0 0 0 3px rgba(229,57,53,0.1);
+    }
+
+    .btn-olho {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      cursor: pointer; font-size: 15px;
+      color: var(--text-muted); padding: 4px;
+      transition: var(--transition);
+    }
+
+    .btn-olho:hover { color: var(--text); }
+
+    .login-erro {
+      display: none;
+      background: rgba(229,57,53,0.08);
+      border: 1px solid rgba(229,57,53,0.25);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px; color: #e53935;
+      margin-bottom: 1rem; text-align: center;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .login-erro.visivel { display: block; }
+
+    .btn-entrar {
+      width: 100%;
+      background: var(--laranja); color: white;
+      border: none; border-radius: 50px;
+      padding: 13px; font-size: 15px; font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer; transition: var(--transition);
+      margin-top: 0.5rem;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+
+    .btn-entrar:hover { background: var(--laranja-hover); transform: translateY(-1px); }
+    .btn-entrar:disabled { background: var(--bg-muted); color: var(--text-muted); cursor: not-allowed; transform: none; }
+
+    .btn-spinner {
+      display: none; width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Info de credenciais */
+    .login-info {
+      margin-top: 1.5rem;
+      padding: 12px 16px;
+      background: var(--bg-muted);
+      border-radius: 10px;
+      font-size: 12px; color: var(--text-muted);
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      line-height: 1.7;
+    }
+
+    .login-info strong { color: var(--text-sec); }
+
+    /* Cadastro */
+    .login-cadastro {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .login-cadastro a {
+      color: var(--laranja);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-cadastro a:hover { text-decoration: underline; }
+
+    .login-voltar {
+      display: flex; align-items: center;
+      justify-content: center; gap: 6px;
+      margin-top: 1.5rem;
+      font-size: 13px; color: var(--text-muted);
+      text-decoration: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: var(--transition);
+    }
+
+    .login-voltar:hover { color: var(--laranja); }
+
+    .login-tema {
+      position: fixed; top: 1rem; right: 1rem;
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-muted); color: var(--text-sec);
+      font-size: 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition);
+    }
+
+    .login-tema:hover { color: var(--text); }
+  </style>
 </head>
 <body>
 
-<div class="page">
+  <button class="login-tema" onclick="alternarTema()">
+    <span id="temaIcone">🌙</span>
+  </button>
 
-  <!-- ── Lado esquerdo ──────────────────────────────── -->
-  <aside class="aside">
-    <a href="../index.html" class="aside-logo">
-      <span class="logo-heart">🐾</span>
-      <span>Coração Animal</span>
-    </a>
+  <div class="login-card">
 
-    <!-- Credenciais de demo -->
-    <div class="demo-tags">
-      <div class="demo-tag">
-        <strong>🔑 Admin (demo)</strong>
-        admin@coracaoanimal.org<br>
-        senha: admin123
-      </div>
-      <div class="demo-tag">
-        <strong>👤 Usuário (demo)</strong>
-        maria@email.com<br>
-        senha: 123456
+    <div class="login-logo">
+      <div class="login-logo-icon">🐾</div>
+      <div class="login-logo-texto">Coração Animal</div>
+    </div>
+
+    <div class="login-titulo">Bem-vindo de volta</div>
+    <div class="login-subtitulo">Faça login para continuar</div>
+
+    <!-- Abas usuario / admin -->
+    <div class="login-abas">
+      <button class="login-aba ativa" id="abaUsuario" onclick="trocarAba('usuario')">
+        👤 Usuário
+      </button>
+      <button class="login-aba" id="abaAdmin" onclick="trocarAba('admin')">
+        ⚙ Administrador
+      </button>
+    </div>
+
+    <!-- Erro -->
+    <div class="login-erro" id="loginErro">❌ Usuário ou senha incorretos</div>
+
+    <!-- Usuario -->
+    <div class="login-grupo">
+      <label>Usuário</label>
+      <div class="login-input-wrap">
+        <span class="login-input-icone">👤</span>
+        <input type="text" id="inputUsuario" placeholder="Digite seu usuário"
+          onkeydown="if(event.key==='Enter') fazerLogin()" />
       </div>
     </div>
 
-    <!-- Decoração -->
-    <div class="paws">
-      <div class="paw">🐾</div>
-      <div class="paw">🐾</div>
-      <div class="paw">🐾</div>
-      <div class="paw">🐾</div>
-      <div class="paw">🐾</div>
-      <div class="paw">🐾</div>
-    </div>
-    <div class="aside-heart">❤️</div>
-
-    <div class="aside-copy">
-      <h2>Cada animal<br>merece um lar<br>com amor.</h2>
-      <p>Conectamos animais que precisam de um lar a famílias que têm amor para dar. Faça parte desta corrente do bem.</p>
-    </div>
-  </aside>
-
-  <!-- ── Formulário ──────────────────────────────────── -->
-  <main class="main">
-    <div class="form-box">
-
-      <!-- Logo mobile -->
-      <a href="../index.html" class="mobile-logo">
-        <span>🐾 Coração Animal</span>
-      </a>
-
-      <!-- ──────── PAINEL DE LOGIN/CADASTRO ──────── -->
-      <div id="auth-panel" class="panel">
-
-        <!-- Abas -->
-        <div class="tabs">
-          <button class="tab active" id="tab-login" onclick="switchTab('login')">Entrar</button>
-          <button class="tab" id="tab-cadastro" onclick="switchTab('cadastro')">Criar conta</button>
-        </div>
-
-        <!-- ── Formulário Login ── -->
-        <div id="form-login">
-          <h1 class="form-title">Bem-vindo de volta 👋</h1>
-          <p class="form-subtitle">Entre na sua conta para acessar todas as funcionalidades.</p>
-
-          <div class="msg erro" id="msg-login-erro">
-            <span>⚠️</span>
-            <span id="msg-login-texto"></span>
-          </div>
-
-          <div class="field">
-            <label for="login-email">E-mail</label>
-            <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email" />
-          </div>
-
-          <div class="field">
-            <label for="login-senha">Senha</label>
-            <div class="senha-wrap">
-              <input type="password" id="login-senha" placeholder="••••••••" autocomplete="current-password" />
-              <button type="button" class="toggle-senha" onclick="toggleSenha('login-senha', this)">👁</button>
-            </div>
-          </div>
-
-          <button class="btn-submit" id="btn-login" onclick="handleLogin()">
-            Entrar
-          </button>
-
-          <div class="separator">ou</div>
-
-          <div class="roles-info">
-            <p>Acesso de demonstração</p>
-            <div class="role-item">
-              <span class="role-badge admin">Admin</span>
-              <span>admin@coracaoanimal.org / admin123 — Gerencia animais, adoções e usuários</span>
-            </div>
-            <div class="role-item">
-              <span class="role-badge user">Usuário</span>
-              <span>maria@email.com / 123456 — Pode adotar, cadastrar e se voluntariar</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Formulário Cadastro ── -->
-        <div id="form-cadastro" style="display:none">
-          <h1 class="form-title">Criar sua conta 🐾</h1>
-          <p class="form-subtitle">Cadastre-se para adotar, cadastrar animais ou se voluntariar.</p>
-
-          <div class="msg erro" id="msg-cad-erro">
-            <span>⚠️</span>
-            <span id="msg-cad-erro-texto"></span>
-          </div>
-          <div class="msg ok" id="msg-cad-ok">
-            <span>✅</span>
-            <span>Conta criada com sucesso! Entrando…</span>
-          </div>
-
-          <div class="field">
-            <label for="cad-nome">Nome completo</label>
-            <input type="text" id="cad-nome" placeholder="Maria da Silva" autocomplete="name" />
-          </div>
-
-          <div class="field">
-            <label for="cad-email">E-mail</label>
-            <input type="email" id="cad-email" placeholder="seu@email.com" autocomplete="email" />
-          </div>
-
-          <div class="field">
-            <label for="cad-senha">Senha</label>
-            <div class="senha-wrap">
-              <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
-              <button type="button" class="toggle-senha" onclick="toggleSenha('cad-senha', this)">👁</button>
-            </div>
-          </div>
-
-          <div class="field">
-            <label for="cad-senha2">Confirmar senha</label>
-            <div class="senha-wrap">
-              <input type="password" id="cad-senha2" placeholder="Repita a senha" autocomplete="new-password" />
-              <button type="button" class="toggle-senha" onclick="toggleSenha('cad-senha2', this)">👁</button>
-            </div>
-          </div>
-
-          <button class="btn-submit" id="btn-cadastro" onclick="handleCadastro()">
-            Criar conta
-          </button>
-        </div>
-
-        <a href="../index.html" class="back-link">← Voltar para o site</a>
-      </div>
-
-      <!-- ──────── PAINEL DE BOAS-VINDAS (pós-login) ──────── -->
-      <div id="welcome-panel" class="panel">
-        <div class="welcome-avatar" id="welcome-avatar">?</div>
-        <h2 class="welcome-title" id="welcome-nome">Olá!</h2>
-        <p class="welcome-sub" id="welcome-email"></p>
-        <div class="welcome-badge">
-          <span class="welcome-role" id="welcome-role"></span>
-        </div>
-        <button class="btn-continuar" onclick="Auth.redirectAfterLogin()">
-          Continuar para o site →
-        </button>
-        <button class="btn-sair-welcome" onclick="Auth.logout()">
-          Sair da conta
+    <!-- Senha -->
+    <div class="login-grupo">
+      <label>Senha</label>
+      <div class="login-input-wrap">
+        <span class="login-input-icone">🔒</span>
+        <input type="password" id="inputSenha" placeholder="Digite sua senha"
+          onkeydown="if(event.key==='Enter') fazerLogin()" />
+        <button class="btn-olho" onclick="toggleSenha()" type="button">
+          <span id="olhoIcone">👁️</span>
         </button>
       </div>
+    </div>
 
-    </div><!-- /form-box -->
-  </main>
+    <button class="btn-entrar" id="btnEntrar" onclick="fazerLogin()">
+      <div class="btn-spinner" id="btnSpinner"></div>
+      <span id="btnTexto">Entrar</span>
+    </button>
 
-</div><!-- /page -->
+    <!-- Info de credenciais (remover em producao) -->
+    <div class="login-info" id="loginInfo">
+      🔑 <strong>Usuario:</strong> usuario &nbsp;|&nbsp; <strong>Senha:</strong> coracao123
+    </div>
 
-<script>
-  const Auth = {
-    TOKEN_KEY: 'ca_token',
-    USER_KEY:  'ca_user',
+    <!-- Link cadastro (apenas aba usuario) -->
+    <div class="login-cadastro" id="loginCadastro">
+      Não tem conta? <a href="adocao.html">Cadastre-se para adotar</a>
+    </div>
 
-    FAKE_USERS: [
-      { id: 1, nome: 'Admin Coração Animal', email: 'admin@coracaoanimal.org', senha: 'admin123', role: 'admin',   avatar: 'A' },
-      { id: 2, nome: 'Maria Silva',          email: 'maria@email.com',          senha: '123456',  role: 'usuario', avatar: 'M' },
-      { id: 3, nome: 'João Santos',          email: 'joao@email.com',           senha: '123456',  role: 'usuario', avatar: 'J' }
-    ],
+    <a href="../index.html" class="login-voltar">← Voltar ao site</a>
 
-    setSession(user) {
-      const token    = btoa(JSON.stringify({ id: user.id, role: user.role, ts: Date.now() }));
-      const userData = { id: user.id, nome: user.nome, email: user.email, role: user.role, avatar: user.avatar };
-      localStorage.setItem(this.TOKEN_KEY, token);
-      localStorage.setItem(this.USER_KEY, JSON.stringify(userData));
-    },
+  </div>
 
-    clearSession() {
-      localStorage.removeItem(this.TOKEN_KEY);
-      localStorage.removeItem(this.USER_KEY);
-    },
+  <script src="../js/tema.js"></script>
+  <script>
+    /*
+     * Credenciais — altere aqui conforme necessario
+     * Em producao real, isso seria verificado no backend via API
+     */
+    const CREDENCIAIS = {
+      usuario: { user: 'usuario', senha: 'coracao123', chave: 'coracao_user_auth'  },
+      admin:   { user: 'admin',   senha: 'coracao2025', chave: 'coracao_admin_auth' }
+    };
 
-    getUser()    { const u = localStorage.getItem(this.USER_KEY); return u ? JSON.parse(u) : null; },
-    getToken()   { return localStorage.getItem(this.TOKEN_KEY); },
-    isLoggedIn() { return !!this.getToken(); },
-    isAdmin()    { return this.getUser()?.role === 'admin'; },
+    // Aba atual: 'usuario' ou 'admin'
+    let abaAtual = 'usuario';
 
-    login(email, senha) {
-      const user = this.FAKE_USERS.find(
-        u => u.email.toLowerCase() === email.toLowerCase() && u.senha === senha
-      );
-      if (user) { this.setSession(user); return { success: true, user }; }
-      return { success: false, message: 'E-mail ou senha incorretos.' };
-    },
+    /* Verifica se ja esta logado e redireciona */
+    function verificarLogin() {
+      const destino = sessionStorage.getItem('coracao_redirect');
 
-    register(nome, email, senha) {
-      const existe = this.FAKE_USERS.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (existe) return { success: false, message: 'Este e-mail já está cadastrado.' };
-      const newUser = { id: this.FAKE_USERS.length + 1, nome, email, senha, role: 'usuario', avatar: nome.charAt(0).toUpperCase() };
-      this.FAKE_USERS.push(newUser);
-      this.setSession(newUser);
-      return { success: true, user: newUser };
-    },
-
-    logout() {
-      this.clearSession();
-      window.location.href = '../index.html';
-    },
-
-    redirectAfterLogin() {
-      const dest = sessionStorage.getItem('ca_redirect');
-      sessionStorage.removeItem('ca_redirect');
-      if (dest) { window.location.href = dest; return; }
-      window.location.href = this.isAdmin() ? 'admin.html' : '../index.html';
-    }
-  };
-
-  window.Auth = Auth;
-
-  window.addEventListener('DOMContentLoaded', () => {
-    if (Auth.isLoggedIn()) showWelcome(Auth.getUser());
-  });
-
-  function switchTab(tab) {
-    const isLogin = tab === 'login';
-    document.getElementById('tab-login').classList.toggle('active', isLogin);
-    document.getElementById('tab-cadastro').classList.toggle('active', !isLogin);
-    document.getElementById('form-login').style.display    = isLogin ? '' : 'none';
-    document.getElementById('form-cadastro').style.display = isLogin ? 'none' : '';
-    clearErrors();
-  }
-
-  function clearErrors() {
-    ['msg-login-erro', 'msg-cad-erro', 'msg-cad-ok'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.classList.remove('show');
-    });
-    document.querySelectorAll('input').forEach(i => i.classList.remove('erro'));
-  }
-
-  function handleLogin() {
-    const email = document.getElementById('login-email').value.trim();
-    const senha = document.getElementById('login-senha').value;
-    const btn   = document.getElementById('btn-login');
-
-    if (!email || !senha) {
-      showErro('msg-login-erro', 'msg-login-texto', 'Preencha e-mail e senha.');
-      if (!email) document.getElementById('login-email').classList.add('erro');
-      if (!senha) document.getElementById('login-senha').classList.add('erro');
-      return;
-    }
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Entrando…';
-
-    setTimeout(() => {
-      const result = Auth.login(email, senha);
-      btn.disabled = false;
-      btn.innerHTML = 'Entrar';
-
-      if (result.success) {
-        showWelcome(result.user);
-      } else {
-        showErro('msg-login-erro', 'msg-login-texto', result.message);
-        document.getElementById('login-email').classList.add('erro');
-        document.getElementById('login-senha').classList.add('erro');
+      if (sessionStorage.getItem('coracao_admin_auth') === 'true') {
+        window.location.href = 'admin.html';
+        return;
       }
-    }, 800);
-  }
 
-  function handleCadastro() {
-    const nome   = document.getElementById('cad-nome').value.trim();
-    const email  = document.getElementById('cad-email').value.trim();
-    const senha  = document.getElementById('cad-senha').value;
-    const senha2 = document.getElementById('cad-senha2').value;
-    const btn    = document.getElementById('btn-cadastro');
-
-    clearErrors();
-
-    if (!nome || !email || !senha || !senha2) {
-      showErro('msg-cad-erro', 'msg-cad-erro-texto', 'Preencha todos os campos.');
-      return;
-    }
-    if (senha.length < 6) {
-      showErro('msg-cad-erro', 'msg-cad-erro-texto', 'A senha deve ter pelo menos 6 caracteres.');
-      document.getElementById('cad-senha').classList.add('erro');
-      return;
-    }
-    if (senha !== senha2) {
-      showErro('msg-cad-erro', 'msg-cad-erro-texto', 'As senhas não coincidem.');
-      document.getElementById('cad-senha2').classList.add('erro');
-      return;
-    }
-
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Criando conta…';
-
-    setTimeout(() => {
-      const result = Auth.register(nome, email, senha);
-      btn.disabled = false;
-      btn.innerHTML = 'Criar conta';
-
-      if (result.success) {
-        document.getElementById('msg-cad-ok').classList.add('show');
-        setTimeout(() => showWelcome(result.user), 900);
-      } else {
-        showErro('msg-cad-erro', 'msg-cad-erro-texto', result.message);
-        document.getElementById('cad-email').classList.add('erro');
+      if (sessionStorage.getItem('coracao_user_auth') === 'true') {
+        window.location.href = destino || '../index.html';
+        return;
       }
-    }, 900);
-  }
-
-  function showWelcome(user) {
-    document.getElementById('auth-panel').style.display = 'none';
-    const wp = document.getElementById('welcome-panel');
-    wp.classList.add('show');
-
-    document.getElementById('welcome-avatar').textContent = user.avatar;
-    document.getElementById('welcome-nome').textContent   = 'Olá, ' + user.nome.split(' ')[0] + '!';
-    document.getElementById('welcome-email').textContent  = user.email;
-
-    const badge = document.getElementById('welcome-role');
-    if (user.role === 'admin') {
-      badge.textContent = '🛡 Administrador';
-      badge.className   = 'welcome-role admin';
-    } else {
-      badge.textContent = '🐾 Usuário';
-      badge.className   = 'welcome-role user';
     }
-  }
 
-  function showErro(panelId, textoId, msg) {
-    const panel = document.getElementById(panelId);
-    if (textoId) document.getElementById(textoId).textContent = msg;
-    panel.classList.add('show');
-  }
+    /* Troca entre abas usuario e admin */
+    function trocarAba(aba) {
+      abaAtual = aba;
 
-  function toggleSenha(inputId, btn) {
-    const input = document.getElementById(inputId);
-    if (input.type === 'password') {
-      input.type = 'text';
-      btn.textContent = '🙈';
-    } else {
-      input.type = 'password';
-      btn.textContent = '👁';
+      document.getElementById('abaUsuario').classList.toggle('ativa', aba === 'usuario');
+      document.getElementById('abaAdmin').classList.toggle('ativa', aba === 'admin');
+
+      // Atualiza dica de credenciais
+      const info = document.getElementById('loginInfo');
+      const cadastro = document.getElementById('loginCadastro');
+
+      if (aba === 'admin') {
+        info.innerHTML = '🔑 <strong>Usuario:</strong> admin &nbsp;|&nbsp; <strong>Senha:</strong> coracao2025';
+        cadastro.style.display = 'none';
+      } else {
+        info.innerHTML = '🔑 <strong>Usuario:</strong> usuario &nbsp;|&nbsp; <strong>Senha:</strong> coracao123';
+        cadastro.style.display = 'block';
+      }
+
+      // Limpa campos e erros
+      document.getElementById('inputUsuario').value = '';
+      document.getElementById('inputSenha').value = '';
+      document.getElementById('loginErro').classList.remove('visivel');
     }
-  }
 
-  document.addEventListener('keydown', e => {
-    if (e.key !== 'Enter') return;
-    const loginVisible = document.getElementById('form-login').style.display !== 'none';
-    if (loginVisible) handleLogin();
-    else handleCadastro();
-  });
-</script>
+    /* Realiza o login */
+    function fazerLogin() {
+      const usuario = document.getElementById('inputUsuario').value.trim();
+      const senha   = document.getElementById('inputSenha').value;
+      const erro    = document.getElementById('loginErro');
+      const btn     = document.getElementById('btnEntrar');
+      const spinner = document.getElementById('btnSpinner');
+      const txtBtn  = document.getElementById('btnTexto');
+
+      // Limpa erros
+      erro.classList.remove('visivel');
+      document.getElementById('inputUsuario').classList.remove('invalido');
+      document.getElementById('inputSenha').classList.remove('invalido');
+
+      // Valida campos
+      if (!usuario || !senha) {
+        erro.textContent = '❌ Preencha o usuário e a senha';
+        erro.classList.add('visivel');
+        if (!usuario) document.getElementById('inputUsuario').classList.add('invalido');
+        if (!senha)   document.getElementById('inputSenha').classList.add('invalido');
+        return;
+      }
+
+      // Simula verificacao
+      btn.disabled = true;
+      spinner.style.display = 'block';
+      txtBtn.textContent = 'Verificando...';
+
+      setTimeout(() => {
+        const cred = CREDENCIAIS[abaAtual];
+
+        if (usuario === cred.user && senha === cred.senha) {
+          // Login correto — salva autenticacao
+          sessionStorage.setItem(cred.chave, 'true');
+          txtBtn.textContent = '✓ Entrando...';
+
+          setTimeout(() => {
+            // Redireciona para destino salvo ou pagina padrao
+            const destino = sessionStorage.getItem('coracao_redirect');
+            sessionStorage.removeItem('coracao_redirect');
+
+            if (abaAtual === 'admin') {
+              window.location.href = 'admin.html';
+            } else {
+              window.location.href = destino || '../index.html';
+            }
+          }, 400);
+
+        } else {
+          // Login incorreto
+          spinner.style.display = 'none';
+          btn.disabled = false;
+          txtBtn.textContent = 'Entrar';
+          erro.textContent = '❌ Usuário ou senha incorretos';
+          erro.classList.add('visivel');
+          document.getElementById('inputSenha').value = '';
+          document.getElementById('inputSenha').classList.add('invalido');
+          document.getElementById('inputSenha').focus();
+        }
+      }, 700);
+    }
+
+    /* Mostra/oculta senha */
+    function toggleSenha() {
+      const input = document.getElementById('inputSenha');
+      const icone = document.getElementById('olhoIcone');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icone.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        icone.textContent = '👁️';
+      }
+    }
+
+    verificarLogin();
+  </script>
 
 </body>
 </html>
