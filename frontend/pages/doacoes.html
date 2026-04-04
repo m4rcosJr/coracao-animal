@@ -83,7 +83,7 @@
         <div class="form-grupo"><label>E-mail</label><input type="email" id="emailDoador" placeholder="seu@email.com" /></div>
         <div class="form-grupo"><label>Telefone</label><input type="text" id="telefoneDoador" placeholder="(11) 99999-9999" /></div>
       </div>
-      <button class="btn-submit" id="btnDoar" onclick="enviarDoacao()">💛 Confirmar doação</button>
+      <button class="btn-submit" id="btnDoar" onclick="confirmarDoacao()" >💛 Confirmar doação</button>
     </div>
     <div class="sidebar-info">
       <div class="info-card">
@@ -127,7 +127,18 @@
   </div>
 </footer>
 
+<script src="../js/auth.js"></script>
 <script src="../js/tema.js"></script>
 <script src="../js/doacoes.js"></script>
 </body>
 </html>
+<script>
+// Verifica login antes de confirmar doacao
+function confirmarDoacao() {
+  if (typeof estaLogado === 'function' && estaLogado()) {
+    enviarDoacao();
+  } else {
+    exigirLogin('doacoes.html');
+  }
+}
+</script>

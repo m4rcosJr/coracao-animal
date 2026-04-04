@@ -112,6 +112,14 @@
   </div>
 </footer>
 
+<script src="../js/auth.js"></script>
+<script>
+  // Protege a pagina de adocao — exige login
+  if (typeof estaLogado === "function" && !estaLogado()) {
+    sessionStorage.setItem("coracao_redirect", "adocao.html");
+    window.location.href = "login.html";
+  }
+</script>
 <script src="../js/tema.js"></script>
 <script src="../js/adocao.js"></script>
 </body>

@@ -19,7 +19,7 @@
   </ul>
   <div class="nav-actions">
     <button class="btn-tema" id="btnTema" onclick="alternarTema()"><span id="temaIcone">🌙</span></button>
-    <a href="adocao.html" class="btn-cta">🧡 Adote Agora</a>
+    <a href="javascript:void(0)" class="btn-cta" onclick="exigirLogin('adocao.html')">🧡 Adote Agora</a>
   </div>
 </nav>
 
@@ -83,7 +83,7 @@
         </select>
       </div>
       <div class="form-grupo"><label>Por que quer ser voluntário? (opcional)</label><textarea id="motivacao" placeholder="Conte sobre sua motivação..."></textarea></div>
-      <button class="btn-submit" id="btnCadastrar" onclick="enviarCadastro()">🤝 Quero ser voluntário</button>
+      <button class="btn-submit" id="btnCadastrar" onclick="exigirLoginVoluntario()">🤝 Quero ser voluntário</button>
     </div>
     <div class="sidebar-info">
       <div class="info-card">
@@ -136,7 +136,19 @@
   </div>
 </footer>
 
+<script src="../js/auth.js"></script>
 <script src="../js/tema.js"></script>
 <script src="../js/voluntarios.js"></script>
 </body>
 </html>
+<script>
+// Exige login antes de enviar cadastro de voluntario
+// Apos login, retorna para esta pagina e o formulario continua
+function exigirLoginVoluntario() {
+  if (typeof estaLogado === 'function' && estaLogado()) {
+    enviarCadastro();
+  } else {
+    exigirLogin('voluntarios.html');
+  }
+}
+</script>

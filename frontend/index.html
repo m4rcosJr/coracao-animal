@@ -50,8 +50,8 @@
       <h1 class="anim-2">Todo animal merece <em>um lar</em> cheio de amor</h1>
       <p class="anim-3">Resgatamos, cuidamos e encontramos famílias amorosas para animais abandonados. Junte-se a nós nessa missão.</p>
       <div class="hero-btns anim-4">
-        <a href="pages/adocao.html" class="btn-cta">🧡 Quero Adotar</a>
-        <a href="pages/voluntarios.html" class="btn-sec">🤝 Quero Ajudar</a>
+        <a href="javascript:void(0)" class="btn-cta" onclick="exigirLogin('pages/adocao.html')">🧡 Quero Adotar</a>
+        <a href="javascript:void(0)" class="btn-sec" onclick="exigirLogin('pages/voluntarios.html')">🤝 Quero Ajudar</a>
       </div>
       <div class="hero-stat anim-4">
         <div class="hero-stat-icone">🏠</div>
@@ -65,11 +65,9 @@
       <div class="deco-circle"></div>
       <div class="hero-foto">
         <div class="hero-foto-placeholder">
-          <span style="font-size:80px"></span>
+          <span style="font-size:80px">z</span>
           <span style="font-size:13px;color:rgba(255,255,255,0.6);font-family:'DM Sans',sans-serif"></span>
-          <div class="hero-foto-placeholder">
-        <img src="img/labrador_imagem.jpg" alt="labrador">
-        </div>
+          <img src="img/labrador_imagem.jpg" alt="labrador">
         </div>
       </div>
       <div class="hero-foto-card">
@@ -133,7 +131,7 @@
   <div class="banner-inner">
     <h2>Ajude a Coração Animal 💛</h2>
     <p>Sua doação garante ração, vacinas e cuidados veterinários para os animais sob nossa proteção.</p>
-    <a href="pages/doacoes.html" class="btn-banner">Fazer uma doação</a>
+    <a href="javascript:void(0)" class="btn-banner" onclick="exigirLogin('pages/doacoes.html')">Fazer uma doação</a>
   </div>
 </section>
 
@@ -147,10 +145,11 @@
       <li><a href="pages/doacoes.html">Doações</a></li>
       <li><a href="pages/voluntarios.html">Voluntários</a></li>
     </ul>
-    <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP</div>
+    <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP · <a href="pages/login.html" style="color:var(--text-muted);text-decoration:none;opacity:0.5" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">Admin</a></div>
   </div>
 </footer>
 
+<script src="js/auth.js"></script>
 <script src="js/tema.js"></script>
 <script src="js/animais.js"></script>
 <script>
