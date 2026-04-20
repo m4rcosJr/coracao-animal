@@ -73,20 +73,50 @@ namespace CoracaoAnimal.API.Controllers
 		[HttpPost]
 		public async Task<ActionResult<Animal>> PostAnimal(Animal animal)
 		{
-			// adiciona o animal na lista de pendencias do EF
-			_context.Animais.Add(animal);
+			// Validação básica
+			if (string.IsNullOrWhiteSpace(animal.Nome))
+				return BadRequest(new { error = "Nome do animal é obrigatório" });
 
-			// salva efetivamente no banco de dados SQL
-			await _context.SaveChangesAsync();
+			if (string.IsNullOrWhiteSpace(animal.Especie))
+				return BadRequest(new { error = "Espécie é obrigatória" });
 
-			// retorna codigo 201 (criado com sucesso)
-			// e o endereco onde o novo animal pode ser consultado
-			// ex: GET api/animais/1
-			return CreatedAtAction(
-				nameof(GetAnimal),        // nome do metodo de busca
-				new { id = animal.IdAnimal }, // id do animal criado
-				animal                    // dados do animal criado
-			);
+			if (string.IsNullOrWhiteSpace(animal.Porte))
+				return BadRequest(new { error = "Porte é obrigatório" });
+
+			if (string.IsNullOrWhiteSpace(animal.Descricao))
+				return BadRequest(new { error = "Descrição é obrigatória" });
+
+			// Define valores padrão se não fornecidos
+			if (string.IsNullOrWhiteSpace(animal.StatusAdocao))
+				animal.StatusAdocao = "disponivel";
+
+			// IdAnimal sempre deve ser 0 para novos registros (identity auto-increment)
+			animal.IdAnimal = 0;
+			animal.DataEntrada = DateTime.Now;
+
+			try
+			{
+				// adiciona o animal na lista de pendencias do EF
+				_context.Animais.Add(animal);
+
+				// salva efetivamente no banco de dados SQL
+				await _context.SaveChangesAsync();
+
+				// retorna codigo 201 (criado com sucesso)
+				// e o endereco onde o novo animal pode ser consultado
+				// ex: GET api/animais/1
+				return CreatedAtAction(
+					nameof(GetAnimal),        // nome do metodo de busca
+					new { id = animal.IdAnimal }, // id do animal criado
+					animal                    // dados do animal criado
+				);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine($"Erro ao salvar animal: {ex.Message}");
+				Console.WriteLine($"Stack trace: {ex.StackTrace}");
+				return BadRequest(new { error = $"Erro ao salvar: {ex.Message}" });
+			}
 		}
 
 		// ─────────────────────────────────────────

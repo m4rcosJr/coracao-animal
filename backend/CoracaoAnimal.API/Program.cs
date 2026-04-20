@@ -38,7 +38,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Registra os Controllers da API
 // sem isso a aplicacao nao encontra as rotas (endpoints)
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        // Permite desserializar JSON com case-insensitive
+        // Ex: "nome" do frontend mapeia para "Nome" do modelo
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 
 // Registra o Swagger — interface visual para testar a API
 // acessivel pelo navegador em: http://localhost:5000/swagger
