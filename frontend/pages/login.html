@@ -1,447 +1,218 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login — Coração Animal</title>
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/style.css"/>
   <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg);
-      padding: 1rem;
-    }
-
-    .login-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 1.5rem;
-      padding: 2.5rem;
-      width: 100%;
-      max-width: 420px;
-      animation: fadeUp .5s ease both;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .login-logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 2rem;
-    }
-
-    .login-logo-icon {
-      width: 48px; height: 48px;
-      background: var(--laranja);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
-    }
-
-    .login-logo-texto {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px; font-weight: 700;
-      color: var(--text);
-    }
-
-    .login-titulo {
-      font-family: 'Playfair Display', serif;
-      font-size: 24px; font-weight: 700;
-      color: var(--text);
-      text-align: center; margin-bottom: 6px;
-    }
-
-    .login-subtitulo {
-      font-size: 14px; color: var(--text-sec);
-      text-align: center; margin-bottom: 2rem;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    /* Abas: Usuario / Admin */
-    .login-abas {
-      display: flex;
-      background: var(--bg-muted);
-      border-radius: 50px;
-      padding: 4px;
-      margin-bottom: 1.5rem;
-      gap: 4px;
-    }
-
-    .login-aba {
-      flex: 1;
-      padding: 8px;
-      border: none;
-      border-radius: 50px;
-      font-size: 13px;
-      font-weight: 500;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer;
-      background: transparent;
-      color: var(--text-sec);
-      transition: var(--transition);
-    }
-
-    .login-aba.ativa {
-      background: var(--bg-card);
-      color: var(--text);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-
-    .login-grupo { margin-bottom: 1rem; }
-
-    .login-grupo label {
-      display: block;
-      font-size: 13px; font-weight: 500;
-      color: var(--text-sec);
-      margin-bottom: 6px;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .login-input-wrap { position: relative; }
-
-    .login-input-icone {
-      position: absolute; left: 14px; top: 50%;
-      transform: translateY(-50%);
-      font-size: 15px; pointer-events: none;
-    }
-
-    .login-grupo input {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 11px 42px;
-      font-size: 14px; color: var(--text);
-      outline: none; transition: var(--transition);
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .login-grupo input::placeholder { color: var(--text-muted); }
-
-    .login-grupo input:focus {
-      border-color: var(--laranja);
-      box-shadow: 0 0 0 3px rgba(224,92,42,0.12);
-    }
-
-    .login-grupo input.invalido {
-      border-color: #e53935;
-      box-shadow: 0 0 0 3px rgba(229,57,53,0.1);
-    }
-
-    .btn-olho {
-      position: absolute; right: 12px; top: 50%;
-      transform: translateY(-50%);
-      background: none; border: none;
-      cursor: pointer; font-size: 15px;
-      color: var(--text-muted); padding: 4px;
-      transition: var(--transition);
-    }
-
-    .btn-olho:hover { color: var(--text); }
-
-    .login-erro {
-      display: none;
-      background: rgba(229,57,53,0.08);
-      border: 1px solid rgba(229,57,53,0.25);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 13px; color: #e53935;
-      margin-bottom: 1rem; text-align: center;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .login-erro.visivel { display: block; }
-
-    .btn-entrar {
-      width: 100%;
-      background: var(--laranja); color: white;
-      border: none; border-radius: 50px;
-      padding: 13px; font-size: 15px; font-weight: 600;
-      font-family: 'DM Sans', sans-serif;
-      cursor: pointer; transition: var(--transition);
-      margin-top: 0.5rem;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-    }
-
-    .btn-entrar:hover { background: var(--laranja-hover); transform: translateY(-1px); }
-    .btn-entrar:disabled { background: var(--bg-muted); color: var(--text-muted); cursor: not-allowed; transform: none; }
-
-    .btn-spinner {
-      display: none; width: 18px; height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white; border-radius: 50%;
-      animation: spin .7s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Info de credenciais */
-    .login-info {
-      margin-top: 1.5rem;
-      padding: 12px 16px;
-      background: var(--bg-muted);
-      border-radius: 10px;
-      font-size: 12px; color: var(--text-muted);
-      text-align: center;
-      font-family: 'DM Sans', sans-serif;
-      line-height: 1.7;
-    }
-
-    .login-info strong { color: var(--text-sec); }
-
-    /* Cadastro */
-    .login-cadastro {
-      margin-top: 1rem;
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-muted);
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .login-cadastro a {
-      color: var(--laranja);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .login-cadastro a:hover { text-decoration: underline; }
-
-    .login-voltar {
-      display: flex; align-items: center;
-      justify-content: center; gap: 6px;
-      margin-top: 1.5rem;
-      font-size: 13px; color: var(--text-muted);
-      text-decoration: none;
-      font-family: 'DM Sans', sans-serif;
-      transition: var(--transition);
-    }
-
-    .login-voltar:hover { color: var(--laranja); }
-
-    .login-tema {
-      position: fixed; top: 1rem; right: 1rem;
-      width: 38px; height: 38px; border-radius: 50%;
-      border: 1px solid var(--border);
-      background: var(--bg-muted); color: var(--text-sec);
-      font-size: 16px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: var(--transition);
-    }
-
-    .login-tema:hover { color: var(--text); }
+    body { min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:1rem; }
+    .login-card { background:var(--bg-card);border:1px solid var(--border);border-radius:1.5rem;padding:2.5rem;width:100%;max-width:420px;animation:fadeUp .5s ease both; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+    .login-logo { display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2rem; }
+    .login-logo-icon { width:48px;height:48px;background:var(--laranja);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px; }
+    .login-logo-text { font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text); }
+    .login-title { font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px; }
+    .login-sub { font-size:14px;color:var(--text-sec);text-align:center;margin-bottom:1.5rem;font-family:'DM Sans',sans-serif; }
+    /* Login message (from redirect) */
+    .login-msg { display:none;background:rgba(224,92,42,0.08);border:1px solid rgba(224,92,42,0.25);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--laranja);margin-bottom:1rem;text-align:center;font-family:'DM Sans',sans-serif; }
+    .login-msg.visible { display:block; }
+    /* Tabs */
+    .login-tabs { display:flex;background:var(--bg-muted);border-radius:50px;padding:4px;margin-bottom:1.5rem;gap:4px; }
+    .login-tab { flex:1;padding:8px;border:none;border-radius:50px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;background:transparent;color:var(--text-sec);transition:var(--transition); }
+    .login-tab.active { background:var(--bg-card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1); }
+    /* Form fields */
+    .form-grupo { margin-bottom:1rem; }
+    .form-grupo label { display:block;font-size:13px;font-weight:500;color:var(--text-sec);margin-bottom:6px;font-family:'DM Sans',sans-serif; }
+    .input-wrap { position:relative; }
+    .input-icon { position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none; }
+    .form-grupo input { width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:11px 42px;font-size:14px;color:var(--text);outline:none;transition:var(--transition);font-family:'DM Sans',sans-serif; }
+    .form-grupo input:focus { border-color:var(--laranja);box-shadow:0 0 0 3px rgba(224,92,42,.12); }
+    .form-grupo input.invalid { border-color:#e53935;box-shadow:0 0 0 3px rgba(229,57,53,.1); }
+    .btn-eye { position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;color:var(--text-muted);padding:4px;transition:var(--transition); }
+    /* Error */
+    .login-error { display:none;background:rgba(229,57,53,.08);border:1px solid rgba(229,57,53,.2);border-radius:10px;padding:10px 14px;font-size:13px;color:#e53935;margin-bottom:1rem;text-align:center;font-family:'DM Sans',sans-serif; }
+    .login-error.visible { display:block; }
+    /* Submit */
+    .btn-login { width:100%;background:var(--laranja);color:white;border:none;border-radius:50px;padding:13px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.5rem; }
+    .btn-login:hover { background:var(--laranja-hover);transform:translateY(-1px); }
+    .btn-login:disabled { background:var(--bg-muted);color:var(--text-muted);cursor:not-allowed;transform:none; }
+    .btn-spinner { display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    /* Hint */
+    .login-hint { margin-top:1.5rem;padding:12px 16px;background:var(--bg-muted);border-radius:10px;font-size:12px;color:var(--text-muted);text-align:center;font-family:'DM Sans',sans-serif;line-height:1.7; }
+    .login-hint strong { color:var(--text-sec); }
+    .login-back { display:flex;align-items:center;justify-content:center;gap:6px;margin-top:1.25rem;font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'DM Sans',sans-serif;transition:var(--transition); }
+    .login-back:hover { color:var(--laranja); }
+    .theme-btn { position:fixed;top:1rem;right:1rem;width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:var(--bg-muted);color:var(--text-sec);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition); }
   </style>
 </head>
 <body>
 
-  <button class="login-tema" onclick="alternarTema()">
-    <span id="temaIcone">🌙</span>
-  </button>
+<button class="theme-btn" onclick="alternarTema()"><span id="temaIcone">🌙</span></button>
 
-  <div class="login-card">
+<div class="login-card">
+  <div class="login-logo">
+    <div class="login-logo-icon">🐾</div>
+    <div class="login-logo-text">Coração Animal</div>
+  </div>
+  <div class="login-title">Bem-vindo de volta</div>
+  <div class="login-sub">Faça login para continuar</div>
 
-    <div class="login-logo">
-      <div class="login-logo-icon">🐾</div>
-      <div class="login-logo-texto">Coração Animal</div>
-    </div>
+  <!-- Message from redirect -->
+  <div class="login-msg" id="loginMsg"></div>
 
-    <div class="login-titulo">Bem-vindo de volta</div>
-    <div class="login-subtitulo">Faça login para continuar</div>
-
-    <!-- Abas usuario / admin -->
-    <div class="login-abas">
-      <button class="login-aba ativa" id="abaUsuario" onclick="trocarAba('usuario')">
-        👤 Usuário
-      </button>
-      <button class="login-aba" id="abaAdmin" onclick="trocarAba('admin')">
-        ⚙ Administrador
-      </button>
-    </div>
-
-    <!-- Erro -->
-    <div class="login-erro" id="loginErro">❌ Usuário ou senha incorretos</div>
-
-    <!-- Usuario -->
-    <div class="login-grupo">
-      <label>Usuário</label>
-      <div class="login-input-wrap">
-        <span class="login-input-icone">👤</span>
-        <input type="text" id="inputUsuario" placeholder="Digite seu usuário"
-          onkeydown="if(event.key==='Enter') fazerLogin()" />
-      </div>
-    </div>
-
-    <!-- Senha -->
-    <div class="login-grupo">
-      <label>Senha</label>
-      <div class="login-input-wrap">
-        <span class="login-input-icone">🔒</span>
-        <input type="password" id="inputSenha" placeholder="Digite sua senha"
-          onkeydown="if(event.key==='Enter') fazerLogin()" />
-        <button class="btn-olho" onclick="toggleSenha()" type="button">
-          <span id="olhoIcone">👁️</span>
-        </button>
-      </div>
-    </div>
-
-    <button class="btn-entrar" id="btnEntrar" onclick="fazerLogin()">
-      <div class="btn-spinner" id="btnSpinner"></div>
-      <span id="btnTexto">Entrar</span>
-    </button>
-
-    <!-- Info de credenciais (remover em producao) -->
-    <div class="login-info" id="loginInfo">
-      🔑 <strong>Usuario:</strong> usuario &nbsp;|&nbsp; <strong>Senha:</strong> coracao123
-    </div>
-
-    <!-- Link cadastro (apenas aba usuario) -->
-    <div class="login-cadastro" id="loginCadastro">
-      Não tem conta? <a href="adocao.html">Cadastre-se para adotar</a>
-    </div>
-
-    <a href="../index.html" class="login-voltar">← Voltar ao site</a>
-
+  <!-- Tabs -->
+  <div class="login-tabs">
+    <button class="login-tab active" id="tabUser"  onclick="switchTab('user')">👤 Usuário</button>
+    <button class="login-tab"        id="tabAdmin" onclick="switchTab('admin')">⚙ Admin</button>
   </div>
 
-  <script src="../js/tema.js"></script>
-  <script>
-    /*
-     * Credenciais — altere aqui conforme necessario
-     * Em producao real, isso seria verificado no backend via API
-     */
-    const CREDENCIAIS = {
-      usuario: { user: 'usuario', senha: 'coracao123', chave: 'coracao_user_auth'  },
-      admin:   { user: 'admin',   senha: 'coracao2025', chave: 'coracao_admin_auth' }
-    };
+  <!-- Error -->
+  <div class="login-error" id="loginError">❌ Usuário ou senha incorretos</div>
 
-    // Aba atual: 'usuario' ou 'admin'
-    let abaAtual = 'usuario';
+  <!-- Username -->
+  <div class="form-grupo">
+    <label for="inputUsername">Usuário</label>
+    <div class="input-wrap">
+      <span class="input-icon">👤</span>
+      <input type="text" id="inputUsername" placeholder="Digite seu usuário"
+        onkeydown="if(event.key==='Enter') handleLogin()"/>
+    </div>
+  </div>
 
-    /* Verifica se ja esta logado e redireciona */
-    function verificarLogin() {
-      const destino = sessionStorage.getItem('coracao_redirect');
+  <!-- Password -->
+  <div class="form-grupo">
+    <label for="inputPassword">Senha</label>
+    <div class="input-wrap">
+      <span class="input-icon">🔒</span>
+      <input type="password" id="inputPassword" placeholder="Digite sua senha"
+        onkeydown="if(event.key==='Enter') handleLogin()"/>
+      <button class="btn-eye" onclick="togglePassword()" type="button">
+        <span id="eyeIcon">👁️</span>
+      </button>
+    </div>
+  </div>
 
-      if (sessionStorage.getItem('coracao_admin_auth') === 'true') {
-        window.location.href = 'admin.html';
-        return;
-      }
+  <button class="btn-login" id="btnLogin" onclick="handleLogin()">
+    <div class="btn-spinner" id="loginSpinner"></div>
+    <span id="loginBtnText">Entrar</span>
+  </button>
 
-      if (sessionStorage.getItem('coracao_user_auth') === 'true') {
-        window.location.href = destino || '../index.html';
-        return;
-      }
+  <div class="login-hint" id="loginHint">
+    🔑 <strong>Usuário:</strong> usuario &nbsp;|&nbsp; <strong>Senha:</strong> coracao123
+  </div>
+
+  <a href="../index.html" class="login-back">← Voltar ao site</a>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/tema.js"></script>
+<script src="../js/notifications.js"></script>
+<script>
+  let currentTab = 'user';
+
+  // Show login message if redirected here
+  function init() {
+    const msg = localStorage.getItem('ca_login_msg');
+    if (msg) {
+      const el = document.getElementById('loginMsg');
+      el.textContent = '🔒 ' + msg;
+      el.classList.add('visible');
+      localStorage.removeItem('ca_login_msg');
     }
 
-    /* Troca entre abas usuario e admin */
-    function trocarAba(aba) {
-      abaAtual = aba;
+    // If already logged in, redirect
+    if (isLoggedIn()) {
+      redirectAfterLogin();
+    }
+  }
 
-      document.getElementById('abaUsuario').classList.toggle('ativa', aba === 'usuario');
-      document.getElementById('abaAdmin').classList.toggle('ativa', aba === 'admin');
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tabUser').classList.toggle('active', tab === 'user');
+    document.getElementById('tabAdmin').classList.toggle('active', tab === 'admin');
 
-      // Atualiza dica de credenciais
-      const info = document.getElementById('loginInfo');
-      const cadastro = document.getElementById('loginCadastro');
+    const hint = document.getElementById('loginHint');
+    hint.innerHTML = tab === 'admin'
+      ? '🔑 <strong>Usuário:</strong> admin &nbsp;|&nbsp; <strong>Senha:</strong> coracao2025'
+      : '🔑 <strong>Usuário:</strong> usuario &nbsp;|&nbsp; <strong>Senha:</strong> coracao123';
 
-      if (aba === 'admin') {
-        info.innerHTML = '🔑 <strong>Usuario:</strong> admin &nbsp;|&nbsp; <strong>Senha:</strong> coracao2025';
-        cadastro.style.display = 'none';
+    // Clear fields & errors
+    document.getElementById('inputUsername').value = '';
+    document.getElementById('inputPassword').value = '';
+    document.getElementById('loginError').classList.remove('visible');
+  }
+
+  function handleLogin() {
+    const username = document.getElementById('inputUsername').value.trim();
+    const password = document.getElementById('inputPassword').value;
+    const errorEl  = document.getElementById('loginError');
+    const btn      = document.getElementById('btnLogin');
+    const spinner  = document.getElementById('loginSpinner');
+    const btnText  = document.getElementById('loginBtnText');
+
+    // Clear errors
+    errorEl.classList.remove('visible');
+    document.getElementById('inputUsername').classList.remove('invalid');
+    document.getElementById('inputPassword').classList.remove('invalid');
+
+    if (!username || !password) {
+      errorEl.textContent = '❌ Preencha o usuário e a senha';
+      errorEl.classList.add('visible');
+      if (!username) document.getElementById('inputUsername').classList.add('invalid');
+      if (!password) document.getElementById('inputPassword').classList.add('invalid');
+      return;
+    }
+
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    btnText.textContent = 'Verificando...';
+
+    setTimeout(() => {
+      const result = attemptLogin(username, password, currentTab);
+
+      if (result.success) {
+        btnText.textContent = '✓ Entrando...';
+        showNotification('Login realizado com sucesso!', 'success', 1500);
+        setTimeout(() => redirectAfterLogin(), 800);
       } else {
-        info.innerHTML = '🔑 <strong>Usuario:</strong> usuario &nbsp;|&nbsp; <strong>Senha:</strong> coracao123';
-        cadastro.style.display = 'block';
+        spinner.style.display = 'none';
+        btn.disabled = false;
+        btnText.textContent = 'Entrar';
+        errorEl.textContent = '❌ Usuário ou senha incorretos';
+        errorEl.classList.add('visible');
+        document.getElementById('inputPassword').value = '';
+        document.getElementById('inputPassword').classList.add('invalid');
+        document.getElementById('inputPassword').focus();
       }
+    }, 700);
+  }
 
-      // Limpa campos e erros
-      document.getElementById('inputUsuario').value = '';
-      document.getElementById('inputSenha').value = '';
-      document.getElementById('loginErro').classList.remove('visivel');
+  /**
+   * Redirects after successful login.
+   * Priority: saved redirect → admin panel → index
+   */
+  function redirectAfterLogin() {
+    const saved = localStorage.getItem('ca_redirect');
+    localStorage.removeItem('ca_redirect');
+
+    if (currentTab === 'admin' || isAdmin()) {
+      window.location.href = saved || 'admin.html';
+    } else {
+      // FIX: always redirect to index.html after user login
+      window.location.href = saved || '../index.html';
     }
+  }
 
-    /* Realiza o login */
-    function fazerLogin() {
-      const usuario = document.getElementById('inputUsuario').value.trim();
-      const senha   = document.getElementById('inputSenha').value;
-      const erro    = document.getElementById('loginErro');
-      const btn     = document.getElementById('btnEntrar');
-      const spinner = document.getElementById('btnSpinner');
-      const txtBtn  = document.getElementById('btnTexto');
+  function togglePassword() {
+    const input = document.getElementById('inputPassword');
+    const icon  = document.getElementById('eyeIcon');
+    input.type  = input.type === 'password' ? 'text' : 'password';
+    icon.textContent = input.type === 'password' ? '👁️' : '🙈';
+  }
 
-      // Limpa erros
-      erro.classList.remove('visivel');
-      document.getElementById('inputUsuario').classList.remove('invalido');
-      document.getElementById('inputSenha').classList.remove('invalido');
-
-      // Valida campos
-      if (!usuario || !senha) {
-        erro.textContent = '❌ Preencha o usuário e a senha';
-        erro.classList.add('visivel');
-        if (!usuario) document.getElementById('inputUsuario').classList.add('invalido');
-        if (!senha)   document.getElementById('inputSenha').classList.add('invalido');
-        return;
-      }
-
-      // Simula verificacao
-      btn.disabled = true;
-      spinner.style.display = 'block';
-      txtBtn.textContent = 'Verificando...';
-
-      setTimeout(() => {
-        const cred = CREDENCIAIS[abaAtual];
-
-        if (usuario === cred.user && senha === cred.senha) {
-          // Login correto — salva autenticacao
-          sessionStorage.setItem(cred.chave, 'true');
-          txtBtn.textContent = '✓ Entrando...';
-
-          setTimeout(() => {
-            // Redireciona para destino salvo ou pagina padrao
-            const destino = sessionStorage.getItem('coracao_redirect');
-            sessionStorage.removeItem('coracao_redirect');
-
-            if (abaAtual === 'admin') {
-              window.location.href = 'admin.html';
-            } else {
-              window.location.href = destino || '../index.html';
-            }
-          }, 400);
-
-        } else {
-          // Login incorreto
-          spinner.style.display = 'none';
-          btn.disabled = false;
-          txtBtn.textContent = 'Entrar';
-          erro.textContent = '❌ Usuário ou senha incorretos';
-          erro.classList.add('visivel');
-          document.getElementById('inputSenha').value = '';
-          document.getElementById('inputSenha').classList.add('invalido');
-          document.getElementById('inputSenha').focus();
-        }
-      }, 700);
-    }
-
-    /* Mostra/oculta senha */
-    function toggleSenha() {
-      const input = document.getElementById('inputSenha');
-      const icone = document.getElementById('olhoIcone');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icone.textContent = '🙈';
-      } else {
-        input.type = 'password';
-        icone.textContent = '👁️';
-      }
-    }
-
-    verificarLogin();
-  </script>
-
+  init();
+</script>
 </body>
 </html>

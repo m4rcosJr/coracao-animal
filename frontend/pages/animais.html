@@ -6,8 +6,193 @@
   <title>Animais — Coração Animal</title>
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="stylesheet" href="../css/animais.css" />
+  <style>
+    /* ── Badge de status no card ─────────── */
+    .animal-status-badge {
+      position: absolute;
+      top: 10px; right: 10px;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ── Barra de acoes do usuario ──────── */
+    .barra-usuario {
+      background: rgba(224,92,42,0.06);
+      border-bottom: 1px solid rgba(224,92,42,0.15);
+      padding: 10px 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .barra-usuario-info {
+      font-size: 13px;
+      color: var(--text-sec);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .barra-usuario-info strong { color: var(--laranja); }
+
+    /* ── Botao cadastrar animal ─────────── */
+    .btn-cadastrar-animal {
+      background: var(--laranja);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-cadastrar-animal:hover { background: var(--laranja-hover); }
+
+    /* ── Modal de cadastro de animal ────── */
+    .modal-cadastro {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-cadastro.aberto { display: flex; }
+
+    .modal-cadastro-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-cadastro-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--bg-card);
+      z-index: 1;
+    }
+
+    .modal-cadastro-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .modal-cadastro-body { padding: 1.5rem; }
+
+    /* Preview da imagem */
+    .foto-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .foto-upload-area:hover { border-color: var(--laranja); }
+    .foto-upload-area.com-foto { border-style: solid; border-color: var(--laranja); padding: 0; overflow: hidden; height: 180px; }
+
+    .foto-preview {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: none;
+      border-radius: 10px;
+    }
+
+    .foto-upload-area.com-foto .foto-preview { display: block; }
+    .foto-upload-area.com-foto .foto-placeholder { display: none; }
+
+    .foto-placeholder { color: var(--text-muted); font-family: 'DM Sans', sans-serif; }
+    .foto-placeholder span { font-size: 36px; display: block; margin-bottom: 8px; }
+    .foto-placeholder p { font-size: 13px; }
+    .foto-placeholder small { font-size: 11px; color: var(--text-muted); }
+
+    #inputFotoAnimal { display: none; }
+
+    .btn-trocar-foto {
+      position: absolute;
+      bottom: 8px; right: 8px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* Feedback de sucesso/erro no modal */
+    .modal-feedback {
+      display: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .modal-feedback.sucesso {
+      display: block;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+
+    .modal-feedback.erro {
+      display: block;
+      background: rgba(229,57,53,0.08);
+      color: #e53935;
+      border: 1px solid rgba(229,57,53,0.2);
+    }
+
+    .modal-cadastro-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      position: sticky;
+      bottom: 0;
+      background: var(--bg-card);
+    }
+  </style>
 </head>
 <body>
+
+<!-- auth.js primeiro — protege acoes -->
+<script src="../js/auth.js"></script>
 
 <!-- ── NAVBAR ──────────────────────────── -->
 <nav>
@@ -25,11 +210,51 @@
     <button class="btn-tema" id="btnTema" onclick="alternarTema()">
       <span id="temaIcone">🌙</span>
     </button>
-    <a href="adocao.html" class="btn-cta">🧡 Adote Agora</a>
+    <!-- Botao hamburguer mobile -->
+    <button class="nav-hamburguer" id="navHamburguer" onclick="toggleMenu()" aria-label="Abrir menu">
+      <span></span><span></span><span></span>
+    </button>
+    <!-- So aparece se NAO estiver logado -->
+    <a href="javascript:void(0)" class="btn-cta" data-auth="deslogado"
+      onclick="exigirLogin('adocao.html', 'Faça login para iniciar uma adoção')">
+      🧡 Adote Agora
+    </a>
+    <!-- So aparece se estiver logado -->
+    <div data-auth="logado" style="display:none;align-items:center;gap:8px">
+      <span style="font-size:13px;color:var(--text-sec);font-family:'DM Sans',sans-serif">
+        Olá, <strong id="navNomeUsuario" style="color:var(--laranja)"></strong>
+      </span>
+      <button onclick="fazerLogout()" style="background:transparent;border:1px solid var(--border);border-radius:50px;padding:5px 12px;font-size:12px;color:var(--text-sec);cursor:pointer;font-family:'DM Sans',sans-serif">
+        Sair
+      </button>
+    </div>
   </div>
 </nav>
 
-<!-- ── HEADER ──────────────────────────── -->
+<!-- Menu mobile -->
+<div class="nav-mobile" id="navMobile">
+  <a href="../index.html">Sobre</a>
+  <a href="animais.html" class="active">Adote</a>
+  <a href="voluntarios.html">Como Ajudar</a>
+  <div class="nav-mobile-divider"></div>
+  <a href="doacoes.html">Contato</a>
+</div>
+
+<!-- ── BARRA DO USUARIO LOGADO ──────────── -->
+<!--
+  Visivel apenas quando logado (data-auth="logado").
+  Mostra mensagem de boas-vindas e botao de cadastrar animal.
+-->
+<div class="barra-usuario" data-auth="logado" style="display:none">
+  <div class="barra-usuario-info">
+    🐾 Bem-vindo(a)! Você pode cadastrar novos animais para adoção.
+  </div>
+  <button class="btn-cadastrar-animal" onclick="abrirModalCadastro()">
+    + Cadastrar Animal
+  </button>
+</div>
+
+<!-- ── HEADER DA PAGINA ─────────────────── -->
 <div class="page-header">
   <div class="page-header-inner">
     <div class="section-label">Adoção responsável</div>
@@ -42,15 +267,17 @@
 <div class="busca-filtros">
   <div class="busca-filtros-inner">
 
-    <!-- Linha 1: campo de busca + ordenacao -->
+    <!-- Busca + ordenacao -->
     <div class="busca-linha">
       <div class="busca-wrap">
         <span class="busca-icone">🔍</span>
         <input
           type="text"
+          id="inputBusca"
           class="input-busca"
-          placeholder="Buscar por nome ou raça..."
+          placeholder="Buscar por nome, espécie ou raça..."
           oninput="onBusca(this.value)"
+          autocomplete="off"
         />
       </div>
       <select class="select-ordem" onchange="onOrdem(this.value)">
@@ -59,7 +286,7 @@
       </select>
     </div>
 
-    <!-- Linha 2: filtro por especie -->
+    <!-- Filtros por especie -->
     <div class="filtros-linha">
       <span class="filtros-label">Espécie</span>
       <button class="filtro-btn active grupo-especie" onclick="setFiltroEspecie('todos',this)">Todos</button>
@@ -67,7 +294,7 @@
       <button class="filtro-btn grupo-especie" onclick="setFiltroEspecie('gato',this)">🐱 Gatos</button>
     </div>
 
-    <!-- Linha 3: filtro por porte -->
+    <!-- Filtros por porte -->
     <div class="filtros-linha">
       <span class="filtros-label">Porte</span>
       <button class="filtro-btn active grupo-porte" onclick="setFiltroPorte('todos',this)">Todos</button>
@@ -76,7 +303,7 @@
       <button class="filtro-btn grupo-porte" onclick="setFiltroPorte('grande',this)">Grande</button>
     </div>
 
-    <!-- Linha 4: filtro por status -->
+    <!-- Filtros por status -->
     <div class="filtros-linha">
       <span class="filtros-label">Status</span>
       <button class="filtro-btn active grupo-status" onclick="setFiltroStatus('disponivel',this)">Disponíveis</button>
@@ -98,7 +325,7 @@
   </div>
 </div>
 
-<!-- ── MODAL DE DETALHES ────────────────── -->
+<!-- ── MODAL DE DETALHES DO ANIMAL ───────── -->
 <div class="modal-overlay" id="modalOverlay" onclick="fecharModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-foto" id="modalFoto">
@@ -119,6 +346,115 @@
   </div>
 </div>
 
+<!-- ── MODAL DE CADASTRO DE ANIMAL ─────────
+     Visivel apenas para usuarios logados.
+     Envia POST para /api/animais.
+───────────────────────────────────────── -->
+<div class="modal-cadastro" id="modalCadastro" onclick="fecharModalCadastro()">
+  <div class="modal-cadastro-box" onclick="event.stopPropagation()">
+
+    <div class="modal-cadastro-header">
+      <div class="modal-cadastro-titulo">🐾 Cadastrar novo animal</div>
+      <button class="modal-fechar" onclick="fecharModalCadastro()">✕</button>
+    </div>
+
+    <div class="modal-cadastro-body">
+
+      <!-- Feedback -->
+      <div class="modal-feedback" id="cadastroFeedback"></div>
+
+      <!-- Upload de foto com preview -->
+      <div class="form-grupo">
+        <label>Foto do animal</label>
+        <div class="foto-upload-area" id="fotoUploadArea" onclick="document.getElementById('inputFotoAnimal').click()">
+          <div class="foto-placeholder">
+            <span>📷</span>
+            <p>Clique para adicionar uma foto</p>
+            <small>JPG, PNG ou WEBP · Máximo 5MB</small>
+          </div>
+          <img class="foto-preview" id="fotoPreview" alt="Preview" />
+          <button class="btn-trocar-foto" id="btnTrocarFoto"
+            onclick="event.stopPropagation(); document.getElementById('inputFotoAnimal').click()"
+            style="display:none">
+            Trocar foto
+          </button>
+        </div>
+        <input type="file" id="inputFotoAnimal" accept="image/jpeg,image/png,image/webp"
+          onchange="previewFoto(this)" />
+      </div>
+
+      <!-- Campos em 2 colunas -->
+      <div class="form-row">
+        <div class="form-grupo">
+          <label>Nome do animal <span style="color:var(--laranja)">*</span></label>
+          <input type="text" id="cad-nome" placeholder="Ex: Rex" maxlength="100" />
+          <div class="erro-msg" id="err-nome"></div>
+        </div>
+        <div class="form-grupo">
+          <label>Espécie <span style="color:var(--laranja)">*</span></label>
+          <select id="cad-especie">
+            <option value="">Selecione</option>
+            <option value="cao">🐕 Cão</option>
+            <option value="gato">🐱 Gato</option>
+          </select>
+          <div class="erro-msg" id="err-especie"></div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-grupo">
+          <label>Raça</label>
+          <input type="text" id="cad-raca" placeholder="Ex: Labrador, SRD" maxlength="80" />
+        </div>
+        <div class="form-grupo">
+          <label>Idade (anos)</label>
+          <input type="number" id="cad-idade" placeholder="Ex: 2" min="0" max="30" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-grupo">
+          <label>Porte <span style="color:var(--laranja)">*</span></label>
+          <select id="cad-porte">
+            <option value="">Selecione</option>
+            <option value="pequeno">Pequeno (até 10kg)</option>
+            <option value="medio">Médio (10–25kg)</option>
+            <option value="grande">Grande (acima de 25kg)</option>
+          </select>
+          <div class="erro-msg" id="err-porte"></div>
+        </div>
+        <div class="form-grupo">
+          <label>Status <span style="color:var(--laranja)">*</span></label>
+          <select id="cad-status">
+            <option value="disponivel">✅ Disponível</option>
+            <option value="em_tratamento">🏥 Em tratamento</option>
+            <option value="em_processo">⏳ Em processo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grupo">
+        <label>Descrição <span style="color:var(--laranja)">*</span></label>
+        <textarea id="cad-descricao" placeholder="Conte sobre a personalidade, histórico e cuidados necessários do animal..." style="height:100px;resize:vertical"></textarea>
+        <div class="erro-msg" id="err-descricao"></div>
+      </div>
+
+    </div>
+
+    <div class="modal-cadastro-footer">
+      <button onclick="fecharModalCadastro()"
+        style="background:transparent;border:1px solid var(--border);border-radius:50px;padding:9px 20px;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text-sec)">
+        Cancelar
+      </button>
+      <button id="btnSalvarAnimal" onclick="salvarAnimalCadastro()"
+        style="background:var(--laranja);color:white;border:none;border-radius:50px;padding:9px 24px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer">
+        Salvar animal
+      </button>
+    </div>
+
+  </div>
+</div>
+
 <!-- ── FOOTER ───────────────────────────── -->
 <footer>
   <div class="footer-inner">
@@ -133,9 +469,167 @@
   </div>
 </footer>
 
-<script src="../js/auth.js"></script>
 <script src="../js/tema.js"></script>
 <script src="../js/galeria.js"></script>
+<script src="../js/menu.js"></script>
+<script>
+  const API_URL_CAD = 'http://localhost:5000/api';
+  let fotoBase64 = '';
+
+  /* ── Abre/fecha modal de cadastro ────────*/
+  function abrirModalCadastro() {
+    // Seguranca extra — so logado pode abrir
+    if (!estaLogado()) {
+      exigirLogin('animais.html', 'Faça login para cadastrar um animal');
+      return;
+    }
+    document.getElementById('modalCadastro').classList.add('aberto');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function fecharModalCadastro() {
+    document.getElementById('modalCadastro').classList.remove('aberto');
+    document.body.style.overflow = '';
+    limparFormCadastro();
+  }
+
+  /* ── Preview da foto ─────────────────────*/
+  function previewFoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // Valida formato
+    const formatos = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!formatos.includes(file.type)) {
+      mostrarFeedback('erro', '❌ Formato inválido. Use JPG, PNG ou WEBP.');
+      return;
+    }
+
+    // Valida tamanho (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      mostrarFeedback('erro', '❌ Imagem muito grande. Máximo 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      fotoBase64 = e.target.result;
+      const preview   = document.getElementById('fotoPreview');
+      const area      = document.getElementById('fotoUploadArea');
+      const btnTrocar = document.getElementById('btnTrocarFoto');
+      preview.src           = fotoBase64;
+      area.classList.add('com-foto');
+      btnTrocar.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ── Valida e salva o animal ─────────────*/
+  async function salvarAnimalCadastro() {
+    if (!estaLogado()) {
+      exigirLogin('animais.html');
+      return;
+    }
+
+    // Limpa erros anteriores
+    ['nome','especie','porte','descricao'].forEach(campo => {
+      const err = document.getElementById(`err-${campo}`);
+      const inp = document.getElementById(`cad-${campo}`);
+      if (err) err.textContent = '';
+      if (inp) inp.classList.remove('invalido');
+    });
+
+    // Coleta valores
+    const dados = {
+      nome:         document.getElementById('cad-nome').value.trim(),
+      especie:      document.getElementById('cad-especie').value,
+      raca:         document.getElementById('cad-raca').value.trim() || null,
+      idade:        parseInt(document.getElementById('cad-idade').value) || null,
+      porte:        document.getElementById('cad-porte').value,
+      statusAdocao: document.getElementById('cad-status').value,
+      descricao:    document.getElementById('cad-descricao').value.trim(),
+      fotoUrl:      fotoBase64 || '',
+    };
+
+    // Validacoes
+    let valido = true;
+    const obrigatorios = [
+      { campo: 'nome',      msg: 'O nome do animal é obrigatório' },
+      { campo: 'especie',   msg: 'Selecione a espécie do animal' },
+      { campo: 'porte',     msg: 'Selecione o porte do animal' },
+      { campo: 'descricao', msg: 'A descrição é obrigatória' },
+    ];
+
+    obrigatorios.forEach(({ campo, msg }) => {
+      if (!dados[campo]) {
+        const err = document.getElementById(`err-${campo}`);
+        const inp = document.getElementById(`cad-${campo}`);
+        if (err) { err.textContent = msg; err.classList.add('visivel'); }
+        if (inp) inp.classList.add('invalido');
+        valido = false;
+      }
+    });
+
+    if (!valido) {
+      mostrarFeedback('erro', '❌ Corrija os campos destacados antes de salvar.');
+      return;
+    }
+
+    // Envia para a API
+    const btn = document.getElementById('btnSalvarAnimal');
+    btn.textContent = 'Salvando...';
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(`${API_URL_CAD}/animais`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados),
+      });
+
+      if (!res.ok) throw new Error('Erro na API');
+
+      mostrarFeedback('sucesso', `✅ ${dados.nome} cadastrado com sucesso!`);
+
+      setTimeout(() => {
+        fecharModalCadastro();
+        carregarAnimais(); // Recarrega a galeria
+      }, 1500);
+
+    } catch {
+      mostrarFeedback('erro', '❌ Erro ao salvar. Verifique se o backend está rodando.');
+      btn.textContent = 'Salvar animal';
+      btn.disabled = false;
+    }
+  }
+
+  /* ── Feedback no modal ───────────────────*/
+  function mostrarFeedback(tipo, msg) {
+    const el = document.getElementById('cadastroFeedback');
+    el.textContent = msg;
+    el.className = `modal-feedback ${tipo}`;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* ── Limpa o formulario ──────────────────*/
+  function limparFormCadastro() {
+    ['nome','raca','idade','descricao'].forEach(id => {
+      const el = document.getElementById(`cad-${id}`);
+      if (el) el.value = '';
+    });
+    ['especie','porte'].forEach(id => {
+      const el = document.getElementById(`cad-${id}`);
+      if (el) el.value = '';
+    });
+    document.getElementById('cad-status').value = 'disponivel';
+    document.getElementById('fotoPreview').src = '';
+    document.getElementById('fotoUploadArea').classList.remove('com-foto');
+    document.getElementById('btnTrocarFoto').style.display = 'none';
+    document.getElementById('cadastroFeedback').className = 'modal-feedback';
+    document.getElementById('inputFotoAnimal').value = '';
+    fotoBase64 = '';
+  }
+</script>
 
 </body>
 </html>

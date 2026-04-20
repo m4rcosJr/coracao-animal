@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastrar Animal — Coração Animal</title>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .register-container { max-width:680px;margin:0 auto;padding:2.5rem 2rem; }
+    .register-card { background:var(--bg-card);border:1px solid var(--border);border-radius:1.5rem;padding:2rem;transition:var(--transition); }
+    .register-title { font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:4px; }
+    .register-sub { font-size:14px;color:var(--text-sec);margin-bottom:2rem;font-family:'DM Sans',sans-serif; }
+
+    /* Photo upload */
+    .photo-upload { border:2px dashed var(--border);border-radius:12px;padding:2rem;text-align:center;cursor:pointer;transition:var(--transition);margin-bottom:1.5rem;position:relative; }
+    .photo-upload:hover { border-color:var(--laranja);background:rgba(224,92,42,.03); }
+    .photo-upload.has-photo { border-style:solid;border-color:var(--laranja);padding:0;height:220px;overflow:hidden; }
+    .photo-upload.has-photo .photo-placeholder { display:none; }
+    .photo-preview { width:100%;height:100%;object-fit:cover;display:none;border-radius:10px; }
+    .photo-upload.has-photo .photo-preview { display:block; }
+    .photo-placeholder p { font-size:13px;color:var(--text-muted);font-family:'DM Sans',sans-serif;margin-top:8px; }
+    .photo-placeholder small { font-size:11px;color:var(--text-muted); }
+    .btn-change-photo { position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.5);color:white;border:none;border-radius:20px;padding:5px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif; }
+    #photoFile { display:none; }
+
+    /* URL alternative */
+    .photo-alt { display:flex;align-items:center;gap:10px;margin-bottom:1.5rem; }
+    .photo-alt-divider { flex:1;height:1px;background:var(--border); }
+    .photo-alt-text { font-size:12px;color:var(--text-muted);font-family:'DM Sans',sans-serif;white-space:nowrap; }
+
+    /* Feedback */
+    .register-feedback { display:none;padding:12px 16px;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:1rem;text-align:center; }
+    .register-feedback.success { display:block;background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9; }
+    .register-feedback.error   { display:block;background:rgba(229,57,53,.08);color:#e53935;border:1px solid rgba(229,57,53,.2); }
+
+    .btn-submit-register { width:100%;background:var(--laranja);color:white;border:none;border-radius:50px;padding:13px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:var(--transition);margin-top:.5rem; }
+    .btn-submit-register:hover { background:var(--laranja-hover); }
+    .btn-submit-register:disabled { background:var(--bg-muted);color:var(--text-muted);cursor:not-allowed; }
+  </style>
+</head>
+<body>
+
+<!-- Protect: admin only -->
+<script src="../js/auth.js"></script>
+<script>requireAdmin();</script>
+
+<nav>
+  <a href="../index.html" class="nav-logo"><div class="nav-logo-icon">🐾</div> Coração Animal</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Início</a></li>
+    <li><a href="animais.html">Animais</a></li>
+    <li><a href="admin.html">Admin</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-tema" id="btnTema" onclick="alternarTema()"><span id="temaIcone">🌙</span></button>
+    <span style="font-size:13px;color:var(--laranja);font-weight:600;font-family:'DM Sans',sans-serif">⚙ Admin</span>
+    <button onclick="logout()" style="background:transparent;border:1px solid var(--border);border-radius:50px;padding:6px 14px;font-size:12px;color:var(--text-sec);cursor:pointer;font-family:'DM Sans',sans-serif">Sair</button>
+  </div>
+</nav>
+
+<div class="register-container">
+  <div class="page-header" style="background:none;border:none;padding:0;margin-bottom:1.5rem">
+    <div class="section-label">Administração</div>
+    <div class="register-title">Cadastrar Animal para Doação</div>
+    <div class="register-sub">Preencha as informações do animal. Ele aparecerá automaticamente na página de adoção.</div>
+  </div>
+
+  <div class="register-card">
+    <div class="register-feedback" id="registerFeedback"></div>
+
+    <!-- Photo upload -->
+    <div class="form-grupo">
+      <label>Foto do animal</label>
+      <div class="photo-upload" id="photoUploadArea" onclick="document.getElementById('photoFile').click()">
+        <div class="photo-placeholder">
+          <div style="font-size:40px">📷</div>
+          <p>Clique para adicionar uma foto</p>
+          <small>JPG, PNG ou WEBP · Máximo 5MB</small>
+        </div>
+        <img class="photo-preview" id="photoPreview" alt="Preview"/>
+        <button class="btn-change-photo" id="btnChangePhoto" onclick="event.stopPropagation();document.getElementById('photoFile').click()" style="display:none">Trocar foto</button>
+      </div>
+      <input type="file" id="photoFile" accept="image/jpeg,image/png,image/webp" onchange="handlePhotoUpload(this)"/>
+    </div>
+
+    <!-- Photo URL alternative -->
+    <div class="photo-alt">
+      <div class="photo-alt-divider"></div>
+      <span class="photo-alt-text">ou informe uma URL</span>
+      <div class="photo-alt-divider"></div>
+    </div>
+    <div class="form-grupo" style="margin-bottom:1.5rem">
+      <input type="url" id="photoUrl" placeholder="https://exemplo.com/foto.jpg" oninput="handleUrlInput(this)"
+        style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif"/>
+    </div>
+
+    <!-- Fields -->
+    <div class="form-row">
+      <div class="form-grupo">
+        <label>Nome do animal <span style="color:var(--laranja)">*</span></label>
+        <input type="text" id="regName" placeholder="Ex: Rex" maxlength="100"/>
+        <div class="erro-msg" id="errRegName"></div>
+      </div>
+      <div class="form-grupo">
+        <label>Espécie <span style="color:var(--laranja)">*</span></label>
+        <select id="regSpecies">
+          <option value="">Selecione</option>
+          <option value="cao">🐕 Cão</option>
+          <option value="gato">🐱 Gato</option>
+        </select>
+        <div class="erro-msg" id="errRegSpecies"></div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-grupo">
+        <label>Raça</label>
+        <input type="text" id="regBreed" placeholder="Ex: Labrador, SRD"/>
+      </div>
+      <div class="form-grupo">
+        <label>Idade (anos)</label>
+        <input type="number" id="regAge" placeholder="Ex: 2" min="0" max="30"/>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-grupo">
+        <label>Porte <span style="color:var(--laranja)">*</span></label>
+        <select id="regSize">
+          <option value="">Selecione</option>
+          <option value="pequeno">Pequeno (até 10kg)</option>
+          <option value="medio">Médio (10–25kg)</option>
+          <option value="grande">Grande (acima de 25kg)</option>
+        </select>
+        <div class="erro-msg" id="errRegSize"></div>
+      </div>
+      <div class="form-grupo">
+        <label>Status</label>
+        <select id="regStatus">
+          <option value="disponivel">✅ Disponível</option>
+          <option value="em_tratamento">🏥 Em tratamento</option>
+          <option value="em_processo">⏳ Em processo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-grupo">
+      <label>Descrição <span style="color:var(--laranja)">*</span></label>
+      <textarea id="regDesc" placeholder="Conte sobre a personalidade, histórico e cuidados do animal..." style="height:110px;resize:vertical;width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:var(--transition)"></textarea>
+      <div class="erro-msg" id="errRegDesc"></div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:.5rem">
+      <a href="animais.html" style="flex:1;text-align:center;background:transparent;border:1px solid var(--border);border-radius:50px;padding:12px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text-sec);text-decoration:none;transition:var(--transition)">
+        Cancelar
+      </a>
+      <button class="btn-submit-register" id="btnRegister" onclick="submitRegisterAnimal()">
+        Cadastrar Animal
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo"><span>🐾</span> Coração Animal</div>
+    <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP</div>
+  </div>
+</footer>
+
+<script src="../js/tema.js"></script>
+<script src="../js/animals.js"></script>
+<script src="../js/notifications.js"></script>
+<script>
+  let photoBase64 = '';
+
+  function handlePhotoUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
+      showNotification('Formato inválido. Use JPG, PNG ou WEBP.', 'error'); return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      showNotification('Imagem muito grande. Máximo 5MB.', 'error'); return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      photoBase64 = e.target.result;
+      document.getElementById('photoPreview').src = photoBase64;
+      document.getElementById('photoUploadArea').classList.add('has-photo');
+      document.getElementById('btnChangePhoto').style.display = 'block';
+      document.getElementById('photoUrl').value = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleUrlInput(input) {
+    if (input.value) {
+      photoBase64 = '';
+      document.getElementById('photoPreview').src = input.value;
+      document.getElementById('photoUploadArea').classList.add('has-photo');
+      document.getElementById('btnChangePhoto').style.display = 'block';
+    }
+  }
+
+  async function submitRegisterAnimal() {
+    // Clear errors
+    document.querySelectorAll('.erro-msg').forEach(e => { e.textContent=''; e.classList.remove('visivel'); });
+    document.querySelectorAll('input,select,textarea').forEach(e => e.classList.remove('invalido'));
+
+    const name    = document.getElementById('regName').value.trim();
+    const species = document.getElementById('regSpecies').value;
+    const size    = document.getElementById('regSize').value;
+    const desc    = document.getElementById('regDesc').value.trim();
+    const photoURL = document.getElementById('photoUrl').value.trim();
+
+    let valid = true;
+    function err(fieldId, errId, msg) {
+      document.getElementById(fieldId)?.classList.add('invalido');
+      const e = document.getElementById(errId);
+      if (e) { e.textContent = msg; e.classList.add('visivel'); }
+      valid = false;
+    }
+
+    if (!name)    err('regName',    'errRegName',    'Nome do animal é obrigatório');
+    if (!species) err('regSpecies', 'errRegSpecies', 'Selecione a espécie');
+    if (!size)    err('regSize',    'errRegSize',    'Selecione o porte');
+    if (!desc)    err('regDesc',    'errRegDesc',    'A descrição é obrigatória');
+
+    if (!valid) return;
+
+    const btn = document.getElementById('btnRegister');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    const animal = {
+      nome:         name,
+      especie:      species,
+      raca:         document.getElementById('regBreed').value.trim() || null,
+      idade:        parseInt(document.getElementById('regAge').value) || null,
+      porte:        size,
+      statusAdocao: document.getElementById('regStatus').value,
+      descricao:    desc,
+      fotoUrl:      photoBase64 || photoURL || '',
+    };
+
+    try {
+      const saved = await addAnimal(animal);
+      const fb = document.getElementById('registerFeedback');
+      fb.textContent = `✅ ${saved.nome} cadastrado com sucesso! Já aparece na página de adoção.`;
+      fb.className = 'register-feedback success';
+      fb.scrollIntoView({ behavior: 'smooth' });
+      showNotification(`${saved.nome} cadastrado com sucesso!`, 'success');
+
+      setTimeout(() => {
+        window.location.href = 'animais.html';
+      }, 2000);
+    } catch (e) {
+      document.getElementById('registerFeedback').textContent = '❌ Erro ao cadastrar. Tente novamente.';
+      document.getElementById('registerFeedback').className = 'register-feedback error';
+      btn.disabled = false;
+      btn.textContent = 'Cadastrar Animal';
+    }
+  }
+</script>
+</body>
+</html>
