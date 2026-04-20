@@ -1,27 +1,27 @@
 /**
- * auth.js - Authentication & Session Management
- * Coracao Animal - PIM III UNIP
+ * auth.js — Authentication & Session Management
+ * Coracao Animal — PIM III UNIP
  *
- * Handles login, logout, session persistence,
- * route protection, and conditional UI rendering.
+ * Uses localStorage (persists across tabs and reloads).
+ * Exposes global functions used across all pages.
  */
 
-// ─── Storage Keys ────────────────────────────
+// ─── Storage Keys ─────────────────────────────────────
 const AUTH_KEYS = {
-  USER:     'ca_user_auth',
-  ADMIN:    'ca_admin_auth',
-  REDIRECT: 'ca_redirect',
-  NAME:     'ca_user_name',
-  TYPE:     'ca_user_type',  // 'user' | 'admin'
+  USER:     'ca_user_auth',    // 'true' when user is logged in
+  ADMIN:    'ca_admin_auth',   // 'true' when admin is logged in
+  REDIRECT: 'ca_redirect',     // page to return to after login
+  NAME:     'ca_user_name',    // display name
+  TYPE:     'ca_user_type',    // 'user' | 'admin'
 };
 
-// ─── Credentials (frontend simulation) ───────
+// ─── Credentials (frontend simulation) ────────────────
 const CREDENTIALS = {
   user:  { username: 'usuario', password: 'coracao123' },
   admin: { username: 'admin',   password: 'coracao2025' },
 };
 
-// ─── Core Auth Functions ──────────────────────
+// ─── State Checks ──────────────────────────────────────
 
 /** Returns true if any user (regular or admin) is logged in */
 function isLoggedIn() {
@@ -34,34 +34,27 @@ function isAdmin() {
   return localStorage.getItem(AUTH_KEYS.ADMIN) === 'true';
 }
 
-/** Returns the display name of the logged-in user */
+/** Returns the display name */
 function getUserName() {
   return localStorage.getItem(AUTH_KEYS.NAME) || 'Usuário';
 }
 
-/** Returns the user type: 'admin', 'user', or null */
-function getUserType() {
-  return localStorage.getItem(AUTH_KEYS.TYPE) || null;
-}
-
-// ─── Login & Logout ───────────────────────────
+// ─── Login / Logout ────────────────────────────────────
 
 /**
- * Attempts login with given credentials.
+ * Attempts login. Returns { success, message }.
  * @param {string} username
  * @param {string} password
  * @param {'user'|'admin'} type
- * @returns {{ success: boolean, message: string }}
  */
 function attemptLogin(username, password, type) {
   const cred = CREDENTIALS[type];
-  if (!cred) return { success: false, message: 'Invalid user type' };
+  if (!cred) return { success: false, message: 'Tipo inválido' };
 
   if (username === cred.username && password === cred.password) {
-    // Clear previous session
-    clearSession();
+    // Clear previous session first
+    Object.values(AUTH_KEYS).forEach(k => localStorage.removeItem(k));
 
-    // Set new session in localStorage (persists across tabs/reload)
     if (type === 'admin') {
       localStorage.setItem(AUTH_KEYS.ADMIN, 'true');
       localStorage.setItem(AUTH_KEYS.NAME, 'Administrador');
@@ -70,32 +63,26 @@ function attemptLogin(username, password, type) {
       localStorage.setItem(AUTH_KEYS.NAME, username);
     }
     localStorage.setItem(AUTH_KEYS.TYPE, type);
-
-    return { success: true, message: 'Login successful' };
+    return { success: true };
   }
 
-  return { success: false, message: 'Invalid username or password' };
+  return { success: false, message: 'Usuário ou senha incorretos' };
 }
 
-/** Clears all session data from localStorage */
-function clearSession() {
-  Object.values(AUTH_KEYS).forEach(key => localStorage.removeItem(key));
-}
-
-/** Logs out and redirects to homepage */
+/** Clears session and redirects to homepage */
 function logout() {
-  clearSession();
-  const isInPages = window.location.pathname.includes('/pages/');
-  window.location.href = isInPages ? '../index.html' : 'index.html';
+  Object.values(AUTH_KEYS).forEach(k => localStorage.removeItem(k));
+  const inPages = window.location.pathname.includes('/pages/');
+  window.location.href = inPages ? '../index.html' : 'index.html';
 }
 
-// ─── Route Protection ─────────────────────────
+// ─── Route Protection ──────────────────────────────────
 
 /**
- * Requires login to access a page/action.
- * Saves destination so user is redirected after login.
- * @param {string} destination - URL to redirect after login
- * @param {string} [message]   - Optional message shown on login page
+ * If not logged in: saves destination and redirects to login.
+ * If logged in: redirects immediately.
+ * @param {string} destination
+ * @param {string} [message] - shown on login page
  */
 function requireLogin(destination, message) {
   if (isLoggedIn()) {
@@ -104,12 +91,11 @@ function requireLogin(destination, message) {
   }
   if (destination) localStorage.setItem(AUTH_KEYS.REDIRECT, destination);
   if (message)     localStorage.setItem('ca_login_msg', message);
-
   const inPages = window.location.pathname.includes('/pages/');
   window.location.href = inPages ? 'login.html' : 'pages/login.html';
 }
 
-/** Protects admin-only pages. Redirects if not admin. */
+/** Redirects non-admins to login */
 function requireAdmin() {
   if (!isAdmin()) {
     const inPages = window.location.pathname.includes('/pages/');
@@ -117,24 +103,13 @@ function requireAdmin() {
   }
 }
 
-/** Protects any page requiring login. */
-function requireAuth() {
-  if (!isLoggedIn()) {
-    const currentPage = window.location.pathname.split('/').pop();
-    localStorage.setItem(AUTH_KEYS.REDIRECT, currentPage);
-    const inPages = window.location.pathname.includes('/pages/');
-    window.location.replace(inPages ? 'login.html' : 'pages/login.html');
-  }
-}
-
-// ─── Conditional UI Rendering ─────────────────
+// ─── Conditional UI ────────────────────────────────────
 
 /**
- * Shows/hides elements based on auth state.
- * Uses data attributes on HTML elements:
+ * Shows/hides elements based on auth state using data-auth attribute:
  *   data-auth="logged-in"  → visible only when logged in
  *   data-auth="logged-out" → visible only when logged out
- *   data-auth="admin"      → visible only when admin
+ *   data-auth="admin"      → visible only for admins
  */
 function applyAuthVisibility() {
   const loggedIn = isLoggedIn();
@@ -143,18 +118,14 @@ function applyAuthVisibility() {
 
   document.querySelectorAll('[data-auth]').forEach(el => {
     const rule = el.getAttribute('data-auth');
-    switch (rule) {
-      case 'logged-in':  el.style.display = loggedIn ? '' : 'none'; break;
-      case 'logged-out': el.style.display = !loggedIn ? '' : 'none'; break;
-      case 'admin':      el.style.display = admin ? '' : 'none'; break;
-    }
+    if (rule === 'logged-in')  el.style.display = loggedIn ? '' : 'none';
+    if (rule === 'logged-out') el.style.display = !loggedIn ? '' : 'none';
+    if (rule === 'admin')      el.style.display = admin ? '' : 'none';
   });
 
-  // Update username display elements
   document.querySelectorAll('[data-username]').forEach(el => {
     el.textContent = name;
   });
 }
 
-// Apply visibility on DOM ready
 document.addEventListener('DOMContentLoaded', applyAuthVisibility);

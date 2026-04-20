@@ -1,143 +1,642 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin — Coração Animal</title>
-  <link rel="stylesheet" href="../css/style.css" />
-  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    /* ── Admin Layout ──────────────────────────────────── */
+    .admin-wrap { display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 64px);transition:var(--transition); }
+
+    /* ── Sidebar ───────────────────────────────────────── */
+    .admin-sidebar { background:var(--bg-card);border-right:1px solid var(--border);padding:1.25rem 0;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;transition:var(--transition); }
+    .sidebar-section { font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em;padding:0 1.25rem;margin:1.25rem 0 4px;display:block;font-family:'DM Sans',sans-serif; }
+    .sidebar-section:first-child { margin-top:0; }
+    .sidebar-item { display:flex;align-items:center;gap:10px;padding:9px 1.25rem;font-size:14px;color:var(--text-sec);cursor:pointer;transition:var(--transition);border-left:3px solid transparent;text-decoration:none;font-family:'DM Sans',sans-serif;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left; }
+    .sidebar-item:hover  { color:var(--text);background:var(--bg-muted); }
+    .sidebar-item.active { color:var(--laranja);background:rgba(224,92,42,.06);border-left-color:var(--laranja);font-weight:500; }
+    .sidebar-icon { width:20px;text-align:center;font-size:16px;flex-shrink:0; }
+
+    /* ── Main content ──────────────────────────────────── */
+    .admin-main { padding:2rem;background:var(--bg);transition:var(--transition);min-width:0; }
+    .admin-panel { display:none; }
+    .admin-panel.active { display:block; }
+
+    /* ── Panel header ──────────────────────────────────── */
+    .panel-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px; }
+    .panel-title { font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text); }
+    .panel-sub { font-size:13px;color:var(--text-muted);font-family:'DM Sans',sans-serif;margin-top:2px; }
+    .btn-new { background:var(--laranja);color:white;border:none;border-radius:50px;padding:9px 20px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:var(--transition);white-space:nowrap; }
+    .btn-new:hover { background:var(--laranja-hover); }
+
+    /* ── Stats cards ───────────────────────────────────── */
+    .stats-row { display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:2rem; }
+    .stat-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:var(--transition);border-left:3px solid var(--laranja); }
+    .stat-card.green  { border-left-color:#4a7c59; }
+    .stat-card.blue   { border-left-color:#185FA5; }
+    .stat-card.purple { border-left-color:#7F77DD; }
+    .stat-card:hover { transform:translateY(-2px); }
+    .stat-icon { font-size:20px;margin-bottom:8px; }
+    .stat-val { font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--laranja);line-height:1; }
+    .stat-card.green  .stat-val { color:#4a7c59; }
+    .stat-card.blue   .stat-val { color:#185FA5; }
+    .stat-card.purple .stat-val { color:#7F77DD; }
+    [data-theme=dark] .stat-card.green  .stat-val { color:#5DCAA5; }
+    [data-theme=dark] .stat-card.blue   .stat-val { color:#85B7EB; }
+    [data-theme=dark] .stat-card.purple .stat-val { color:#AFA9EC; }
+    .stat-label { font-size:12px;color:var(--text-sec);font-family:'DM Sans',sans-serif;margin-top:4px; }
+
+    /* ── Data table ────────────────────────────────────── */
+    .table-wrap { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; }
+    .table-toolbar { padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap; }
+    .table-search { background:var(--bg);border:1px solid var(--border);border-radius:50px;padding:8px 16px;font-size:13px;color:var(--text);outline:none;transition:var(--transition);min-width:200px;font-family:'DM Sans',sans-serif; }
+    .table-search:focus { border-color:var(--laranja); }
+    table { width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif; }
+    thead tr { background:var(--bg-muted);border-bottom:1px solid var(--border); }
+    thead th { padding:10px 16px;font-size:12px;font-weight:600;color:var(--text-sec);text-align:left;white-space:nowrap; }
+    tbody tr { border-bottom:1px solid var(--border);transition:var(--transition); }
+    tbody tr:last-child { border-bottom:none; }
+    tbody tr:hover { background:rgba(224,92,42,.03); }
+    tbody td { padding:12px 16px;font-size:13px;color:var(--text); }
+    .table-empty { text-align:center;padding:3rem;color:var(--text-muted);font-family:'DM Sans',sans-serif; }
+    .actions-cell { display:flex;gap:6px; }
+    .btn-edit, .btn-delete { background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;transition:var(--transition);font-family:'DM Sans',sans-serif;color:var(--text-sec); }
+    .btn-edit:hover   { border-color:var(--laranja);color:var(--laranja); }
+    .btn-delete:hover { border-color:#e53935;color:#e53935; }
+
+    /* ── Edit modal ────────────────────────────────────── */
+    .modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px); }
+    .modal-overlay.open { display:flex; }
+    .modal-box { background:var(--bg-card);border:1px solid var(--border);border-radius:1.5rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto; }
+    .modal-header { padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+    .modal-title { font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text); }
+    .modal-close { background:transparent;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:var(--transition); }
+    .modal-close:hover { color:var(--text);background:var(--bg-muted); }
+    .modal-body { padding:1.5rem; }
+    .modal-footer { padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end; }
+    .form-grupo { margin-bottom:1rem; }
+    .form-grupo label { display:block;font-size:13px;font-weight:500;color:var(--text-sec);margin-bottom:6px;font-family:'DM Sans',sans-serif; }
+    .form-grupo input,
+    .form-grupo select,
+    .form-grupo textarea { width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;transition:var(--transition);font-family:'DM Sans',sans-serif; }
+    .form-grupo input:focus,
+    .form-grupo select:focus,
+    .form-grupo textarea:focus { border-color:var(--laranja);box-shadow:0 0 0 3px rgba(224,92,42,.1); }
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+    .btn-save   { background:var(--laranja);color:white;border:none;border-radius:50px;padding:9px 24px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:var(--transition); }
+    .btn-save:hover { background:var(--laranja-hover); }
+    .btn-cancel { background:transparent;border:1px solid var(--border);border-radius:50px;padding:9px 20px;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text-sec);transition:var(--transition); }
+    .btn-cancel:hover { border-color:var(--laranja);color:var(--laranja); }
+
+    /* ── Month adoption highlight ──────────────────────── */
+    .month-highlight { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px; }
+    .month-num { font-family:'Playfair Display',serif;font-size:48px;font-weight:700;color:var(--laranja);line-height:1; }
+    .month-info { font-size:13px;color:var(--text-sec);font-family:'DM Sans',sans-serif; }
+    .month-label { font-size:12px;color:var(--text-muted);font-family:'DM Sans',sans-serif;margin-top:4px; }
+    canvas { width:100%;height:180px; }
+
+    @media(max-width:900px) {
+      .admin-wrap { grid-template-columns:1fr; }
+      .admin-sidebar { display:none; }
+      .admin-main { padding:1rem; }
+      .form-row { grid-template-columns:1fr; }
+    }
+  </style>
 </head>
 <body>
 
+<!-- Admin-only page: redirect non-admins immediately -->
+<script src="../js/auth.js"></script>
+<script>requireAdmin();</script>
+
+<!-- ── NAVBAR ────────────────────────────────── -->
 <nav>
   <a href="../index.html" class="nav-logo"><div class="nav-logo-icon">🐾</div> Coração Animal</a>
   <ul class="nav-links">
-    <li><a href="../index.html">Sobre</a></li>
-    <li><a href="animais.html">Adote</a></li>
-    <li><a href="voluntarios.html">Como Ajudar</a></li>
-    <li><a href="doacoes.html">Contato</a></li>
+    <li><a href="../index.html">Site</a></li>
+    <li><a href="animais.html">Animais</a></li>
+    <li><a href="register-animal.html">+ Cadastrar</a></li>
   </ul>
   <div class="nav-actions">
     <button class="btn-tema" id="btnTema" onclick="alternarTema()"><span id="temaIcone">🌙</span></button>
     <span style="font-size:13px;color:var(--laranja);font-weight:600;font-family:'DM Sans',sans-serif">⚙ Admin</span>
+    <button onclick="logout()" style="background:transparent;border:1px solid var(--border);border-radius:50px;padding:6px 14px;font-size:12px;color:var(--text-sec);cursor:pointer;font-family:'DM Sans',sans-serif">Sair</button>
   </div>
 </nav>
 
-<div class="admin-layout">
+<!-- ── LAYOUT ─────────────────────────────────── -->
+<div class="admin-wrap">
+
+  <!-- Sidebar -->
   <aside class="admin-sidebar">
-    <div class="sidebar-titulo">Visão geral</div>
-    <a class="sidebar-link ativo" onclick="navegarPara('dashboard',this)"><span class="sidebar-icone">📊</span> Dashboard</a>
-    <div class="sidebar-titulo">Gerenciar</div>
-    <a class="sidebar-link" onclick="navegarPara('animais',this)"><span class="sidebar-icone">🐾</span> Animais</a>
-    <a class="sidebar-link" onclick="navegarPara('adotantes',this)"><span class="sidebar-icone">👤</span> Adotantes</a>
-    <a class="sidebar-link" onclick="navegarPara('adocoes',this)"><span class="sidebar-icone">🤝</span> Adoções</a>
-    <a class="sidebar-link" onclick="navegarPara('doacoes',this)"><span class="sidebar-icone">💰</span> Doações</a>
-    <a class="sidebar-link" onclick="navegarPara('voluntarios',this)"><span class="sidebar-icone">🙋</span> Voluntários</a>
-    <div class="sidebar-titulo">Site</div>
-    <a class="sidebar-link" href="../index.html"><span class="sidebar-icone">🏠</span> Ver site</a>
+    <span class="sidebar-section">Visão geral</span>
+    <button class="sidebar-item active" onclick="showPanel('dashboard',this)">
+      <span class="sidebar-icon">📊</span> Dashboard
+    </button>
+    <span class="sidebar-section">Gerenciar</span>
+    <button class="sidebar-item" onclick="showPanel('animals',this)">
+      <span class="sidebar-icon">🐾</span> Animais
+    </button>
+    <button class="sidebar-item" onclick="showPanel('adopters',this)">
+      <span class="sidebar-icon">👤</span> Adotantes
+    </button>
+    <button class="sidebar-item" onclick="showPanel('adoptions',this)">
+      <span class="sidebar-icon">🏠</span> Adoções
+    </button>
+    <button class="sidebar-item" onclick="showPanel('donations',this)">
+      <span class="sidebar-icon">💰</span> Doações
+    </button>
+    <button class="sidebar-item" onclick="showPanel('volunteers',this)">
+      <span class="sidebar-icon">🤝</span> Voluntários
+    </button>
+    <span class="sidebar-section">Site</span>
+    <a href="../index.html" class="sidebar-item">
+      <span class="sidebar-icon">🏠</span> Ver site
+    </a>
+    <a href="register-animal.html" class="sidebar-item">
+      <span class="sidebar-icon">➕</span> Cadastrar Animal
+    </a>
   </aside>
 
+  <!-- Main -->
   <main class="admin-main">
 
-    <div class="admin-panel ativo" id="painel-dashboard">
-      <div class="painel-header">
-        <div><div class="painel-titulo">Dashboard</div><div class="painel-subtitulo">Visão geral do sistema</div></div>
+    <!-- ── DASHBOARD PANEL ─────────────────────────── -->
+    <div id="panel-dashboard" class="admin-panel active">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Dashboard</div>
+          <div class="panel-sub">Visão geral do sistema</div>
+        </div>
+        <span class="dash-simulated-badge" style="display:none;font-size:11px;color:var(--laranja);background:rgba(224,92,42,.08);border:1px solid rgba(224,92,42,.2);border-radius:20px;padding:3px 12px;font-family:'DM Sans',sans-serif">
+          📊 Dados simulados
+        </span>
       </div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-card-label">🐾 Total de animais</div><div class="stat-card-valor" id="stat-animais">—</div></div>
-        <div class="stat-card"><div class="stat-card-label">✅ Disponíveis</div><div class="stat-card-valor" id="stat-disponiveis">—</div></div>
-        <div class="stat-card"><div class="stat-card-label">🏠 Adotados</div><div class="stat-card-valor" id="stat-adotados">—</div></div>
-        <div class="stat-card"><div class="stat-card-label">👤 Adotantes</div><div class="stat-card-valor" id="stat-adotantes">—</div></div>
-        <div class="stat-card"><div class="stat-card-label">🤝 Adoções</div><div class="stat-card-valor" id="stat-adocoes">—</div></div>
-        <div class="stat-card"><div class="stat-card-label">💰 Total arrecadado</div><div class="stat-card-valor" id="stat-doacoes">—</div></div>
-        <div class="stat-card"><div class="stat-card-label">🙋 Voluntários</div><div class="stat-card-valor" id="stat-voluntarios">—</div></div>
+
+      <!-- Adoptions this month highlight -->
+      <div class="month-highlight">
+        <div>
+          <div style="font-size:13px;color:var(--text-sec);font-family:'DM Sans',sans-serif;margin-bottom:6px">📅 Adoções este mês</div>
+          <div class="month-num" id="dash-month-adoptions">—</div>
+          <div class="month-label">Novos animais que encontraram um lar</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:13px;color:var(--text-muted);font-family:'DM Sans',sans-serif">Taxa geral de adoção</div>
+          <div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--laranja)" id="dash-rate">—</div>
+          <div style="height:6px;background:var(--bg-muted);border-radius:50px;overflow:hidden;width:160px;margin-top:6px">
+            <div id="dash-rate-bar" style="height:100%;background:linear-gradient(90deg,var(--laranja),#4a7c59);border-radius:50px;width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon">🐾</div><div class="stat-val" id="dash-total-animals">—</div><div class="stat-label">Animais cadastrados</div></div>
+        <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-val" id="dash-available">—</div><div class="stat-label">Disponíveis</div></div>
+        <div class="stat-card blue"><div class="stat-icon">🏠</div><div class="stat-val" id="dash-adopted">—</div><div class="stat-label">Adotados</div></div>
+        <div class="stat-card purple"><div class="stat-icon">👤</div><div class="stat-val" id="dash-adopters">—</div><div class="stat-label">Adotantes</div></div>
+        <div class="stat-card"><div class="stat-icon">🤝</div><div class="stat-val" id="dash-volunteers">—</div><div class="stat-label">Voluntários</div></div>
+        <div class="stat-card green"><div class="stat-icon">💰</div><div class="stat-val" id="dash-raised">—</div><div class="stat-label">Total arrecadado</div></div>
+      </div>
+
+      <!-- Chart -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem">
+        <div style="font-size:13px;color:var(--text-sec);font-family:'DM Sans',sans-serif;margin-bottom:1rem">
+          📈 Adoções e doações por mês — 2025
+        </div>
+        <canvas id="monthlyChart"></canvas>
       </div>
     </div>
 
-    <div class="admin-panel" id="painel-animais">
-      <div class="painel-header">
-        <div><div class="painel-titulo">Animais</div><div class="painel-subtitulo">Gerencie os animais cadastrados</div></div>
-        <button class="btn-novo" onclick="novoAnimal()">+ Novo animal</button>
+    <!-- ── ANIMALS PANEL ───────────────────────────── -->
+    <div id="panel-animals" class="admin-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Animais</div>
+          <div class="panel-sub">Gerencie os animais cadastrados</div>
+        </div>
+        <button class="btn-new" onclick="openAnimalModal()">+ Novo animal</button>
       </div>
-      <div class="tabela-wrap">
-        <div class="tabela-header"><input type="text" class="tabela-busca" placeholder="Buscar animal..." oninput="filtrarTabela('tabela-animais',this.value)" /></div>
-        <table><thead><tr><th>ID</th><th>Nome</th><th>Espécie</th><th>Raça</th><th>Status</th><th>Ações</th></tr></thead>
-        <tbody id="tabela-animais"><tr><td colspan="6" class="tabela-vazia">Carregando...</td></tr></tbody></table>
-      </div>
-    </div>
-
-    <div class="admin-panel" id="painel-adotantes">
-      <div class="painel-header"><div><div class="painel-titulo">Adotantes</div><div class="painel-subtitulo">Pessoas cadastradas</div></div></div>
-      <div class="tabela-wrap">
-        <table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Ações</th></tr></thead>
-        <tbody id="tabela-adotantes"><tr><td colspan="5" class="tabela-vazia">Carregando...</td></tr></tbody></table>
-      </div>
-    </div>
-
-    <div class="admin-panel" id="painel-adocoes">
-      <div class="painel-header"><div><div class="painel-titulo">Adoções</div><div class="painel-subtitulo">Histórico de processos</div></div></div>
-      <div class="tabela-wrap">
-        <table><thead><tr><th>ID</th><th>Animal</th><th>Adotante</th><th>Data</th><th>Status</th></tr></thead>
-        <tbody id="tabela-adocoes"><tr><td colspan="5" class="tabela-vazia">Carregando...</td></tr></tbody></table>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="table-search" placeholder="Buscar animal..." oninput="filterTable('animals',this.value)"/>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Nome</th><th>Espécie</th><th>Raça</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="animals-tbody"><tr><td colspan="6" class="table-empty">Carregando...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
-    <div class="admin-panel" id="painel-doacoes">
-      <div class="painel-header"><div><div class="painel-titulo">Doações</div><div class="painel-subtitulo">Contribuições recebidas</div></div></div>
-      <div class="tabela-wrap">
-        <table><thead><tr><th>ID</th><th>Doador</th><th>Valor</th><th>Forma</th><th>Status</th></tr></thead>
-        <tbody id="tabela-doacoes"><tr><td colspan="5" class="tabela-vazia">Carregando...</td></tr></tbody></table>
+    <!-- ── ADOPTERS PANEL ──────────────────────────── -->
+    <div id="panel-adopters" class="admin-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Adotantes</div>
+          <div class="panel-sub">Pessoas cadastradas no sistema</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="table-search" placeholder="Buscar adotante..." oninput="filterTable('adopters',this.value)"/>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cadastro</th></tr></thead>
+          <tbody id="adopters-tbody"><tr><td colspan="5" class="table-empty">Carregando...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
-    <div class="admin-panel" id="painel-voluntarios">
-      <div class="painel-header"><div><div class="painel-titulo">Voluntários</div><div class="painel-subtitulo">Equipe da ONG</div></div></div>
-      <div class="tabela-wrap">
-        <table><thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Área</th></tr></thead>
-        <tbody id="tabela-voluntarios"><tr><td colspan="4" class="tabela-vazia">Carregando...</td></tr></tbody></table>
+    <!-- ── ADOPTIONS PANEL ─────────────────────────── -->
+    <div id="panel-adoptions" class="admin-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Adoções</div>
+          <div class="panel-sub">Processos de adoção registrados</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="table-search" placeholder="Buscar adoção..." oninput="filterTable('adoptions',this.value)"/>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Animal</th><th>Adotante</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="adoptions-tbody"><tr><td colspan="6" class="table-empty">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── DONATIONS PANEL ─────────────────────────── -->
+    <div id="panel-donations" class="admin-panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Doações</div><div class="panel-sub">Contribuições recebidas</div></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Valor</th><th>Forma</th><th>Status</th><th>Data</th></tr></thead>
+          <tbody id="donations-tbody"><tr><td colspan="5" class="table-empty">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── VOLUNTEERS PANEL ────────────────────────── -->
+    <div id="panel-volunteers" class="admin-panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Voluntários</div><div class="panel-sub">Colaboradores da ONG</div></div>
+        <button class="btn-new" onclick="openVolunteerModal()">+ Novo voluntário</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>Área</th><th>Ações</th></tr></thead>
+          <tbody id="volunteers-tbody"><tr><td colspan="5" class="table-empty">Carregando...</td></tr></tbody>
+        </table>
       </div>
     </div>
 
   </main>
 </div>
 
-<!-- Modal animal -->
-<div class="modal-overlay" id="overlay-modal-animal" onclick="fecharModal('modal-animal')">
-  <div class="modal" onclick="event.stopPropagation()">
+<!-- ── ANIMAL EDIT MODAL ──────────── -->
+<div id="animalModal" class="modal-overlay">
+  <div class="modal-box">
     <div class="modal-header">
-      <span class="modal-titulo" id="modal-animal-titulo">Novo Animal</span>
-      <button class="modal-fechar" onclick="fecharModal('modal-animal')">✕</button>
+      <div class="modal-title" id="animalModalTitle">Novo Animal</div>
+      <button class="modal-close" onclick="closeAnimalModal()">✕</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="modal-animal-id" />
+      <input type="hidden" id="editAnimalId"/>
       <div class="form-row">
-        <div class="form-grupo"><label>Nome</label><input type="text" id="modal-animal-nome" placeholder="Nome do animal" /></div>
-        <div class="form-grupo"><label>Espécie</label><select id="modal-animal-especie"><option value="cao">Cão</option><option value="gato">Gato</option></select></div>
+        <div class="form-grupo">
+          <label>Nome *</label>
+          <input type="text" id="editAnimalNome" placeholder="Nome do animal"/>
+        </div>
+        <div class="form-grupo">
+          <label>Espécie *</label>
+          <select id="editAnimalEspecie">
+            <option value="">Selecione</option>
+            <option value="cao">Cão</option>
+            <option value="gato">Gato</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label>Raça</label>
+          <input type="text" id="editAnimalRaca" placeholder="SRD"/>
+        </div>
+        <div class="form-grupo">
+          <label>Idade (anos)</label>
+          <input type="number" id="editAnimalIdade" min="0" max="30"/>
+        </div>
+        <div class="form-grupo">
+          <label>Porte *</label>
+          <select id="editAnimalPorte">
+            <option value="">Selecione</option>
+            <option value="pequeno">Pequeno</option>
+            <option value="medio">Médio</option>
+            <option value="grande">Grande</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label>Status</label>
+          <select id="editAnimalStatus">
+            <option value="disponivel">Disponível</option>
+            <option value="em_processo">Em processo</option>
+            <option value="adotado">Adotado</option>
+            <option value="em_tratamento">Em tratamento</option>
+          </select>
+        </div>
       </div>
-      <div class="form-row">
-        <div class="form-grupo"><label>Raça</label><input type="text" id="modal-animal-raca" placeholder="Ex: Labrador" /></div>
-        <div class="form-grupo"><label>Idade (anos)</label><input type="number" id="modal-animal-idade" min="0" /></div>
+      <div class="form-grupo">
+        <label>URL da foto</label>
+        <input type="url" id="editAnimalFoto" placeholder="https://..."/>
       </div>
-      <div class="form-row">
-        <div class="form-grupo"><label>Porte</label><select id="modal-animal-porte"><option value="pequeno">Pequeno</option><option value="medio">Médio</option><option value="grande">Grande</option></select></div>
-        <div class="form-grupo"><label>Status</label><select id="modal-animal-status"><option value="disponivel">Disponível</option><option value="em_processo">Em processo</option><option value="adotado">Adotado</option><option value="em_tratamento">Em tratamento</option></select></div>
+      <div class="form-grupo">
+        <label>Descrição *</label>
+        <textarea id="editAnimalDesc" style="height:90px;resize:vertical"></textarea>
       </div>
-      <div class="form-grupo"><label>Descrição</label><textarea id="modal-animal-descricao" placeholder="Descreva o animal..."></textarea></div>
     </div>
     <div class="modal-footer">
-      <button class="btn-sec" style="border-radius:8px;padding:9px 20px;font-size:14px;cursor:pointer" onclick="fecharModal('modal-animal')">Cancelar</button>
-      <button class="btn-cta" style="border-radius:8px;padding:9px 20px;border:none;font-size:14px;cursor:pointer" onclick="salvarAnimal()">Salvar</button>
+      <button class="btn-cancel" onclick="closeAnimalModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveAnimal()">Salvar</button>
     </div>
   </div>
 </div>
 
 <script src="../js/tema.js"></script>
-<script src="../js/admin.js"></script>
+<script src="../js/animals.js"></script>
+<script src="../js/dashboard.js"></script>
+<script src="../js/notifications.js"></script>
 <script>
-function filtrarTabela(id, t) {
-  document.getElementById(id).querySelectorAll('tr').forEach(l => {
-    l.style.display = l.textContent.toLowerCase().includes(t.toLowerCase()) ? '' : 'none';
+/**
+ * Admin Panel Logic
+ * - Navigation between panels
+ * - CRUD for animals, adoptions, volunteers
+ * - All API calls with localStorage fallback
+ */
+
+const ADMIN_API = 'http://localhost:5000/api';
+
+// ── Panel Navigation ──────────────────────────────────
+function showPanel(name, btn) {
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  document.getElementById(`panel-${name}`).classList.add('active');
+  if (btn) btn.classList.add('active');
+
+  // Load data when panel is shown
+  const loaders = {
+    animals:   loadAnimalsTable,
+    adopters:  loadAdoptersTable,
+    adoptions: loadAdoptionsTable,
+    donations: loadDonationsTable,
+    volunteers:loadVolunteersTable,
+  };
+  if (loaders[name]) loaders[name]();
+}
+
+// ── Helper: render table ──────────────────────────────
+function renderTable(tbodyId, rows, emptyMsg = 'Nenhum registro encontrado') {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  tbody.innerHTML = rows.length ? rows.join('') :
+    `<tr><td colspan="99" class="table-empty">${emptyMsg}</td></tr>`;
+}
+
+function filterTable(type, query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll(`#panel-${type} tbody tr`).forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('pt-BR'); } catch { return '—'; }
+}
+
+function fmtCurrency(v) {
+  return (v||0).toLocaleString('pt-BR',{ style:'currency', currency:'BRL' });
+}
+
+// ── Animals ───────────────────────────────────────────
+async function loadAnimalsTable() {
+  const animals = await fetchAnimals();
+  const rows = animals.map(a => `
+    <tr>
+      <td>${a.idAnimal}</td>
+      <td><strong>${a.nome}</strong></td>
+      <td>${a.especie === 'cao' ? '🐕 Cão' : '🐱 Gato'}</td>
+      <td>${a.raca || '—'}</td>
+      <td><span style="padding:3px 10px;border-radius:50px;font-size:11px;background:${
+        a.statusAdocao==='disponivel'?'#e8f5e9':a.statusAdocao==='adotado'?'#e3f2fd':'#fff3e0'};color:${
+        a.statusAdocao==='disponivel'?'#2e7d32':a.statusAdocao==='adotado'?'#1565c0':'#e65100'}">${
+        a.statusAdocao}</span></td>
+      <td><div class="actions-cell">
+        <button class="btn-edit" onclick="editAnimal(${a.idAnimal})">Editar</button>
+        <button class="btn-delete" onclick="confirmDeleteAnimal(${a.idAnimal},'${a.nome}')">Excluir</button>
+      </div></td>
+    </tr>`);
+  renderTable('animals-tbody', rows, 'Nenhum animal cadastrado');
+}
+
+function openAnimalModal(animalId) {
+  document.getElementById('editAnimalId').value = '';
+  document.getElementById('animalModalTitle').textContent = 'Novo Animal';
+  ['editAnimalNome','editAnimalEspecie','editAnimalRaca','editAnimalIdade',
+   'editAnimalPorte','editAnimalFoto','editAnimalDesc'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('editAnimalStatus').value = 'disponivel';
+  document.getElementById('animalModal').classList.add('open');
+}
+
+function editAnimal(id) {
+  const animal = (window._animalsMap||{})[id] || getLocalAnimals().find(a => a.idAnimal === id);
+  if (!animal) { showNotification('Animal não encontrado','error'); return; }
+  document.getElementById('editAnimalId').value    = animal.idAnimal;
+  document.getElementById('animalModalTitle').textContent = `Editar — ${animal.nome}`;
+  document.getElementById('editAnimalNome').value    = animal.nome      || '';
+  document.getElementById('editAnimalEspecie').value = animal.especie   || '';
+  document.getElementById('editAnimalRaca').value    = animal.raca      || '';
+  document.getElementById('editAnimalIdade').value   = animal.idade     || '';
+  document.getElementById('editAnimalPorte').value   = animal.porte     || '';
+  document.getElementById('editAnimalStatus').value  = animal.statusAdocao || 'disponivel';
+  document.getElementById('editAnimalFoto').value    = animal.fotoUrl   || '';
+  document.getElementById('editAnimalDesc').value    = animal.descricao || '';
+  document.getElementById('animalModal').classList.add('open');
+}
+
+function closeAnimalModal() {
+  document.getElementById('animalModal').classList.remove('open');
+}
+
+async function saveAnimal() {
+  const id   = parseInt(document.getElementById('editAnimalId').value) || null;
+  const nome = document.getElementById('editAnimalNome').value.trim();
+  if (!nome) { showNotification('Nome é obrigatório','error'); return; }
+
+  const data = {
+    nome,
+    especie:      document.getElementById('editAnimalEspecie').value,
+    raca:         document.getElementById('editAnimalRaca').value || null,
+    idade:        parseInt(document.getElementById('editAnimalIdade').value) || null,
+    porte:        document.getElementById('editAnimalPorte').value,
+    statusAdocao: document.getElementById('editAnimalStatus').value,
+    fotoUrl:      document.getElementById('editAnimalFoto').value || '',
+    descricao:    document.getElementById('editAnimalDesc').value,
+  };
+
+  try {
+    if (id) {
+      await updateAnimal(id, data);
+      showNotification(`${nome} atualizado!`, 'success');
+    } else {
+      await addAnimal(data);
+      showNotification(`${nome} cadastrado!`, 'success');
+    }
+    invalidateAnimalsCache();
+    closeAnimalModal();
+    loadAnimalsTable();
+  } catch (err) {
+    showNotification('Erro: ' + err.message, 'error');
+  }
+}
+
+async function confirmDeleteAnimal(id, name) {
+  if (!confirm(`Excluir "${name}"? Esta ação não pode ser desfeita.`)) return;
+  try {
+    await deleteAnimal(id);
+    showNotification(`${name} removido`, 'success');
+    invalidateAnimalsCache();
+    loadAnimalsTable();
+  } catch (err) {
+    showNotification('Erro ao excluir: ' + err.message, 'error');
+  }
+}
+
+// ── Adopters ──────────────────────────────────────────
+async function loadAdoptersTable() {
+  let adopters = [];
+  try {
+    const res = await fetch(`${ADMIN_API}/adotantes`);
+    if (res.ok) adopters = await res.json();
+  } catch {}
+  if (!adopters.length) {
+    // Show locally tracked adoptions as adopters
+    const local = JSON.parse(localStorage.getItem('ca_adoptions')||'[]');
+    adopters = local.map((a,i) => ({
+      idAdotante: i+1,
+      nomeCompleto: a.adopter?.name || '—',
+      email:        a.adopter?.email || '—',
+      telefone:     a.adopter?.phone || '—',
+      dataCadastro: a.date,
+    }));
+  }
+  const rows = adopters.map(a => `
+    <tr>
+      <td>${a.idAdotante}</td>
+      <td>${a.nomeCompleto}</td>
+      <td>${a.email}</td>
+      <td>${a.telefone||'—'}</td>
+      <td>${fmtDate(a.dataCadastro)}</td>
+    </tr>`);
+  renderTable('adopters-tbody', rows, 'Nenhum adotante cadastrado');
+}
+
+// ── Adoptions ─────────────────────────────────────────
+async function loadAdoptionsTable() {
+  let adoptions = [];
+  try {
+    const res = await fetch(`${ADMIN_API}/adocoes`);
+    if (res.ok) adoptions = await res.json();
+  } catch {}
+
+  // Merge with local records
+  const local = JSON.parse(localStorage.getItem('ca_adoptions')||'[]');
+  const merged = [...adoptions, ...local.map((a,i) => ({
+    idAdocao:    'L' + (i+1),
+    animalName:  a.animalName,
+    adopterName: a.adopter?.name || '—',
+    dataAdocao:  a.date,
+    status:      a.status,
+  }))];
+
+  const rows = merged.map(a => `
+    <tr>
+      <td>${a.idAdocao}</td>
+      <td>${a.animalName || (a.idAnimal ? '#'+a.idAnimal : '—')}</td>
+      <td>${a.adopterName || (a.idAdotante ? '#'+a.idAdotante : '—')}</td>
+      <td>${fmtDate(a.dataAdocao || a.date)}</td>
+      <td><span style="padding:3px 10px;border-radius:50px;font-size:11px;background:#e8f5e9;color:#2e7d32">${a.status||'em_andamento'}</span></td>
+      <td><div class="actions-cell">
+        <button class="btn-edit" onclick="updateAdoptionStatus('${a.idAdocao}')">Status</button>
+      </div></td>
+    </tr>`);
+  renderTable('adoptions-tbody', rows, 'Nenhuma adoção registrada');
+}
+
+async function updateAdoptionStatus(id) {
+  const newStatus = prompt('Novo status (em_andamento / concluida / cancelada):');
+  if (!newStatus) return;
+  try {
+    await fetch(`${ADMIN_API}/adocoes/${id}`, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ idAdocao: id, status: newStatus }),
+    });
+    showNotification('Status atualizado!','success');
+    loadAdoptionsTable();
+  } catch {
+    showNotification('Não foi possível atualizar via API','error');
+  }
+}
+
+// ── Donations ─────────────────────────────────────────
+async function loadDonationsTable() {
+  let donations = [];
+  try {
+    const res = await fetch(`${ADMIN_API}/doacoes`);
+    if (res.ok) donations = await res.json();
+  } catch {}
+  const rows = donations.map(d => `
+    <tr>
+      <td>${d.idDoacao}</td>
+      <td>${fmtCurrency(d.valor)}</td>
+      <td>${d.formaPagamento||'—'}</td>
+      <td>${d.statusPagamento||'—'}</td>
+      <td>${fmtDate(d.dataDoacao)}</td>
+    </tr>`);
+  renderTable('donations-tbody', rows, 'Nenhuma doação registrada');
+}
+
+// ── Volunteers ────────────────────────────────────────
+async function loadVolunteersTable() {
+  let volunteers = [];
+  try {
+    const res = await fetch(`${ADMIN_API}/voluntarios`);
+    if (res.ok) volunteers = await res.json();
+  } catch {}
+  const rows = volunteers.map(v => `
+    <tr>
+      <td>${v.idVoluntario}</td>
+      <td>${v.nomeCompleto}</td>
+      <td>${v.email||'—'}</td>
+      <td>${v.areaAtuacao||'—'}</td>
+      <td><div class="actions-cell">
+        <button class="btn-delete" onclick="deleteVolunteer(${v.idVoluntario},'${v.nomeCompleto}')">Excluir</button>
+      </div></td>
+    </tr>`);
+  renderTable('volunteers-tbody', rows, 'Nenhum voluntário cadastrado');
+}
+
+function openVolunteerModal() { showNotification('Em desenvolvimento','info'); }
+
+async function deleteVolunteer(id, name) {
+  if (!confirm(`Excluir voluntário "${name}"?`)) return;
+  try {
+    await fetch(`${ADMIN_API}/voluntarios/${id}`, { method:'DELETE' });
+    showNotification(`${name} removido`,'success');
+    loadVolunteersTable();
+  } catch { showNotification('Erro ao excluir','error'); }
 }
 </script>
 </body>

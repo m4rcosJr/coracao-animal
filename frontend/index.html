@@ -1,5 +1,4 @@
 ﻿<!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8"/>
@@ -92,7 +91,7 @@
     </a>
     <!-- Not logged in -->
     <a href="javascript:void(0)" class="btn-cta" data-auth="logged-out"
-      onclick="requireLogin('pages/adocao.html','Faça login para iniciar uma adoção')">
+      onclick="handleAdoptClick()">
       🧡 Adote Agora
     </a>
     <!-- Logged in -->
@@ -124,7 +123,7 @@
       <p class="anim-3">Resgatamos, cuidamos e encontramos famílias amorosas para animais abandonados. Junte-se a nós nessa missão.</p>
       <div class="hero-btns anim-4">
         <a href="javascript:void(0)" class="btn-cta"
-          onclick="requireLogin('pages/adocao.html','Faça login para iniciar uma adoção')">🧡 Quero Adotar</a>
+          onclick="handleAdoptClick()">🧡 Quero Adotar</a>
         <a href="javascript:void(0)" class="btn-sec"
           onclick="requireLogin('pages/voluntarios.html','Faça login para se cadastrar como voluntário')">🤝 Quero Ajudar</a>
       </div>
@@ -138,11 +137,11 @@
     </div>
     <div class="hero-foto-wrap">
       <div class="deco-circle"></div>
-      <div class="hero-foto">
-         <div class="hero-foto-placeholder">
-          <img src="img/labrador_imagem.jpg" alt="labrador">
+        <div class="hero-foto">
+          <div class="hero-foto-placeholder">
+            <img src="img/labrador_imagem.jpg" alt="labrador">
+          </div>
         </div>
-      </div>
       <div class="hero-foto-card">
         <div class="hero-foto-card-icone">💚</div>
         <div>
@@ -361,5 +360,3 @@
 </script>
 </body>
 </html>
-
-
