@@ -29,10 +29,10 @@ O sistema web tem como objetivo facilitar a **adoção responsável de cães e g
 | Models C# | ✅ Concluído | 5 classes com relacionamentos e POO |
 | API REST (Backend) | ✅ Concluído | 25 endpoints em 5 Controllers |
 | Documentação da API | ✅ Concluído | Swagger disponível em /swagger |
-| Frontend | 🔄 Em desenvolvimento | HTML, CSS, JavaScript |
-| UX/UI Design | 🔄 Em desenvolvimento | Wireframes e personas |
+| Frontend | ✅ Concluído| HTML, CSS, JavaScript |
+| UX/UI Design | ✅ Concluído| Wireframes e personas |
 | Machine Learning | 🔄 Em desenvolvimento | Recomendação por perfil |
-| LIBRAS / Acessibilidade | 🔄 Em desenvolvimento | Glossário e recursos inclusivos |
+| LIBRAS / Acessibilidade | ✅ Concluído | Glossário e recursos inclusivos |
 
 ---
 
