@@ -71,8 +71,7 @@
 <!-- ── NAVBAR ─────────────── -->
 <nav>
   <a href="index.html" class="nav-logo">
-    <div class="nav-logo-icon">🐾</div>
-    Coração Animal
+    <img src="img/logo-coracao-animal.png" alt="Coração Animal" class="nav-logo-img" />
   </a>
   <ul class="nav-links">
     <li><a href="index.html" class="active">Sobre</a></li>
@@ -167,6 +166,25 @@
   </div>
 </section>
 
+<!-- ── VÍDEO ── -->
+<div class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Conheça nosso trabalho</div>
+      <h2>Veja como funciona a adoção</h2>
+    </div>
+  </div>
+  <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:var(--radius);background:var(--bg-card);border:1px solid var(--border)">
+    <video
+      controls
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:var(--radius);object-fit:cover"
+      poster="">
+      <source src="img/video_ong.mp4" type="video/mp4"/>
+      Seu navegador não suporta vídeo HTML5.
+    </video>
+  </div>
+</div>
+
 <!-- ── ANIMAIS ── -->
 <div class="section">
   <div class="section-header">
@@ -206,7 +224,7 @@
       <div class="dash-bar-bg"><div class="dash-bar-fill" id="dash-rate-bar"></div></div>
     </div>
     <div class="dash-chart-wrap">
-      <div class="dash-chart-label">📈 Adoções e doações mensais — 2025 <small style="color:var(--text-muted)">(preparado para integração com ML)</small></div>
+      <div class="dash-chart-label">📈 Adoções e doações mensais — 2026 <small style="color:var(--text-muted)">(preparado para integração com ML)</small></div>
       <canvas id="monthlyChart" style="width:100%;height:200px"></canvas>
     </div>
   </div>
@@ -235,7 +253,7 @@
       <li><a href="pages/voluntarios.html">Voluntários</a></li>
     </ul>
     <div class="footer-copy">
-      © 2025 Coração Animal · PIM III — UNIP ·
+      © 2026 Coração Animal · PIM III — UNIP ·
       <a href="pages/login.html" style="color:var(--text-muted);opacity:.5;text-decoration:none"
         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">Admin</a>
     </div>
@@ -316,14 +334,14 @@
 </div>
 
 <script src="js/tema.js"></script>
-<script src="js/animals.js"></script>
+<script src="js/animais.js"></script>
 <script src="js/adoption.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/menu.js"></script>
 <script>
   let _allAnimals = [];
 
-  // Load animals for home grid
+  // Carrega animais para grid da página inicial
   async function loadHomeAnimals() {
     _allAnimals = await fetchAnimals();
     const available = _allAnimals.filter(a => a.statusAdocao === 'disponivel');

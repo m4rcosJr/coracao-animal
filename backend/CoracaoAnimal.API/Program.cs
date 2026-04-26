@@ -1,79 +1,82 @@
 using Microsoft.EntityFrameworkCore;
 using CoracaoAnimal.API.Data;
 
-// ─────────────────────────────────────────────────────────
-// BUILDER — configura os servicos da aplicacao
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────
+// BUILDER — configura os serviços da aplicação
+// ───────────────────────────────────────────────────────────
 
-// Inicia a construcao da aplicacao
-// le automaticamente o appsettings.json
+// Inicia a construção da aplicação
 var builder = WebApplication.CreateBuilder(args);
 
-// Configura o CORS (Cross-Origin Resource Sharing)
-// CORS e uma politica de seguranca do navegador que bloqueia
-// chamadas entre dominios/portas diferentes por padrao.
-// Sem isso, o frontend em localhost:5500 nao consegue
-// chamar a API em localhost:5000 — o navegador bloqueia.
-// AllowAnyOrigin()  → aceita requisicoes de qualquer endereco
-// AllowAnyMethod()  → aceita GET, POST, PUT, DELETE, etc.
-// AllowAnyHeader()  → aceita qualquer cabecalho HTTP
+// Configura o CORS — permite que o frontend chame a API
+// sem isso o navegador bloqueia as requisicoes (erro de CORS)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("PermitirFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy
+            .AllowAnyOrigin()   // aceita requisicoes de qualquer endereco
+            .AllowAnyMethod()   // aceita GET, POST, PUT, DELETE, etc.
+            .AllowAnyHeader();  // aceita qualquer cabecalho HTTP
     });
 });
 
-// Registra o AppDbContext como servico
-// busca a string de conexao "CoracaoAnimal" do appsettings.json
-// e conecta ao SQL Server via Entity Framework
+// Registra o AppDbContext com a string de conexão do appsettings.json
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("CoracaoAnimal")
     )
 );
 
-// Registra os Controllers da API
-// sem isso a aplicacao nao encontra as rotas (endpoints)
+// Registra os Controllers — sem isso a API não encontra as rotas
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Permite desserializar JSON com case-insensitive
-        // Ex: "nome" do frontend mapeia para "Nome" do modelo
-        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+        options.JsonSerializerOptions.ReferenceHandler = 
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
-
+    
 // Registra o Swagger — interface visual para testar a API
-// acessivel pelo navegador em: http://localhost:5000/swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Configura o Swagger para suportar upload de arquivo (multipart/form-data)
+    // sem isso o Swagger nao exibe o campo de upload corretamente
+    c.SwaggerDoc("v1", new() { Title = "Coracao Animal API", Version = "v1" });
+});
 
-// ─────────────────────────────────────────────────────────
+// Configura limite de tamanho do body para uploads (padrao e 28MB)
+// ajuste conforme necessario
+builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024; // 10MB maximo
+});
+
+// ─────────────────────────────────────────────────────
 // APP — configura o pipeline de requisicoes
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────
 
-// Constroi a aplicacao com todas as configuracoes acima
 var app = builder.Build();
 
-// Ativa o Swagger e sua interface visual
+// Ativa o Swagger (interface de testes: http://localhost:5000/swagger)
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Ativa o middleware de CORS
-// IMPORTANTE: deve vir ANTES do UseAuthorization e MapControllers
-// para que toda requisicao seja verificada antes de chegar nos endpoints
+// *** CHAVE PARA O UPLOAD FUNCIONAR ***
+// Ativa o serviço de arquivos estáticos — sem isso as imagens
+// salvas em wwwroot/uploads NÃO ficam acessíveis via HTTP
+// Depois de ativar: http://localhost:5000/uploads/nome.jpg funciona
+app.UseStaticFiles();
+
+// Ativa o CORS — deve vir ANTES do UseAuthorization
 app.UseCors("PermitirFrontend");
 
-// Ativa o middleware de autorizacao
-// necessario para proteger rotas no futuro
+// Ativa o middleware de autorização
 app.UseAuthorization();
 
 // Mapeia os Controllers como rotas da API
-// ex: AnimaisController vira /api/animais
+// AnimaisController -> /api/animais
 app.MapControllers();
 
-// Inicia o servidor e a API comeca a ouvir requisicoes
+// Inicia o servidor
 app.Run();

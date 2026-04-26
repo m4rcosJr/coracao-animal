@@ -6,16 +6,16 @@ using CoracaoAnimal.API.Models;
 namespace CoracaoAnimal.API.Controllers
 {
 	/// <summary>
-	/// Controller responsavel pelos endpoints de Adotantes
+	/// Controller responsável pelos endpoints de Adotantes
 	/// </summary>
 	[ApiController]
 	[Route("api/[controller]")]
 	public class AdotantesController : ControllerBase
 	{
-		// Conexao com o banco de dados
+		// Conexão com o banco de dados
 		private readonly AppDbContext _context;
 
-		// Construtor recebe o banco por injecao de dependencia
+		// Construtor recebe o banco por injeção de dependência
 		public AdotantesController(AppDbContext context)
 		{
 			_context = context;

@@ -6,23 +6,23 @@ using CoracaoAnimal.API.Models;
 namespace CoracaoAnimal.API.Controllers
 {
     /// <summary>
-    /// Controller responsavel pelos endpoints de Adocoes
+    /// Controller responsável pelos endpoints de Adoções
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AdocoesController : ControllerBase
     {
-        // Conexao com o banco de dados
+        // Conexão com o banco de dados
         private readonly AppDbContext _context;
 
-        // Construtor recebe o banco por injecao de dependencia
+        // Construtor recebe o banco por injeção de dependência
         public AdocoesController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET api/adocoes
-        // Retorna todas as adocoes com dados do animal e adotante
+        // GET api/adoções
+        // Retorna todas as adoções com dados do animal e adotante
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Adocao>>> GetAdocoes()
         {
@@ -34,8 +34,8 @@ namespace CoracaoAnimal.API.Controllers
                 .ToListAsync();
         }
 
-        // GET api/adocoes/1
-        // Retorna uma adocao pelo ID com dados completos
+        // GET api/adoções/1
+        // Retorna uma adoção pelo ID com dados completos
         [HttpGet("{id}")]
         public async Task<ActionResult<Adocao>> GetAdocao(int id)
         {
@@ -50,8 +50,8 @@ namespace CoracaoAnimal.API.Controllers
             return adocao;
         }
 
-        // POST api/adocoes
-        // Registra uma nova adocao
+        // POST api/adoções
+        // Registra uma nova adoção
         [HttpPost]
         public async Task<ActionResult<Adocao>> PostAdocao(Adocao adocao)
         {
@@ -65,8 +65,8 @@ namespace CoracaoAnimal.API.Controllers
             );
         }
 
-        // PUT api/adocoes/1
-        // Atualiza o status de uma adocao
+        // PUT api/adoções/1
+        // Atualiza o status de uma adoção
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAdocao(int id, Adocao adocao)
         {
@@ -79,8 +79,8 @@ namespace CoracaoAnimal.API.Controllers
             return NoContent();
         }
 
-        // DELETE api/adocoes/1
-        // Remove uma adocao pelo ID
+        // DELETE api/adoções/1
+        // Remove uma adoção pelo ID
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAdocao(int id)
         {

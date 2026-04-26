@@ -1,5 +1,5 @@
 /**
- * notifications.js — Toast Notification System
+ * notifications.js — Sistema de Notificação Toast
  * Coracao Animal — PIM III UNIP
  */
 

@@ -1,272 +1,412 @@
-/**
- * adoption.js - Adoption Form & Process Management
- * Coracao Animal - PIM III UNIP
- *
- * Handles the full adoption modal flow:
- *  1. Open modal with selected animal
- *  2. Validate form inputs
- *  3. Submit to API (with localStorage fallback)
- *  4. Show success/error feedback
- */
+  /**
+   * adocao.js — Lógica de Formulário de Adoção em Múltiplas Etapas
+   * Coracao Animal — PIM III UNIP
+   *
+   * Processa:
+   * - Carregando animais disponíveis (de animais.js)
+   * - Navegação entre etapas do formulário
+   * - Validação do formulário
+   * - Envio da API
+   */
 
-const ADOPTIONS_API = 'http://localhost:5000/api';
-const ADOPTIONS_KEY = 'ca_adoptions'; // localStorage key
+  // API_BASE já declarado em animais.js
+  let currentStep = 1;
+  let selectedAnimalId = null;
+  let adoptionFormData = {};
 
-// Currently selected animal for adoption
-let _selectedAnimal = null;
+  // ─── Inicializar ao carregar página ─────────────────────────────────
 
-// ─── Modal Control ────────────────────────────
-
-/**
- * Opens the adoption modal for a specific animal.
- * Requires the user to be logged in.
- * @param {number|Object} animalIdOrObj - animal ID or object
- */
-async function openAdoptionModal(animalIdOrObj) {
-  // Auth check
-  if (!isLoggedIn()) {
-    requireLogin('animais.html', 'Faça login para iniciar uma adoção');
-    return;
-  }
-
-  // Resolve animal object
-  let animal;
-  if (typeof animalIdOrObj === 'object') {
-    animal = animalIdOrObj;
-  } else {
-    const all = getLocalAnimals ? getLocalAnimals() : [];
-    animal = all.find(a => a.idAnimal === animalIdOrObj);
-  }
-
-  if (!animal) {
-    showNotification('Animal não encontrado.', 'error');
-    return;
-  }
-
-  _selectedAnimal = animal;
-
-  // Populate animal summary in modal
-  const isCAT = animal.especie === 'gato';
-  const emoji  = isCAT ? '🐱' : '🐕';
-
-  const fotoEl = document.getElementById('adoptionAnimalPhoto');
-  const nameEl = document.getElementById('adoptionAnimalName');
-  const infoEl = document.getElementById('adoptionAnimalInfo');
-
-  if (fotoEl) fotoEl.innerHTML = animal.fotoUrl
-    ? `<img src="${animal.fotoUrl}" alt="${animal.nome}" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>`
-    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--bg-muted);border-radius:10px">${emoji}</div>`;
-
-  if (nameEl) nameEl.textContent = animal.nome;
-  if (infoEl) infoEl.textContent =
-    `${animal.raca || 'SRD'} · ${animal.idade ? animal.idade + ' ano(s)' : '—'} · ${animal.porte || '—'}`;
-
-  // Reset form
-  resetAdoptionForm();
-
-  // Show modal
-  const modal = document.getElementById('adoptionModal');
-  if (modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  }
-
-  // Focus first field
-  setTimeout(() => document.getElementById('adoptName')?.focus(), 300);
-}
-
-/** Closes the adoption modal */
-function closeAdoptionModal() {
-  const modal = document.getElementById('adoptionModal');
-  if (modal) modal.style.display = 'none';
-  document.body.style.overflow = '';
-  _selectedAnimal = null;
-}
-
-/** Resets all form fields and error states */
-function resetAdoptionForm() {
-  const fields = ['adoptName','adoptEmail','adoptPhone','adoptAddress',
-                  'adoptResidence','adoptHasPets','adoptNotes'];
-  fields.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) { el.value = ''; el.classList.remove('invalido'); }
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Carrega animais da API
+    await carregarAnimaisAdocao();
   });
 
-  // Clear error messages
-  document.querySelectorAll('#adoptionModal .erro-msg').forEach(el => {
-    el.textContent = '';
-    el.classList.remove('visivel');
-  });
+  // ─── Carregar Animais para Adoção ───────────────────────────
 
-  // Reset feedback
-  const fb = document.getElementById('adoptionFeedback');
-  if (fb) fb.className = 'modal-feedback';
+  async function carregarAnimaisAdocao() {
+    const grid = document.getElementById('selecaoAnimais');
+    if (!grid) return;
 
-  // Reset button
-  const btn = document.getElementById('btnSubmitAdoption');
-  if (btn) { btn.disabled = false; btn.textContent = '🧡 Confirmar interesse'; }
-}
+    try {
+      const animals = await fetchAnimals();
+      const disponibles = animals.filter(a => a.statusAdocao === 'disponivel');
 
-// ─── Validation ───────────────────────────────
+      if (disponibles.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:2rem">
+            <p style="color:var(--text-muted);font-size:14px">🐾 Nenhum animal disponível para adoção no momento.</p>
+          </div>
+        `;
+        return;
+      }
 
-/**
- * Marks a field as invalid with an error message.
- * @param {string} fieldId - input element ID
- * @param {string} errId   - error message element ID
- * @param {string} message - error message
- */
-function setFieldError(fieldId, errId, message) {
-  const field = document.getElementById(fieldId);
-  const err   = document.getElementById(errId);
-  if (field) field.classList.add('invalido');
-  if (err)   { err.textContent = message; err.classList.add('visivel'); }
-}
+      grid.innerHTML = disponibles.map(animal => `
+        <div class="animal-selection-card" onclick="selecionarAnimal(${animal.idAnimal}, this)">
+          <div class="animal-card-photo">
+            ${animal.fotoUrl
+              ? `<img src="${animal.fotoUrl}" alt="${animal.nome}" />`
+              : `<div class="photo-placeholder">${animal.especie === 'gato' ? '🐱' : '🐕'}</div>`
+            }
+          </div>
+          <div class="animal-card-info">
+            <div class="animal-card-name">${animal.nome}</div>
+            <div class="animal-card-meta">${animal.raca || 'SRD'} · ${animal.idade ? animal.idade + 'a' : '—'}</div>
+          </div>
+        </div>
+      `).join('');
 
-/**
- * Validates the adoption form.
- * @returns {{ valid: boolean, data: Object }}
- */
-function validateAdoptionForm() {
-  // Clear previous errors
-  document.querySelectorAll('#adoptionModal .invalido').forEach(el => el.classList.remove('invalido'));
-  document.querySelectorAll('#adoptionModal .erro-msg').forEach(el => {
-    el.textContent = '';
-    el.classList.remove('visivel');
-  });
-
-  const data = {
-    name:      document.getElementById('adoptName')?.value.trim()      || '',
-    email:     document.getElementById('adoptEmail')?.value.trim()     || '',
-    phone:     document.getElementById('adoptPhone')?.value.trim()     || '',
-    address:   document.getElementById('adoptAddress')?.value.trim()   || '',
-    residence: document.getElementById('adoptResidence')?.value        || '',
-    hasPets:   document.getElementById('adoptHasPets')?.value          || '',
-    notes:     document.getElementById('adoptNotes')?.value.trim()     || '',
-  };
-
-  let valid = true;
-
-  if (!data.name)
-    { setFieldError('adoptName',  'errAdoptName',  'Nome completo é obrigatório'); valid = false; }
-  if (!data.email)
-    { setFieldError('adoptEmail', 'errAdoptEmail', 'E-mail é obrigatório'); valid = false; }
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
-    { setFieldError('adoptEmail', 'errAdoptEmail', 'E-mail inválido'); valid = false; }
-  if (!data.phone)
-    { setFieldError('adoptPhone', 'errAdoptPhone', 'Telefone é obrigatório'); valid = false; }
-  if (!data.address)
-    { setFieldError('adoptAddress', 'errAdoptAddress', 'Endereço é obrigatório'); valid = false; }
-  if (!data.residence)
-    { setFieldError('adoptResidence', 'errAdoptResidence', 'Tipo de residência é obrigatório'); valid = false; }
-
-  return { valid, data };
-}
-
-// ─── Submission ───────────────────────────────
-
-/** Handles form submission: validates, submits, shows feedback */
-async function submitAdoption() {
-  if (!_selectedAnimal) return;
-
-  const { valid, data } = validateAdoptionForm();
-  if (!valid) {
-    showAdoptionFeedback('error', '❌ Corrija os campos destacados antes de enviar.');
-    return;
+    } catch (erro) {
+      console.error('[Adoption] Erro ao carregar animais:', erro);
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:2rem">
+          <p style="color:#e53935;font-size:14px">❌ Erro ao carregar animais. Tente novamente.</p>
+        </div>
+      `;
+    }
   }
 
-  const btn = document.getElementById('btnSubmitAdoption');
-  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+  // ─── Seleção de Animal ────────────────────────────────────────
 
-  // Build adoption record
-  const record = {
-    id:         Date.now(),
-    animalId:   _selectedAnimal.idAnimal,
-    animalName: _selectedAnimal.nome,
-    date:       new Date().toISOString(),
-    status:     'pending',
-    adopter:    data,
+  function selecionarAnimal(idAnimal, element) {
+    // Remove seleção anterior
+    document.querySelectorAll('.animal-selection-card').forEach(e => e.classList.remove('selecionado'));
+    
+    // Marca este como selecionado
+    element.classList.add('selecionado');
+    selectedAnimalId = idAnimal;
+    
+    console.log('[Adoption] Animal selecionado:', idAnimal);
+  }
+
+  // ─── Navegação do Formulário ────────────────────────────────
+
+  function proximoStep() {
+    if (currentStep === 1) {
+      if (!selectedAnimalId) {
+        alert('Por favor, selecione um animal para prosseguir.');
+        return;
+      }
+    } else if (currentStep === 2) {
+      if (!validarFormulario()) return;
+    }
+
+    // Oculta painel atual, mostra próximo
+    hidePanels();
+    currentStep++;
+    showPanel(currentStep);
+
+    // Atualiza indicador de etapa
+    atualizarSteps();
+
+    // Se estiver no painel de confirmação, mostra resumo
+    if (currentStep === 3) {
+      renderResumo();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function stepAnterior() {
+    if (currentStep > 1) {
+      hidePanels();
+      currentStep--;
+      showPanel(currentStep);
+      atualizarSteps();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function hidePanels() {
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('ativo'));
+  }
+
+  function showPanel(step) {
+    const panel = document.getElementById(`panel-${step}`);
+    if (panel) panel.classList.add('ativo');
+  }
+
+  function atualizarSteps() {
+    document.querySelectorAll('.step-item').forEach((step, i) => {
+      const stepNum = i + 1;
+      if (stepNum === currentStep) {
+        step.classList.add('ativo');
+        step.classList.remove('concluido');
+      } else if (stepNum < currentStep) {
+        step.classList.add('concluido');
+        step.classList.remove('ativo');
+      } else {
+        step.classList.remove('ativo', 'concluido');
+      }
+    });
+
+    document.querySelectorAll('.step-linha').forEach((line, i) => {
+      if (i + 1 < currentStep) {
+        line.classList.add('concluido');
+      } else {
+        line.classList.remove('concluido');
+      }
+    });
+  }
+
+  // ─── Validação do Formulário ────────────────────────────────
+
+  function validarFormulario() {
+    const campos = [
+      { id: 'nomeCompleto', label: 'Nome completo' },
+      { id: 'cpf', label: 'CPF' },
+      { id: 'email', label: 'E-mail' },
+      { id: 'telefone', label: 'Telefone' },
+      { id: 'endereco', label: 'Endereço' },
+    ];
+
+    let valido = true;
+
+    campos.forEach(campo => {
+      const input = document.getElementById(campo.id);
+      const erro = document.getElementById(`erro-${campo.id}`);
+
+      if (!input.value.trim()) {
+        input.classList.add('invalido');
+        if (erro) {
+          erro.textContent = `${campo.label} é obrigatório`;
+          erro.classList.add('visivel');
+        }
+        valido = false;
+      } else {
+        input.classList.remove('invalido');
+        if (erro) erro.classList.remove('visivel');
+      }
+    });
+
+    // Validação de email
+    const email = document.getElementById('email').value;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email && !emailRegex.test(email)) {
+      const erroEmail = document.getElementById('erro-email');
+      if (erroEmail) {
+        erroEmail.textContent = 'E-mail inválido';
+        erroEmail.classList.add('visivel');
+      }
+      valido = false;
+    }
+
+    // Acordo com termos
+    if (!document.getElementById('termos').checked) {
+      alert('Por favor, concorde com os termos de adoção responsável.');
+      valido = false;
+    }
+
+    return valido;
+  }
+
+  // ─── Renderizar Resumo ─────────────────────────────────────────
+
+  async function renderResumo() {
+    const animals = await fetchAnimals();
+    const animal = animals.find(a => a.idAnimal === selectedAnimalId);
+
+    if (!animal) return;
+
+    // Animal summary
+    const resumoAnimal = document.getElementById('resumo-animal');
+    if (resumoAnimal) {
+      resumoAnimal.innerHTML = `
+        <div style="display:flex;gap:12px;align-items:center">
+          <div style="width:60px;height:60px;border-radius:8px;overflow:hidden;flex-shrink:0">
+            ${animal.fotoUrl
+              ? `<img src="${animal.fotoUrl}" alt="${animal.nome}" style="width:100%;height:100%;object-fit:cover" />`
+              : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg-muted);font-size:28px">${animal.especie === 'gato' ? '🐱' : '🐕'}</div>`
+            }
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:15px;color:var(--text)">${animal.nome}</div>
+            <div style="font-size:13px;color:var(--text-muted)">${animal.raca || 'SRD'} · ${animal.idade ? animal.idade + ' ano(s)' : '—'} · ${animal.porte || '—'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Adopter summary
+    const resumoAdotante = document.getElementById('resumo-adotante');
+    if (resumoAdotante) {
+      resumoAdotante.innerHTML = `
+        <div style="font-size:13px;color:var(--text-sec)">
+          <div><strong>Nome:</strong> ${document.getElementById('nomeCompleto').value}</div>
+          <div><strong>CPF:</strong> ${document.getElementById('cpf').value}</div>
+          <div><strong>E-mail:</strong> ${document.getElementById('email').value}</div>
+          <div><strong>Telefone:</strong> ${document.getElementById('telefone').value}</div>
+          <div><strong>Endereço:</strong> ${document.getElementById('endereco').value}</div>
+        </div>
+      `;
+    }
+  }
+
+  // ─── Enviar Adoção ────────────────────────────────────────
+
+async function enviarAdocao() {
+  const btn = document.getElementById('btnEnviar');
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+
+  const adopterPayload = {
+    nomeCompleto: document.getElementById('nomeCompleto').value,
+    cpf:          document.getElementById('cpf').value,
+    email:        document.getElementById('email').value,
+    telefone:     document.getElementById('telefone').value,
+    endereco:     document.getElementById('endereco').value,
   };
 
   try {
-    console.log('[Adoption] Submitting:', record);
+    // Tenta criar adotante via API
+    const adopter = await fetch(`${API_BASE}/adotantes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(adopterPayload),
+    });
 
-    // Step 1: Create adopter via API
-    const adopterRes = await fetch(`${ADOPTIONS_API}/adotantes`, {
-      method:  'POST',
+    if (!adopter.ok) throw new Error('Erro ao criar perfil de adotante');
+    const adopterData = await adopter.json();
+
+    // Tenta criar adoção via API
+    const adoption = await fetch(`${API_BASE}/adocoes`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nomeCompleto: data.name,
-        cpf:          '000.000.000-00',
-        email:        data.email,
-        telefone:     data.phone,
-        endereco:     data.address,
+        idAnimal:    selectedAnimalId,
+        idAdotante:  adopterData.idAdotante,
+        status:      'em_andamento',
+        observacoes: document.getElementById('observacoes')?.value || '',
       }),
     });
 
-    let adopterId = null;
-    if (adopterRes.ok) {
-      const adopter = await adopterRes.json();
-      adopterId = adopter.idAdotante;
-      console.log('[Adoption] Adopter created, ID:', adopterId);
+    if (!adoption.ok) throw new Error('Erro ao registrar adoção');
+
+    // ✅ Atualiza o animal para "em_processo" via API
+    const animalRes = await fetch(`${API_BASE}/animais/${selectedAnimalId}`);
+    if (animalRes.ok) {
+      const animal = await animalRes.json();
+      animal.statusAdocao = 'em_processo';
+      await fetch(`${API_BASE}/animais/${selectedAnimalId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(animal),
+      });
+      invalidateAnimalsCache();
     }
 
-    // Step 2: Register adoption via API
-    const adoptionRes = await fetch(`${ADOPTIONS_API}/adocoes`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        idAnimal:    _selectedAnimal.idAnimal,
-        idAdotante:  adopterId,
-        status:      'em_andamento',
-        observacoes: `Residência: ${data.residence}. Tem outros pets: ${data.hasPets}. ${data.notes}`,
-      }),
-    });
+    mostrarSucesso();
 
-    if (!adoptionRes.ok) throw new Error('API adoption failed');
-    console.log('[Adoption] Adoption registered via API');
+  } catch (erro) {
+    console.warn('[Adoption] API indisponível, salvando localmente:', erro);
 
-  } catch (err) {
-    console.warn('[Adoption] API unavailable, saving locally:', err.message);
+    // ✅ Fallback: salva no localStorage com animalId para o admin poder atualizar depois
+    const animals = await fetchAnimals().catch(() => []);
+    const animal  = animals.find(a => a.idAnimal === selectedAnimalId);
+
+    const localRecord = {
+      animalId:   selectedAnimalId,           // ← campo que faltava
+      animalName: animal?.nome || '—',
+      adopter:    adopterPayload,
+      date:       new Date().toISOString(),
+      status:     'em_andamento',
+      observacoes: document.getElementById('observacoes')?.value || '',
+    };
+
+    const existing = JSON.parse(localStorage.getItem('ca_adoptions') || '[]');
+    existing.push(localRecord);
+    localStorage.setItem('ca_adoptions', JSON.stringify(existing));
+
+    // ✅ Atualiza o animal para "em_processo" no localStorage também
+    const animaisRaw = localStorage.getItem('ca_animals');
+    if (animaisRaw) {
+      const animais = JSON.parse(animaisRaw);
+      const idx = animais.findIndex(a => a.idAnimal === selectedAnimalId);
+      if (idx !== -1) {
+        animais[idx].statusAdocao = 'em_processo';
+        localStorage.setItem('ca_animals', JSON.stringify(animais));
+        invalidateAnimalsCache();
+      }
+    }
+
+    mostrarSucesso();
   }
-
-  // Always save to localStorage (as backup / for dashboard)
-  saveAdoptionLocally(record);
-
-  // Show success
-  showAdoptionFeedback('success',
-    `✅ Interesse em ${_selectedAnimal.nome} registrado! Entraremos em contato no e-mail ${data.email} em até 48h.`
-  );
-
-  showNotification(`Interesse em ${_selectedAnimal.nome} enviado com sucesso!`, 'success');
-
-  setTimeout(() => closeAdoptionModal(), 3000);
 }
 
-/** Saves adoption record to localStorage */
-function saveAdoptionLocally(record) {
-  const all = JSON.parse(localStorage.getItem(ADOPTIONS_KEY) || '[]');
-  all.push(record);
-  localStorage.setItem(ADOPTIONS_KEY, JSON.stringify(all));
+// ── Helper: exibe tela de sucesso ──────────────────────────
+function mostrarSucesso() {
+  const formWrap   = document.getElementById('formWrap');
+  const sucessoWrap = document.getElementById('sucessoWrap');
+  if (formWrap)    formWrap.style.display = 'none';
+  if (sucessoWrap) sucessoWrap.classList.add('visivel');
 }
+  // ─── Estilo para animal selecionado ────────────────────────
 
-/** Returns all locally stored adoptions */
-function getLocalAdoptions() {
-  return JSON.parse(localStorage.getItem(ADOPTIONS_KEY) || '[]');
-}
-
-/** Shows feedback message inside the modal */
-function showAdoptionFeedback(type, message) {
-  const el = document.getElementById('adoptionFeedback');
-  if (!el) return;
-  el.textContent  = message;
-  el.className    = `modal-feedback ${type === 'success' ? 'sucesso' : 'erro'}`;
-  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// ─── Phone Mask ───────────────────────────────
-function maskPhone(input) {
-  let v = input.value.replace(/\D/g, '');
-  v = v.replace(/^(\d{2})(\d)/,  '($1) $2');
-  v = v.replace(/(\d{5})(\d)/,   '$1-$2');
-  input.value = v.substring(0, 15);
-}
+  const style = document.createElement('style');
+  style.textContent = `
+    .animal-selection-card {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .animal-selection-card:hover {
+      border-color: var(--laranja);
+      background: rgba(224, 92, 42, 0.03);
+    }
+    .animal-selection-card.selecionado {
+      border-color: var(--laranja);
+      background: rgba(224, 92, 42, 0.1);
+      box-shadow: 0 0 0 2px rgba(224, 92, 42, 0.2);
+    }
+    .animal-card-photo {
+      width: 100%;
+      height: 140px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--bg-muted);
+    }
+    .animal-card-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .photo-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+    .animal-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .animal-card-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .animal-card-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .step-item.concluido::before {
+      content: '✓';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: #4a7c59;
+      font-weight: bold;
+    }
+    .step-linha.concluido {
+      background: #4a7c59;
+    }
+  `;
+  document.head.appendChild(style);

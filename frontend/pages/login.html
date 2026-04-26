@@ -14,14 +14,14 @@
     .login-logo-text { font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text); }
     .login-title { font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);text-align:center;margin-bottom:4px; }
     .login-sub { font-size:14px;color:var(--text-sec);text-align:center;margin-bottom:1.5rem;font-family:'DM Sans',sans-serif; }
-    /* Login message (from redirect) */
+    /* Mensagem de login (de redirecionamento) */
     .login-msg { display:none;background:rgba(224,92,42,0.08);border:1px solid rgba(224,92,42,0.25);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--laranja);margin-bottom:1rem;text-align:center;font-family:'DM Sans',sans-serif; }
     .login-msg.visible { display:block; }
-    /* Tabs */
+    /* Abas */
     .login-tabs { display:flex;background:var(--bg-muted);border-radius:50px;padding:4px;margin-bottom:1.5rem;gap:4px; }
     .login-tab { flex:1;padding:8px;border:none;border-radius:50px;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;background:transparent;color:var(--text-sec);transition:var(--transition); }
     .login-tab.active { background:var(--bg-card);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1); }
-    /* Form fields */
+    /* Campos do formulário */
     .form-grupo { margin-bottom:1rem; }
     .form-grupo label { display:block;font-size:13px;font-weight:500;color:var(--text-sec);margin-bottom:6px;font-family:'DM Sans',sans-serif; }
     .input-wrap { position:relative; }
@@ -30,16 +30,16 @@
     .form-grupo input:focus { border-color:var(--laranja);box-shadow:0 0 0 3px rgba(224,92,42,.12); }
     .form-grupo input.invalid { border-color:#e53935;box-shadow:0 0 0 3px rgba(229,57,53,.1); }
     .btn-eye { position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:15px;color:var(--text-muted);padding:4px;transition:var(--transition); }
-    /* Error */
+    /* Erro */
     .login-error { display:none;background:rgba(229,57,53,.08);border:1px solid rgba(229,57,53,.2);border-radius:10px;padding:10px 14px;font-size:13px;color:#e53935;margin-bottom:1rem;text-align:center;font-family:'DM Sans',sans-serif; }
     .login-error.visible { display:block; }
-    /* Submit */
+    /* Envio */
     .btn-login { width:100%;background:var(--laranja);color:white;border:none;border-radius:50px;padding:13px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:.5rem; }
     .btn-login:hover { background:var(--laranja-hover);transform:translateY(-1px); }
     .btn-login:disabled { background:var(--bg-muted);color:var(--text-muted);cursor:not-allowed;transform:none; }
     .btn-spinner { display:none;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite; }
     @keyframes spin { to{transform:rotate(360deg)} }
-    /* Hint */
+    /* Dica */
     .login-hint { margin-top:1.5rem;padding:12px 16px;background:var(--bg-muted);border-radius:10px;font-size:12px;color:var(--text-muted);text-align:center;font-family:'DM Sans',sans-serif;line-height:1.7; }
     .login-hint strong { color:var(--text-sec); }
     .login-back { display:flex;align-items:center;justify-content:center;gap:6px;margin-top:1.25rem;font-size:13px;color:var(--text-muted);text-decoration:none;font-family:'DM Sans',sans-serif;transition:var(--transition); }
@@ -59,19 +59,19 @@
   <div class="login-title">Bem-vindo de volta</div>
   <div class="login-sub">Faça login para continuar</div>
 
-  <!-- Message from redirect -->
+  <!-- Mensagem de redirecionamento -->
   <div class="login-msg" id="loginMsg"></div>
 
-  <!-- Tabs -->
+  <!-- Abas -->
   <div class="login-tabs">
     <button class="login-tab active" id="tabUser"  onclick="switchTab('user')">👤 Usuário</button>
     <button class="login-tab"        id="tabAdmin" onclick="switchTab('admin')">⚙ Admin</button>
   </div>
 
-  <!-- Error -->
+  <!-- Erro -->
   <div class="login-error" id="loginError">❌ Usuário ou senha incorretos</div>
 
-  <!-- Username -->
+  <!-- Usuário -->
   <div class="form-grupo">
     <label for="inputUsername">Usuário</label>
     <div class="input-wrap">
@@ -81,7 +81,7 @@
     </div>
   </div>
 
-  <!-- Password -->
+  <!-- Senha -->
   <div class="form-grupo">
     <label for="inputPassword">Senha</label>
     <div class="input-wrap">
@@ -112,17 +112,17 @@
 <script>
   let currentTab = 'user';
 
-  // Show login message if redirected here
+  // Mostra mensagem de login se redirecionado aqui
   function init() {
     const msg = localStorage.getItem('ca_login_msg');
     if (msg) {
       const el = document.getElementById('loginMsg');
-      el.textContent = '🔒 ' + msg;
+      el.textContent = '🔐 ' + msg;
       el.classList.add('visible');
       localStorage.removeItem('ca_login_msg');
     }
 
-    // If already logged in, redirect
+    // Se já estiver logado, redireciona
     if (isLoggedIn()) {
       redirectAfterLogin();
     }
@@ -135,10 +135,10 @@
 
     const hint = document.getElementById('loginHint');
     hint.innerHTML = tab === 'admin'
-      ? '🔑 <strong>Usuário:</strong> admin &nbsp;|&nbsp; <strong>Senha:</strong> coracao2025'
+      ? '🔑 <strong>Usuário:</strong> admin &nbsp;|&nbsp; <strong>Senha:</strong> coracao2026'
       : '🔑 <strong>Usuário:</strong> usuario &nbsp;|&nbsp; <strong>Senha:</strong> coracao123';
 
-    // Clear fields & errors
+    // Limpa campos & erros
     document.getElementById('inputUsername').value = '';
     document.getElementById('inputPassword').value = '';
     document.getElementById('loginError').classList.remove('visible');
@@ -152,7 +152,7 @@
     const spinner  = document.getElementById('loginSpinner');
     const btnText  = document.getElementById('loginBtnText');
 
-    // Clear errors
+    // Limpa erros
     errorEl.classList.remove('visible');
     document.getElementById('inputUsername').classList.remove('invalid');
     document.getElementById('inputPassword').classList.remove('invalid');
@@ -190,8 +190,8 @@
   }
 
   /**
-   * Redirects after successful login.
-   * Priority: saved redirect → admin panel → index
+   * Redireciona após login bem-sucedido.
+   * Prioridade: redirecionamento salvo → painel admin → índice
    */
   function redirectAfterLogin() {
     const saved = localStorage.getItem('ca_redirect');

@@ -6,31 +6,31 @@ using CoracaoAnimal.API.Models;
 namespace CoracaoAnimal.API.Controllers
 {
     /// <summary>
-    /// Controller responsavel pelos endpoints de Voluntarios
+    /// Controller responsável pelos endpoints de Voluntários
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class VoluntariosController : ControllerBase
     {
-        // Conexao com o banco de dados
+        // Conexão com o banco de dados
         private readonly AppDbContext _context;
 
-        // Construtor recebe o banco por injecao de dependencia
+        // Construtor recebe o banco por injeção de dependência
         public VoluntariosController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET api/voluntarios
-        // Retorna todos os voluntarios cadastrados
+        // GET api/voluntários
+        // Retorna todos os voluntários cadastrados
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Voluntario>>> GetVoluntarios()
         {
             return await _context.Voluntarios.ToListAsync();
         }
 
-        // GET api/voluntarios/1
-        // Retorna um voluntario pelo ID
+        // GET api/voluntários/1
+        // Retorna um voluntário pelo ID
         [HttpGet("{id}")]
         public async Task<ActionResult<Voluntario>> GetVoluntario(int id)
         {
@@ -42,8 +42,8 @@ namespace CoracaoAnimal.API.Controllers
             return voluntario;
         }
 
-        // POST api/voluntarios
-        // Cadastra um novo voluntario
+        // POST api/voluntários
+        // Cadastra um novo voluntário
         [HttpPost]
         public async Task<ActionResult<Voluntario>> PostVoluntario(Voluntario voluntario)
         {
@@ -57,8 +57,8 @@ namespace CoracaoAnimal.API.Controllers
             );
         }
 
-        // PUT api/voluntarios/1
-        // Atualiza os dados de um voluntario
+        // PUT api/voluntários/1
+        // Atualiza os dados de um voluntário
         [HttpPut("{id}")]
         public async Task<IActionResult> PutVoluntario(int id, Voluntario voluntario)
         {
@@ -71,8 +71,8 @@ namespace CoracaoAnimal.API.Controllers
             return NoContent();
         }
 
-        // DELETE api/voluntarios/1
-        // Remove um voluntario pelo ID
+        // DELETE api/voluntários/1
+        // Remove um voluntário pelo ID
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVoluntario(int id)
         {

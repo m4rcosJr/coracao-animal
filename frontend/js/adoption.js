@@ -1,19 +1,19 @@
 /**
- * adoption.js — Adoption Modal & Form Logic
+ * adoption.js — Lógica de Modal e Formulário de Adoção
  * Coracao Animal — PIM III UNIP
  *
- * FIXES applied:
- *  - Modal element IDs unified (adoptionModal, adoptionAnimalPhoto, etc.)
- *  - Form data collected correctly from all inputs
- *  - Correct JSON structure sent to API (POST /adotantes then POST /adocoes)
- *  - Proper error handling and user feedback
- *  - No JSON-in-HTML (uses animals.js _animalsMap instead)
+ * CORREÇÕES APLICADAS:
+ *  - IDs de elementos do modal unificados (adoptionModal, adoptionAnimalPhoto, etc.)
+ *  - Dados do formulário coletados corretamente de todos os inputs
+ *  - Estrutura JSON correta enviada para API (POST /adotantes depois POST /adocoes)
+ *  - Trata de erros apropriadamente e feedback do usuário
+ *  - Sem JSON no HTML (usa _animalsMap de animals.js)
  */
 
 const ADOPTION_API  = 'http://localhost:5000/api';
 const ADOPTIONS_KEY = 'ca_adoptions';
 
-// Currently selected animal for adoption
+// Animal atualmente selecionado para adoção
 let _adoptionAnimal = null;
 
 // ─── Modal Control ──────────────────────────────────────
@@ -35,22 +35,9 @@ function openAdoptionModal(animal) {
     return;
   }
 
-  function handleAdoptClick(animalId = null) {
-  if (!isLoggedIn()) {
-    requireLogin(null, 'Faça login para iniciar uma adoção');
-    return;
-  }
-
-  if (animalId) {
-    openAdoptionModal(animalId);
-  } else {
-    alert('Selecione um animal primeiro.');
-  }
-}
-
   _adoptionAnimal = animal;
 
-  // Populate animal summary card
+  // Preenche card de resumo do animal
   const isCAT = animal.especie === 'gato';
   const photo = document.getElementById('adoptionAnimalPhoto');
   const name  = document.getElementById('adoptionAnimalName');
@@ -63,20 +50,20 @@ function openAdoptionModal(animal) {
   if (name) name.textContent = animal.nome;
   if (info) info.textContent = `${animal.raca || 'SRD'} · ${animal.idade ? animal.idade + ' ano(s)' : '—'} · ${animal.porte || '—'}`;
 
-  // Reset form state
+  // Redefine estado do formulário
   resetAdoptionForm();
 
-  // Show modal
+  // Mostra modal
   const modal = document.getElementById('adoptionModal');
   if (!modal) { console.error('[Adoption] #adoptionModal not found in DOM'); return; }
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 
-  // Focus first field for accessibility
+  // Foca no primeiro campo para acessibilidade
   setTimeout(() => document.getElementById('adoptName')?.focus(), 300);
 }
 
-/** Closes the adoption modal and restores body scroll */
+/** Fecha o modal de adoção e restaura scroll do corpo */
 function closeAdoptionModal() {
   const modal = document.getElementById('adoptionModal');
   if (modal) modal.style.display = 'none';
@@ -84,7 +71,7 @@ function closeAdoptionModal() {
   _adoptionAnimal = null;
 }
 
-/** Resets all form fields, errors, and button state */
+/** Redefine todos os campos do formulário, erros e estado do botão */
 function resetAdoptionForm() {
   ['adoptName','adoptEmail','adoptPhone','adoptAddress',
    'adoptResidence','adoptHasPets','adoptNotes'].forEach(id => {
@@ -103,8 +90,8 @@ function resetAdoptionForm() {
 // ─── Validation ─────────────────────────────────────────
 
 /**
- * Validates a field and shows an error if invalid.
- * @returns {boolean} false if invalid
+ * Valida um campo e mostra um erro se inválido.
+ * @returns {boolean} false se inválido
  */
 function _validateField(inputId, errId, condition, message) {
   const input = document.getElementById(inputId);
@@ -120,17 +107,17 @@ function _validateField(inputId, errId, condition, message) {
 }
 
 /**
- * Collects and validates all form data.
+ * Coleta e valida todos os dados do formulário.
  * @returns {{ valid: boolean, data: Object }}
  */
 function validateAdoptionForm() {
-  // Clear previous errors
+  // Limpa erros anteriores
   document.querySelectorAll('#adoptionModal .invalido').forEach(el => el.classList.remove('invalido'));
   document.querySelectorAll('#adoptionModal .erro-msg').forEach(el => {
     el.textContent = ''; el.classList.remove('visivel');
   });
 
-  // Collect values
+  // Coleta valores
   const name      = document.getElementById('adoptName')?.value.trim()    || '';
   const email     = document.getElementById('adoptEmail')?.value.trim()   || '';
   const phone     = document.getElementById('adoptPhone')?.value.trim()   || '';
@@ -152,7 +139,7 @@ function validateAdoptionForm() {
   return { valid, data: { name, email, phone, address, residence, hasPets, notes } };
 }
 
-// ─── Submission ─────────────────────────────────────────
+// ─── Envio ─────────────────────────────────────────────────────
 
 /**
  * Submits the adoption form.
@@ -172,7 +159,7 @@ async function submitAdoption() {
   const btn = document.getElementById('btnSubmitAdoption');
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
 
-  // Build local record for fallback storage
+  // Constrói registro local para armazenamento de fallback
   const localRecord = {
     id:         Date.now(),
     animalId:   _adoptionAnimal.idAnimal,
@@ -185,24 +172,24 @@ async function submitAdoption() {
   let success = false;
 
   try {
-    console.log('[Adoption] Step 1: Creating adopter...');
+    console.log('[Adoption] Etapa 1: Criando adotante...');
     const adopterRes = await fetch(`${ADOPTION_API}/adotantes`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({
         nomeCompleto: data.name,
-        cpf:          '000.000.000-00',    // placeholder — add CPF field if needed
+        cpf:          '000.000.000-00',    // espaço reservado — adicione campo de CPF se necessário
         email:        data.email,
         telefone:     data.phone,
         endereco:     data.address,
       }),
     });
 
-    if (!adopterRes.ok) throw new Error(`Adotante POST failed: ${adopterRes.status}`);
+    if (!adopterRes.ok) throw new Error(`POST de adotante falhou: ${adopterRes.status}`);
     const adopter = await adopterRes.json();
-    console.log('[Adoption] Adopter created, ID:', adopter.idAdotante);
+    console.log('[Adoption] Adotante criado, ID:', adopter.idAdotante);
 
-    console.log('[Adoption] Step 2: Registering adoption...');
+    console.log('[Adoption] Etapa 2: Registrando adoção...');
     const adoptionRes = await fetch(`${ADOPTION_API}/adocoes`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -214,17 +201,17 @@ async function submitAdoption() {
       }),
     });
 
-    if (!adoptionRes.ok) throw new Error(`Adocao POST failed: ${adoptionRes.status}`);
-    console.log('[Adoption] Adoption registered successfully via API');
+    if (!adoptionRes.ok) throw new Error(`POST de adoção falhou: ${adoptionRes.status}`);
+    console.log('[Adoption] Adoção registrada com sucesso via API');
     success = true;
 
   } catch (err) {
-    console.warn('[Adoption] API error:', err.message);
+    console.warn('[Adoption] Erro de API:', err.message);
 
     if (err.message.toLowerCase().includes('failed to fetch') ||
         err.message.toLowerCase().includes('network')) {
-      // Offline — simulate success
-      console.info('[Adoption] Offline mode — saving locally');
+      // Offline — simula sucesso
+      console.info('[Adoption] Modo offline — salvando localmente');
       success = true;
     } else {
       _setAdoptionFeedback('error', `❌ Erro ao enviar: ${err.message}`);
@@ -233,7 +220,7 @@ async function submitAdoption() {
     }
   }
 
-  // Always save locally for dashboard tracking
+  // Sempre salva localmente para rastreamento no dashboard
   const all = JSON.parse(localStorage.getItem(ADOPTIONS_KEY) || '[]');
   all.push(localRecord);
   localStorage.setItem(ADOPTIONS_KEY, JSON.stringify(all));
@@ -249,7 +236,7 @@ async function submitAdoption() {
   }
 }
 
-/** Shows feedback inside the modal */
+/** Mostra feedback dentro do modal */
 function _setAdoptionFeedback(type, message) {
   const el = document.getElementById('adoptionFeedback');
   if (!el) return;
@@ -258,42 +245,10 @@ function _setAdoptionFeedback(type, message) {
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ─── Phone Mask ─────────────────────────────────────────
+// ─── Máscara de Telefone ─────────────────────────────────────────
 function maskPhone(input) {
   let v = input.value.replace(/\D/g, '');
   v = v.replace(/^(\d{2})(\d)/, '($1) $2');
   v = v.replace(/(\d{5})(\d)/, '$1-$2');
   input.value = v.substring(0, 15);
-}
-
-function submitAdoption() {
-  const name = document.getElementById('adoptName').value;
-  const email = document.getElementById('adoptEmail').value;
-
-  if (!name || !email) {
-    showFeedback('Preencha os campos obrigatórios.', 'erro');
-    return;
-  }
-
-  const adoptionData = {
-    animal: window._selectedAnimal,
-    nome: name,
-    email: email,
-    telefone: document.getElementById('adoptPhone').value,
-    endereco: document.getElementById('adoptAddress').value,
-    residencia: document.getElementById('adoptResidence').value,
-    observacoes: document.getElementById('adoptNotes').value,
-    data: new Date().toISOString()
-  };
-
-  // salva no localStorage (simulação)
-  const list = JSON.parse(localStorage.getItem('adocoes') || '[]');
-  list.push(adoptionData);
-  localStorage.setItem('adocoes', JSON.stringify(list));
-
-  showFeedback('Solicitação enviada com sucesso! 🧡', 'sucesso');
-
-  setTimeout(() => {
-    closeAdoptionModal();
-  }, 1500);
 }

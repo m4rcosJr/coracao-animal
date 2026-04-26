@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-brightgreen?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/C%23-ASP.NET%20Core-blue?style=for-the-badge&logo=dotnet"/>
-  <img src="https://img.shields.io/badge/SQL%20Server-2025-red?style=for-the-badge&logo=microsoftsqlserver"/>
+  <img src="https://img.shields.io/badge/SQL%20Server-2026-red?style=for-the-badge&logo=microsoftsqlserver"/>
   <img src="https://img.shields.io/badge/HTML%20%7C%20CSS%20%7C%20JS-Frontend-orange?style=for-the-badge"/>
   <img src="https://img.shields.io/badge/Swagger-API%20Docs-green?style=for-the-badge&logo=swagger"/>
   <img src="https://img.shields.io/badge/UNIP-PIM%20III-purple?style=for-the-badge"/>
@@ -25,7 +25,7 @@ O sistema web tem como objetivo facilitar a **adoção responsável de cães e g
 
 | Etapa | Status | Descrição |
 |-------|--------|-----------|
-| Banco de Dados SQL | ✅ Concluído | 5 tabelas criadas no SQL Server 2025 |
+| Banco de Dados SQL | ✅ Concluído | 5 tabelas criadas no SQL Server 2026 |
 | Models C# | ✅ Concluído | 5 classes com relacionamentos e POO |
 | API REST (Backend) | ✅ Concluído | 25 endpoints em 5 Controllers |
 | Documentação da API | ✅ Concluído | Swagger disponível em /swagger |
@@ -53,7 +53,7 @@ O sistema web tem como objetivo facilitar a **adoção responsável de cães e g
 | Camada | Tecnologia |
 |--------|-----------|
 | Backend | C# com ASP.NET Core — API REST |
-| Banco de Dados | SQL Server 2025 Express (SSMS) |
+| Banco de Dados | SQL Server 2026 Express (SSMS) |
 | ORM | Entity Framework Core |
 | Frontend | HTML5, CSS3, JavaScript |
 | Documentação API | Swagger / Swashbuckle |
@@ -109,7 +109,7 @@ A API conta com **25 endpoints** distribuídos em 5 Controllers:
 ### Pré-requisitos
 
 - [Visual Studio 2026](https://visualstudio.microsoft.com/) com workload ASP.NET
-- [SQL Server 2025 Express](https://www.microsoft.com/sql-server)
+- [SQL Server 2026 Express](https://www.microsoft.com/sql-server)
 - [SQL Server Management Studio (SSMS)](https://aka.ms/ssms)
 - [Git](https://git-scm.com/)
 - [.NET SDK](https://dotnet.microsoft.com/download)
@@ -274,4 +274,4 @@ Este projeto foi desenvolvido exclusivamente para fins acadêmicos como parte do
 
 ---
 
-<p align="center">Feito com 🐾 pela equipe Coração Animal · UNIP 2025</p>
+<p align="center">Feito com 🐾 pela equipe Coração Animal · UNIP 2026</p>

@@ -1,220 +1,261 @@
 /**
- * animals.js — Animal Data Layer
+ * animals.js — Animal Data Layer (atualizado com suporte a upload de imagem)
  * Coracao Animal — PIM III UNIP
  *
- * Single source of truth for animal data.
- * Fetches from API with localStorage fallback.
- * Used by ALL pages that display or manage animals.
+ * MUDANCA PRINCIPAL:
+ *   addAnimal() agora envia multipart/form-data em vez de JSON
+ *   para suportar upload de arquivo de imagem diretamente.
+ *
+ * POR QUE multipart/form-data?
+ *   JSON nao consegue transmitir arquivos binarios (imagens).
+ *   multipart/form-data e o formato padrao para formularios com arquivos,
+ *   assim como <form enctype="multipart/form-data"> no HTML.
  */
 
-const API_BASE    = 'http://localhost:5000/api';
-const LOCAL_KEY   = 'ca_animals';
+const API_BASE  = 'http://localhost:5000/api';
+const LOCAL_KEY = 'ca_animals';
 
-// In-memory cache (avoids redundant fetches within a page session)
+// Cache em memoria — evita chamadas repetidas na mesma sessao
 let _animalsCache = null;
 
-// ─── Data Layer ────────────────────────────────────────
+// ─── Data Layer ──────────────────────────────────────────
 
 /**
- * Fetches all animals. Uses cache if available.
- * Falls back to localStorage, then to default sample data.
+ * Busca todos os animais da API.
+ * Fallback: localStorage, depois dados de exemplo.
  * @returns {Promise<Array>}
  */
 async function fetchAnimals() {
   if (_animalsCache) return _animalsCache;
 
   try {
-    console.log('[Animals] Fetching from API...');
+    console.log('[Animals] Buscando da API...');
     const res = await fetch(`${API_BASE}/animais`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    _animalsCache = data;
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(data));
-    console.log(`[Animals] ${data.length} animals loaded from API`);
-    return data;
+    const apiData = await res.json();
+
+    // ✅ Mescla dados da API com alterações locais de status
+    // O localStorage pode ter status mais recentes (ex: em_processo, adotado)
+    // que ainda não foram persistidos na API (modo offline/fallback)
+    const localRaw = localStorage.getItem(LOCAL_KEY);
+    const localData = localRaw ? JSON.parse(localRaw) : [];
+
+    // Cria mapa de status locais por ID
+    const localStatusMap = {};
+    localData.forEach(a => {
+      if (a.idAnimal) localStatusMap[a.idAnimal] = a.statusAdocao;
+    });
+
+    // Aplica status local sobre dado da API (status local tem prioridade)
+    const merged = apiData.map(a => {
+      const localStatus = localStatusMap[a.idAnimal];
+      // Só sobrescreve se o status local for mais restritivo que "disponivel"
+      if (localStatus && localStatus !== 'disponivel') {
+        return { ...a, statusAdocao: localStatus };
+      }
+      return a;
+    });
+
+    _animalsCache = merged;
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(merged));
+    console.log(`[Animals] ${merged.length} animais carregados (API + status local)`);
+    return merged;
+
   } catch (err) {
-    console.warn('[Animals] API unavailable, using fallback:', err.message);
+    console.warn('[Animals] API indisponível, usando fallback:', err.message);
     return getLocalAnimals();
   }
 }
 
-/** Returns animals from localStorage, or default sample data */
-function getLocalAnimals() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(LOCAL_KEY));
-    if (stored && stored.length) {
-      _animalsCache = stored;
-      return stored;
-    }
-  } catch {}
-  // Default sample animals for demo/offline mode
-  const defaults = [
-    { idAnimal:1, nome:'Rex',   especie:'cao',  raca:'Labrador',  idade:3, porte:'grande',  statusAdocao:'disponivel',   descricao:'Cachorro carinhoso e brincalhão, adora crianças.', fotoUrl:'' },
-    { idAnimal:2, nome:'Mia',   especie:'gato', raca:'SRD',       idade:2, porte:'pequeno', statusAdocao:'disponivel',   descricao:'Gatinha dócil e independente, adora carinho.', fotoUrl:'' },
-    { idAnimal:3, nome:'Thor',  especie:'cao',  raca:'Vira-lata', idade:1, porte:'medio',   statusAdocao:'disponivel',   descricao:'Filhote leal e protetor, ótimo companheiro.', fotoUrl:'' },
-    { idAnimal:4, nome:'Luna',  especie:'gato', raca:'Persa',     idade:4, porte:'medio',   statusAdocao:'adotado',      descricao:'Já encontrou uma família amorosa!', fotoUrl:'' },
-    { idAnimal:5, nome:'Bolt',  especie:'cao',  raca:'Beagle',    idade:2, porte:'medio',   statusAdocao:'disponivel',   descricao:'Energético e inteligente, adora passear.', fotoUrl:'' },
-    { idAnimal:6, nome:'Simba', especie:'gato', raca:'Siamês',    idade:3, porte:'medio',   statusAdocao:'em_tratamento',descricao:'Em recuperação — em breve disponível.', fotoUrl:'' },
-  ];
-  localStorage.setItem(LOCAL_KEY, JSON.stringify(defaults));
-  _animalsCache = defaults;
-  return defaults;
-}
-
 /**
- * Adds a new animal via API (fallback: localStorage).
- * @param {Object} animal
- * @returns {Promise<Object>} saved animal with ID
+ * Cadastra um novo animal enviando multipart/form-data.
+ *
+ * POR QUE FormData em vez de JSON.stringify?
+ *   - JSON nao suporta arquivos binarios (imagens)
+ *   - FormData monta automaticamente o multipart/form-data
+ *   - O Content-Type e definido automaticamente pelo browser
+ *     (NAO defina Content-Type manualmente com FormData!)
+ *
+ * @param {Object}  animal   - dados do animal (nome, especie, etc.)
+ * @param {File}    [foto]   - arquivo de imagem (opcional)
+ * @returns {Promise<Object>} animal salvo com ID e fotoUrl
  */
-async function addAnimal(animal) {
+async function addAnimal(animal, foto = null) {
   try {
-    console.log('[Animals] Enviando para API:', animal);
+    // Monta o FormData com todos os campos
+    const formData = new FormData();
+    formData.append('Nome',         animal.nome        || '');
+    formData.append('Especie',      animal.especie     || '');
+    formData.append('Raca',         animal.raca        || '');
+    formData.append('Idade',        animal.idade?.toString() || '');
+    formData.append('Porte',        animal.porte       || '');
+    formData.append('StatusAdocao', animal.statusAdocao || 'disponivel');
+    formData.append('Descricao',    animal.descricao   || '');
+
+    // Adiciona o arquivo de imagem (se fornecido)
+    // O nome 'Foto' deve bater exatamente com o campo IFormFile no DTO do C#
+    if (foto) {
+      formData.append('Foto', foto);
+    }
+
+    // IMPORTANTE: NAO defina 'Content-Type': 'multipart/form-data' manualmente!
+    // O browser define automaticamente com o boundary correto.
+    // Se voce definir manualmente, o boundary fica faltando e o servidor rejeita.
     const res = await fetch(`${API_BASE}/animais`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(animal),
+      method: 'POST',
+      body:   formData,
+      // SEM headers — o browser define o Content-Type automaticamente
     });
-    
-    const responseText = await res.text();
-    console.log('[Animals] Response status:', res.status, 'Body:', responseText);
-    
-    if (res.ok) {
-      const saved = JSON.parse(responseText);
-      console.log('[Animals] Saved to API:', saved.idAnimal);
-      // Update local cache
-      const all = getLocalAnimals();
-      all.push(saved);
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
-      _animalsCache = all;
-      return saved;
+
+    if (!res.ok) {
+      const erro = await res.json().catch(() => ({}));
+      throw new Error(erro.mensagem || `HTTP ${res.status}`);
     }
-    
-    // Se não for ok, tenta pegar mensagem de erro do servidor
-    let errorMsg = `HTTP ${res.status}`;
-    try {
-      const errorData = JSON.parse(responseText);
-      errorMsg = errorData.message || errorData.error || errorMsg;
-    } catch {}
-    
-    throw new Error(errorMsg);
+
+    const saved = await res.json();
+    console.log('[Animals] Animal salvo na API, ID:', saved.idAnimal, 'FotoUrl:', saved.fotoUrl);
+
+    // Atualiza o cache local
+    const all = getLocalAnimals();
+    all.push(saved);
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
+    _animalsCache = all;
+    return saved;
+
   } catch (err) {
-    console.error('[Animals] API save failed:', err.message);
-    
-    // Só salva localmente se for erro de conexão
-    if (err.message.includes('Failed to fetch') || !navigator.onLine) {
-      console.warn('[Animals] No internet, saving locally as fallback');
-      const all = getLocalAnimals();
-      const newId = all.length ? Math.max(...all.map(a => a.idAnimal || 0)) + 1 : 1;
-      const saved = { ...animal, idAnimal: newId };
-      all.push(saved);
-      localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
-      _animalsCache = all;
-      return saved;
+    // Se a API estiver offline, salva apenas localmente
+    if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+      console.warn('[Animals] API offline — salvando localmente');
+      return _saveLocalOnly(animal, foto);
     }
-    
-    // Relança o erro real
     throw err;
   }
 }
 
+/** Salva animal apenas no localStorage (modo offline) */
+async function _saveLocalOnly(animal, foto) {
+  const all   = getLocalAnimals();
+  const newId = all.length ? Math.max(...all.map(a => a.idAnimal || 0)) + 1 : 1;
+
+  // Se tem foto, gera preview local via FileReader
+  let fotoUrl = animal.fotoUrl || '';
+  if (foto) {
+    fotoUrl = await new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result); // base64 para preview local
+      reader.readAsDataURL(foto);
+    });
+  }
+
+  const saved = { ...animal, idAnimal: newId, fotoUrl };
+  all.push(saved);
+  localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
+  _animalsCache = all;
+  return saved;
+}
+
 /**
- * Updates an animal by ID.
+ * Atualiza um animal existente (com suporte a nova foto).
  * @param {number} id
  * @param {Object} updates
+ * @param {File}   [foto]
  */
-async function updateAnimal(id, updates) {
+async function updateAnimal(id, updates, foto = null) {
   const all = getLocalAnimals();
   const idx = all.findIndex(a => a.idAnimal === id);
-  if (idx === -1) throw new Error('Animal not found');
+  if (idx === -1) throw new Error('Animal nao encontrado');
+
+  try {
+    const formData = new FormData();
+    formData.append('Nome',         updates.nome         || all[idx].nome);
+    formData.append('Especie',      updates.especie      || all[idx].especie      || '');
+    formData.append('Raca',         updates.raca         || all[idx].raca         || '');
+    formData.append('Idade',        (updates.idade       ?? all[idx].idade        ?? '').toString());
+    formData.append('Porte',        updates.porte        || all[idx].porte        || '');
+    formData.append('StatusAdocao', updates.statusAdocao || all[idx].statusAdocao || 'disponivel');
+    formData.append('Descricao',    updates.descricao    || all[idx].descricao    || '');
+    if (foto) formData.append('Foto', foto);
+
+    const res = await fetch(`${API_BASE}/animais/${id}`, { method:'PUT', body:formData });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  } catch (err) {
+    console.warn('[Animals] API update falhou, atualizando localmente:', err.message);
+  }
 
   const updated = { ...all[idx], ...updates, idAnimal: id };
   all[idx] = updated;
   localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
   _animalsCache = all;
-
-  try {
-    await fetch(`${API_BASE}/animais/${id}`, {
-      method:  'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(updated),
-    });
-  } catch (err) {
-    console.warn('[Animals] API update failed, updated locally only:', err.message);
-  }
-
   return updated;
 }
 
 /**
- * Deletes an animal by ID.
+ * Remove um animal pelo ID.
  * @param {number} id
  */
 async function deleteAnimal(id) {
   const all = getLocalAnimals().filter(a => a.idAnimal !== id);
   localStorage.setItem(LOCAL_KEY, JSON.stringify(all));
   _animalsCache = all;
-
-  try {
-    await fetch(`${API_BASE}/animais/${id}`, { method: 'DELETE' });
-  } catch (err) {
-    console.warn('[Animals] API delete failed, deleted locally only:', err.message);
-  }
+  try { await fetch(`${API_BASE}/animais/${id}`, { method:'DELETE' }); }
+  catch (err) { console.warn('[Animals] API delete falhou:', err.message); }
 }
 
-/** Invalidates the in-memory cache (forces re-fetch next call) */
-function invalidateAnimalsCache() {
-  _animalsCache = null;
-}
+/** Invalida o cache para forcar novo fetch na proxima chamada */
+function invalidateAnimalsCache() { _animalsCache = null; }
 
-// ─── Filtering ─────────────────────────────────────────
+// ─── Filtragem ───────────────────────────────────────────
 
 /**
- * Filters and sorts an animal array.
+ * Filtra e ordena um array de animais.
  * @param {Array}  animals
  * @param {Object} opts
  */
 function filterAnimals(animals, { species='all', size='all', status='disponivel', search='', sort='name' } = {}) {
-  let result = [...animals];
-  if (species !== 'all')  result = result.filter(a => a.especie === species);
-  if (size    !== 'all')  result = result.filter(a => a.porte?.toLowerCase() === size);
-  if (status  !== 'all')  result = result.filter(a => a.statusAdocao === status);
+  let r = [...animals];
+  if (species !== 'all') r = r.filter(a => a.especie === species);
+  if (size    !== 'all') r = r.filter(a => a.porte?.toLowerCase() === size);
+  if (status  !== 'all') r = r.filter(a => a.statusAdocao === status);
   if (search.trim()) {
     const q = search.toLowerCase();
-    result = result.filter(a =>
+    r = r.filter(a =>
       a.nome?.toLowerCase().includes(q)    ||
       a.especie?.toLowerCase().includes(q) ||
       a.raca?.toLowerCase().includes(q)
     );
   }
-  result.sort((a, b) => sort === 'age'
-    ? (a.idade || 99) - (b.idade || 99)
+  r.sort((a, b) => sort === 'age'
+    ? (a.idade||99) - (b.idade||99)
     : a.nome.localeCompare(b.nome)
   );
-  return result;
+  return r;
 }
 
-// ─── Card Generation ───────────────────────────────────
+// ─── Geração de Card ─────────────────────────────────────
 
 const STATUS_MAP = {
-  disponivel:    { label: 'Disponível',    bg: '#e8f5e9', color: '#2e7d32' },
-  em_processo:   { label: 'Em processo',   bg: '#fff3e0', color: '#e65100' },
-  adotado:       { label: 'Adotado',       bg: '#e3f2fd', color: '#1565c0' },
-  em_tratamento: { label: 'Em tratamento', bg: '#fce4ec', color: '#c62828' },
+  disponivel:    { label:'Disponível',    bg:'#e8f5e9', color:'#2e7d32' },
+  em_processo:   { label:'Em processo',   bg:'#fff3e0', color:'#e65100' },
+  adotado:       { label:'Adotado',       bg:'#e3f2fd', color:'#1565c0' },
+  em_tratamento: { label:'Em tratamento', bg:'#fce4ec', color:'#c62828' },
 };
 
 /**
- * Generates HTML for a single animal card.
+ * Gera HTML do card de um animal.
  *
- * FIX: stores animal data in window._animalsMap by ID so onclick can
- * safely retrieve it without embedding JSON in HTML attributes
- * (which causes quote-escaping bugs).
+ * CORREÇÃO DO BUG PRINCIPAL:
+ *   Antes: onclick="abrirModal(${JSON.stringify(animal).replace(/\"/g,\"'\")})"
+ *   Problema: aspas simples dentro de aspas duplas quebravam o HTML parser
+ *
+ *   Agora: onclick="handleAdoptClick(${animal.idAnimal})"
+ *   O animal é buscado pelo ID no window._animalsMap — sem JSON no HTML.
  *
  * @param {Object}  animal
  * @param {boolean} showAdoptBtn
- * @returns {string} HTML string
+ * @returns {string}
  */
 function generateAnimalCard(animal, showAdoptBtn = true) {
-  // Store in global map so onclick can look up by ID (avoids JSON-in-HTML bug)
+  // Armazena no mapa global para busca por ID
   if (!window._animalsMap) window._animalsMap = {};
   window._animalsMap[animal.idAnimal] = animal;
 
@@ -222,64 +263,63 @@ function generateAnimalCard(animal, showAdoptBtn = true) {
   const emoji  = isCAT ? '🐱' : '🐕';
   const badge  = isCAT ? 'Gato' : 'Cachorro';
   const avail  = animal.statusAdocao === 'disponivel';
-  const status = STATUS_MAP[animal.statusAdocao] || { label: animal.statusAdocao, bg:'#eee', color:'#666' };
+  const status = STATUS_MAP[animal.statusAdocao] || { label:animal.statusAdocao, bg:'#eee', color:'#666' };
 
-  // Tenta recuperar foto do localStorage se não tiver URL oficial
-  let photoSrc = animal.fotoUrl;
-  if (!photoSrc || photoSrc.trim() === '') {
-    const stored = localStorage.getItem('ca_photo_preview');
-    if (stored) photoSrc = stored;
+  const fotoSrc = animal.fotoUrl
+    ? (animal.fotoUrl.startsWith('/uploads/')
+        ? 'http://localhost:5000' + animal.fotoUrl
+        : animal.fotoUrl)
+    : null;
+
+  let html = '<div class="animal-card" onclick="openAnimalDetail(' + animal.idAnimal + ')" role="article">';
+  html += '<div class="animal-foto">';
+  
+  if (fotoSrc) {
+    html += '<img src="' + fotoSrc + '" alt="Foto de ' + animal.nome + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"/>';
+    html += '<div class="animal-foto-placeholder" style="display:none">' + emoji + '<span>Foto indisponível</span></div>';
+  } else {
+    html += '<div class="animal-foto-placeholder">' + emoji + '<span>Sem foto</span></div>';
   }
-
-  return `
-    <div class="animal-card" onclick="openAnimalDetail(${animal.idAnimal})" role="article" aria-label="Animal ${animal.nome}">
-      <div class="animal-foto">
-        ${photoSrc && photoSrc.trim() !== ''
-          ? `<img 
-              src="${photoSrc}" 
-              alt="Foto de ${animal.nome}" 
-              loading="lazy"
-              onerror="this.onerror=null;this.src='../img/default.jpg';"
-            />`
-          : `<div class="animal-foto-placeholder">${emoji}<span>Sem foto</span></div>`
-        }
-      <div class="animal-info">
-  <div class="animal-nome-row">
-    <div class="animal-nome">${animal.nome}</div>
-    <span class="animal-badge">${badge}</span>
-  </div>
-
-  <div class="animal-meta">
-    ${animal.raca || (isCAT ? 'SRD' : 'Vira-lata')}
-    ${animal.idade ? ' · ' + animal.idade + ' ano(s)' : ''}
-    ${animal.porte ? ' · ' + animal.porte : ''}
-  </div>
-
-  <div class="animal-desc">
-    ${animal.descricao || 'Animal disponível para adoção na ONG Coração Animal.'}
-  </div>
-
-  ${showAdoptBtn ? `
-    <button class="btn-outline-full"
-      ${!avail ? 'disabled' : ''}
-      onclick="event.stopPropagation(); handleAdoptClick(${animal.id || animal.idAnimal})"
-      aria-label="${avail ? 'Adotar ' + animal.nome : 'Indisponível'}">
-      ${avail ? '🧡 Quero adotar' : 'Indisponível'}
-    </button>
-  ` : ''}
-</div>
-</div>`;
+  
+  html += '<span class="animal-status-badge" style="background:' + status.bg + ';color:' + status.color + ';position:absolute;top:10px;right:10px;padding:4px 12px;border-radius:50px;font-size:11px;font-weight:600;font-family:\'DM Sans\',sans-serif">';
+  html += status.label;
+  html += '</span></div>';
+  
+  html += '<div class="animal-info">';
+  html += '<div class="animal-nome-row">';
+  html += '<div class="animal-nome">' + animal.nome + '</div>';
+  html += '<span class="animal-badge">' + badge + '</span>';
+  html += '</div>';
+  
+  html += '<div class="animal-meta">';
+  html += animal.raca || (isCAT ? 'SRD' : 'Vira-lata');
+  if (animal.idade) html += ' · ' + animal.idade + ' ano(s)';
+  if (animal.porte) html += ' · ' + animal.porte;
+  html += '</div>';
+  
+  html += '<div class="animal-desc">';
+  html += animal.descricao || 'Animal disponível para adoção na ONG Coração Animal.';
+  html += '</div>';
+  
+  if (showAdoptBtn) {
+    html += '<button class="btn-outline-full" ' + (avail ? '' : 'disabled') + ' onclick="event.stopPropagation(); handleAdoptClick(' + animal.idAnimal + ')">';
+    html += avail ? '🧡 Quero adotar' : 'Indisponível';
+    html += '</button>';
+  }
+  
+  html += '</div></div>';
+  
+  return html;
 }
 
 /**
- * Global handler for the "Adopt" button click.
- * Looks up animal from the map (avoids JSON-in-HTML).
- * Checks auth, then opens the adoption modal.
+ * Handler do clique em "Quero adotar".
+ * Busca o animal pelo ID (sem JSON no HTML).
  * @param {number} animalId
  */
 function handleAdoptClick(animalId) {
   const animal = window._animalsMap?.[animalId];
-  if (!animal) { console.error('[Animals] Animal not found in map:', animalId); return; }
+  if (!animal) { console.error('[Animals] Animal nao encontrado no mapa:', animalId); return; }
 
   if (!isLoggedIn()) {
     requireLogin(
@@ -289,20 +329,20 @@ function handleAdoptClick(animalId) {
     return;
   }
 
-  // Call the adoption modal (defined in adoption.js)
   if (typeof openAdoptionModal === 'function') {
     openAdoptionModal(animal);
   } else {
-    console.error('[Animals] openAdoptionModal not loaded');
+    console.error('[Animals] openAdoptionModal nao carregado');
   }
 }
 
 /**
- * Opens the animal detail modal (if it exists on the page).
+ * Abre o modal de detalhes do animal.
  * @param {number} animalId
  */
 function openAnimalDetail(animalId) {
   const animal = window._animalsMap?.[animalId];
-  if (!animal) return;
-  if (typeof showAnimalModal === 'function') showAnimalModal(animal);
+  if (animal && typeof showAnimalModal === 'function') {
+    showAnimalModal(animal);
+  }
 }

@@ -25,27 +25,34 @@
 
     /* ── Panel header ──────────────────────────────────── */
     .panel-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px; }
-    .panel-title { font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text); }
+    .panel-title { font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--text); }
     .panel-sub { font-size:13px;color:var(--text-muted);font-family:'DM Sans',sans-serif;margin-top:2px; }
     .btn-new { background:var(--laranja);color:white;border:none;border-radius:50px;padding:9px 20px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:var(--transition);white-space:nowrap; }
     .btn-new:hover { background:var(--laranja-hover); }
 
     /* ── Stats cards ───────────────────────────────────── */
-    .stats-row { display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:2rem; }
-    .stat-card { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:var(--transition);border-left:3px solid var(--laranja); }
-    .stat-card.green  { border-left-color:#4a7c59; }
-    .stat-card.blue   { border-left-color:#185FA5; }
-    .stat-card.purple { border-left-color:#7F77DD; }
-    .stat-card:hover { transform:translateY(-2px); }
-    .stat-icon { font-size:20px;margin-bottom:8px; }
-    .stat-val { font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--laranja);line-height:1; }
+    .stats-row { display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;margin-bottom:2rem; }
+    .stat-card { background:linear-gradient(135deg,rgba(224,92,42,0.1) 0%,rgba(224,92,42,0.05) 100%);border:1.5px solid rgba(224,92,42,0.3);border-radius:16px;padding:2rem;transition:var(--transition);box-shadow:0 4px 12px rgba(0,0,0,0.06);position:relative;overflow:hidden; }
+    .stat-card::before { content:'';position:absolute;top:-50%;right:-50%;width:200px;height:200px;background:radial-gradient(circle,rgba(224,92,42,0.1) 0%,transparent 70%);border-radius:50%;pointer-events:none; }
+    .stat-card.green  { background:linear-gradient(135deg,rgba(74,124,89,0.1) 0%,rgba(74,124,89,0.05) 100%);border-color:rgba(74,124,89,0.3); }
+    .stat-card.blue   { background:linear-gradient(135deg,rgba(24,95,165,0.1) 0%,rgba(24,95,165,0.05) 100%);border-color:rgba(24,95,165,0.3); }
+    .stat-card.purple { background:linear-gradient(135deg,rgba(127,119,221,0.1) 0%,rgba(127,119,221,0.05) 100%);border-color:rgba(127,119,221,0.3); }
+    .stat-card:hover { transform:translateY(-8px);box-shadow:0 12px 28px rgba(0,0,0,0.15);border-color:rgba(224,92,42,0.6); }
+    .stat-card.green:hover { border-color:rgba(74,124,89,0.6); }
+    .stat-card.blue:hover { border-color:rgba(24,95,165,0.6); }
+    .stat-card.purple:hover { border-color:rgba(127,119,221,0.6); }
+    .stat-icon { font-size:40px;margin-bottom:12px;display:inline-block;background:rgba(224,92,42,0.1);padding:12px;border-radius:12px;line-height:1; }
+    .stat-card.green .stat-icon { background:rgba(74,124,89,0.1); }
+    .stat-card.blue .stat-icon { background:rgba(24,95,165,0.1); }
+    .stat-card.purple .stat-icon { background:rgba(127,119,221,0.1); }
+    .stat-val { font-family:'Playfair Display',serif;font-size:48px;font-weight:800;color:var(--laranja);line-height:1;letter-spacing:-1px; }
     .stat-card.green  .stat-val { color:#4a7c59; }
     .stat-card.blue   .stat-val { color:#185FA5; }
     .stat-card.purple .stat-val { color:#7F77DD; }
     [data-theme=dark] .stat-card.green  .stat-val { color:#5DCAA5; }
     [data-theme=dark] .stat-card.blue   .stat-val { color:#85B7EB; }
     [data-theme=dark] .stat-card.purple .stat-val { color:#AFA9EC; }
-    .stat-label { font-size:12px;color:var(--text-sec);font-family:'DM Sans',sans-serif;margin-top:4px; }
+    .stat-label { font-size:16px;color:var(--text);font-family:'DM Sans',sans-serif;margin-top:8px;font-weight:600;line-height:1.4; }
 
     /* ── Data table ────────────────────────────────────── */
     .table-wrap { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; }
@@ -112,7 +119,7 @@
 
 <!-- ── NAVBAR ────────────────────────────────── -->
 <nav>
-  <a href="../index.html" class="nav-logo"><div class="nav-logo-icon">🐾</div> Coração Animal</a>
+  <a href="../index.html" class="nav-logo"><img src="../img/logo-coracao-animal.png" alt="Coração Animal" class="nav-logo-img" /></a>
   <ul class="nav-links">
     <li><a href="../index.html">Site</a></li>
     <li><a href="animais.html">Animais</a></li>
@@ -203,7 +210,7 @@
       <!-- Chart -->
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem">
         <div style="font-size:13px;color:var(--text-sec);font-family:'DM Sans',sans-serif;margin-bottom:1rem">
-          📈 Adoções e doações por mês — 2025
+          📈 Adoções e doações por mês — 2026
         </div>
         <canvas id="monthlyChart"></canvas>
       </div>
@@ -297,7 +304,7 @@
   </main>
 </div>
 
-<!-- ── ANIMAL EDIT MODAL ──────────── -->
+<!-- ── ANIMAL EDIT MODAL ──────────────────────────────────── -->
 <div id="animalModal" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -346,10 +353,45 @@
           </select>
         </div>
       </div>
+
+      <!-- ── Foto ─────────────────────────────────────────── -->
       <div class="form-grupo">
-        <label>URL da foto</label>
-        <input type="url" id="editAnimalFoto" placeholder="https://..."/>
+        <label>Foto do animal</label>
+
+        <!-- Preview -->
+        <div id="fotoPreviewWrap" style="display:none;margin-bottom:10px;position:relative;width:100%;height:180px;border-radius:10px;overflow:hidden;background:var(--bg-muted)">
+          <img id="fotoPreviewImg"
+               style="width:100%;height:100%;object-fit:cover"
+               alt="Preview"/>
+          <button onclick="clearFoto()"
+                  style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);border:none;color:white;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+
+        <!-- Upload de arquivo -->
+        <label for="editAnimalFotoFile"
+               id="fotoDropZone"
+               style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed var(--border);border-radius:10px;padding:20px;cursor:pointer;transition:var(--transition);font-family:'DM Sans',sans-serif">
+          <span style="font-size:28px">🖼️</span>
+          <span style="font-size:13px;color:var(--text-sec)">Clique para escolher uma imagem</span>
+          <span style="font-size:11px;color:var(--text-muted)">JPG, PNG, WEBP — máx. 5 MB</span>
+        </label>
+        <input type="file" id="editAnimalFotoFile" accept="image/*"
+               style="display:none" onchange="handleFotoFile(this)"/>
+
+        <!-- Separador -->
+        <div style="display:flex;align-items:center;gap:8px;margin:10px 0">
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+          <span style="font-size:11px;color:var(--text-muted);font-family:'DM Sans',sans-serif">ou cole uma URL</span>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+
+        <!-- URL manual -->
+        <input type="url" id="editAnimalFotoUrl"
+               placeholder="https://exemplo.com/foto.jpg"
+               oninput="handleFotoUrl(this.value)"
+               style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;transition:var(--transition);font-family:'DM Sans',sans-serif"/>
       </div>
+
       <div class="form-grupo">
         <label>Descrição *</label>
         <textarea id="editAnimalDesc" style="height:90px;resize:vertical"></textarea>
@@ -361,20 +403,60 @@
     </div>
   </div>
 </div>
-
 <script src="../js/tema.js"></script>
-<script src="../js/animals.js"></script>
+<script src="../js/animais.js"></script>
 <script src="../js/dashboard.js"></script>
 <script src="../js/notifications.js"></script>
 <script>
-/**
- * Admin Panel Logic
- * - Navigation between panels
- * - CRUD for animals, adoptions, volunteers
- * - All API calls with localStorage fallback
- */
-
 const ADMIN_API = 'http://localhost:5000/api';
+
+// ── Foto: estado interno ──────────────────────────────
+let _fotoBase64 = null;
+let _fotoFile   = null;
+
+function _showPreview(src) {
+  document.getElementById('fotoPreviewImg').src = src;
+  document.getElementById('fotoPreviewWrap').style.display = 'block';
+  document.getElementById('fotoDropZone').style.display   = 'none';
+}
+
+function clearFoto() {
+  _fotoBase64 = null;
+  _fotoFile   = null;
+  document.getElementById('editAnimalFotoFile').value = '';
+  document.getElementById('editAnimalFotoUrl').value  = '';
+  document.getElementById('fotoPreviewWrap').style.display = 'none';
+  document.getElementById('fotoDropZone').style.display   = 'flex';
+}
+
+function handleFotoFile(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    showNotification('Imagem muito grande. Máximo 5 MB.', 'error');
+    input.value = '';
+    return;
+  }
+  _fotoFile = file;
+  document.getElementById('editAnimalFotoUrl').value = '';
+  const reader = new FileReader();
+  reader.onload = e => { _fotoBase64 = e.target.result; _showPreview(_fotoBase64); };
+  reader.readAsDataURL(file);
+}
+
+function handleFotoUrl(url) {
+  _fotoBase64 = null;
+  _fotoFile   = null;
+  document.getElementById('editAnimalFotoFile').value = '';
+  if (!url.trim()) { clearFoto(); return; }
+  const img = new Image();
+  img.onload  = () => _showPreview(url);
+  img.onerror = () => {
+    document.getElementById('fotoPreviewWrap').style.display = 'none';
+    document.getElementById('fotoDropZone').style.display   = 'flex';
+  };
+  img.src = url;
+}
 
 // ── Panel Navigation ──────────────────────────────────
 function showPanel(name, btn) {
@@ -382,19 +464,17 @@ function showPanel(name, btn) {
   document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
   if (btn) btn.classList.add('active');
-
-  // Load data when panel is shown
   const loaders = {
-    animals:   loadAnimalsTable,
-    adopters:  loadAdoptersTable,
-    adoptions: loadAdoptionsTable,
-    donations: loadDonationsTable,
-    volunteers:loadVolunteersTable,
+    animals:    loadAnimalsTable,
+    adopters:   loadAdoptersTable,
+    adoptions:  loadAdoptionsTable,
+    donations:  loadDonationsTable,
+    volunteers: loadVolunteersTable,
   };
   if (loaders[name]) loaders[name]();
 }
 
-// ── Helper: render table ──────────────────────────────
+// ── Helpers ───────────────────────────────────────────
 function renderTable(tbodyId, rows, emptyMsg = 'Nenhum registro encontrado') {
   const tbody = document.getElementById(tbodyId);
   if (!tbody) return;
@@ -415,7 +495,7 @@ function fmtDate(d) {
 }
 
 function fmtCurrency(v) {
-  return (v||0).toLocaleString('pt-BR',{ style:'currency', currency:'BRL' });
+  return (v||0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
 }
 
 // ── Animals ───────────────────────────────────────────
@@ -439,41 +519,47 @@ async function loadAnimalsTable() {
   renderTable('animals-tbody', rows, 'Nenhum animal cadastrado');
 }
 
-function openAnimalModal(animalId) {
+function openAnimalModal() {
   document.getElementById('editAnimalId').value = '';
   document.getElementById('animalModalTitle').textContent = 'Novo Animal';
-  ['editAnimalNome','editAnimalEspecie','editAnimalRaca','editAnimalIdade',
-   'editAnimalPorte','editAnimalFoto','editAnimalDesc'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
-  document.getElementById('editAnimalStatus').value = 'disponivel';
+  ['editAnimalNome','editAnimalRaca','editAnimalIdade','editAnimalDesc','editAnimalFotoUrl']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('editAnimalEspecie').value = '';
+  document.getElementById('editAnimalPorte').value   = '';
+  document.getElementById('editAnimalStatus').value  = 'disponivel';
+  clearFoto();
   document.getElementById('animalModal').classList.add('open');
 }
 
-function editAnimal(id) {
-  const animal = (window._animalsMap||{})[id] || getLocalAnimals().find(a => a.idAnimal === id);
+async function editAnimal(id) {
+  const animals = await fetchAnimals();
+  const animal = (window._animalsMap||{})[id] || animals.find(a => a.idAnimal === id);
   if (!animal) { showNotification('Animal não encontrado','error'); return; }
-  document.getElementById('editAnimalId').value    = animal.idAnimal;
+  document.getElementById('editAnimalId').value           = animal.idAnimal;
   document.getElementById('animalModalTitle').textContent = `Editar — ${animal.nome}`;
-  document.getElementById('editAnimalNome').value    = animal.nome      || '';
-  document.getElementById('editAnimalEspecie').value = animal.especie   || '';
-  document.getElementById('editAnimalRaca').value    = animal.raca      || '';
-  document.getElementById('editAnimalIdade').value   = animal.idade     || '';
-  document.getElementById('editAnimalPorte').value   = animal.porte     || '';
-  document.getElementById('editAnimalStatus').value  = animal.statusAdocao || 'disponivel';
-  document.getElementById('editAnimalFoto').value    = animal.fotoUrl   || '';
-  document.getElementById('editAnimalDesc').value    = animal.descricao || '';
+  document.getElementById('editAnimalNome').value         = animal.nome      || '';
+  document.getElementById('editAnimalEspecie').value      = animal.especie   || '';
+  document.getElementById('editAnimalRaca').value         = animal.raca      || '';
+  document.getElementById('editAnimalIdade').value        = animal.idade     || '';
+  document.getElementById('editAnimalPorte').value        = animal.porte     || '';
+  document.getElementById('editAnimalStatus').value       = animal.statusAdocao || 'disponivel';
+  document.getElementById('editAnimalDesc').value         = animal.descricao || '';
+  clearFoto();
+  if (animal.fotoUrl) {
+    document.getElementById('editAnimalFotoUrl').value = animal.fotoUrl;
+    handleFotoUrl(animal.fotoUrl);
+  }
   document.getElementById('animalModal').classList.add('open');
-}
-
-function closeAnimalModal() {
-  document.getElementById('animalModal').classList.remove('open');
 }
 
 async function saveAnimal() {
   const id   = parseInt(document.getElementById('editAnimalId').value) || null;
   const nome = document.getElementById('editAnimalNome').value.trim();
   if (!nome) { showNotification('Nome é obrigatório','error'); return; }
+
+  const fotoUrl = _fotoBase64
+    || document.getElementById('editAnimalFotoUrl').value.trim()
+    || '';
 
   const data = {
     nome,
@@ -482,16 +568,16 @@ async function saveAnimal() {
     idade:        parseInt(document.getElementById('editAnimalIdade').value) || null,
     porte:        document.getElementById('editAnimalPorte').value,
     statusAdocao: document.getElementById('editAnimalStatus').value,
-    fotoUrl:      document.getElementById('editAnimalFoto').value || '',
+    fotoUrl,
     descricao:    document.getElementById('editAnimalDesc').value,
   };
 
   try {
     if (id) {
-      await updateAnimal(id, data);
+      await updateAnimal(id, data, _fotoFile || null);
       showNotification(`${nome} atualizado!`, 'success');
     } else {
-      await addAnimal(data);
+      await addAnimal(data, _fotoFile || null);
       showNotification(`${nome} cadastrado!`, 'success');
     }
     invalidateAnimalsCache();
@@ -522,11 +608,10 @@ async function loadAdoptersTable() {
     if (res.ok) adopters = await res.json();
   } catch {}
   if (!adopters.length) {
-    // Show locally tracked adoptions as adopters
     const local = JSON.parse(localStorage.getItem('ca_adoptions')||'[]');
     adopters = local.map((a,i) => ({
-      idAdotante: i+1,
-      nomeCompleto: a.adopter?.name || '—',
+      idAdotante:   i+1,
+      nomeCompleto: a.adopter?.name  || '—',
       email:        a.adopter?.email || '—',
       telefone:     a.adopter?.phone || '—',
       dataCadastro: a.date,
@@ -550,8 +635,6 @@ async function loadAdoptionsTable() {
     const res = await fetch(`${ADMIN_API}/adocoes`);
     if (res.ok) adoptions = await res.json();
   } catch {}
-
-  // Merge with local records
   const local = JSON.parse(localStorage.getItem('ca_adoptions')||'[]');
   const merged = [...adoptions, ...local.map((a,i) => ({
     idAdocao:    'L' + (i+1),
@@ -560,7 +643,6 @@ async function loadAdoptionsTable() {
     dataAdocao:  a.date,
     status:      a.status,
   }))];
-
   const rows = merged.map(a => `
     <tr>
       <td>${a.idAdocao}</td>
@@ -576,17 +658,69 @@ async function loadAdoptionsTable() {
 }
 
 async function updateAdoptionStatus(id) {
-  const newStatus = prompt('Novo status (em_andamento / concluida / cancelada):');
+  const newStatus = prompt('Novo status:\n• em_andamento\n• concluida\n• cancelada');
   if (!newStatus) return;
-  try {
-    await fetch(`${ADMIN_API}/adocoes/${id}`, {
-      method:'PUT', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ idAdocao: id, status: newStatus }),
-    });
-    showNotification('Status atualizado!','success');
+  const validStatuses = ['em_andamento', 'concluida', 'cancelada'];
+  if (!validStatuses.includes(newStatus.trim())) {
+    showNotification('Status inválido. Use: em_andamento, concluida ou cancelada', 'error');
+    return;
+  }
+  const status = newStatus.trim();
+  const statusAnimalMap = { concluida:'adotado', cancelada:'disponivel', em_andamento:'em_processo' };
+  const novoStatusAnimal = statusAnimalMap[status];
+
+  function atualizarAnimalLocal(animalId) {
+    if (!animalId) return;
+    try {
+      const animais = JSON.parse(localStorage.getItem('ca_animals') || '[]');
+      const idx = animais.findIndex(a => a.idAnimal === animalId);
+      if (idx !== -1) {
+        animais[idx].statusAdocao = novoStatusAnimal;
+        localStorage.setItem('ca_animals', JSON.stringify(animais));
+        invalidateAnimalsCache();
+      }
+    } catch(e) { console.warn('[Admin] Erro ao atualizar animal local:', e); }
+  }
+
+  const isLocal = String(id).startsWith('L');
+  if (isLocal) {
+    const localIndex = parseInt(String(id).replace('L', '')) - 1;
+    const local = JSON.parse(localStorage.getItem('ca_adoptions') || '[]');
+    if (!local[localIndex]) { showNotification('Registro local não encontrado', 'error'); return; }
+    local[localIndex].status = status;
+    localStorage.setItem('ca_adoptions', JSON.stringify(local));
+    atualizarAnimalLocal(local[localIndex].animalId);
+    showNotification('Status atualizado!', 'success');
     loadAdoptionsTable();
-  } catch {
-    showNotification('Não foi possível atualizar via API','error');
+    return;
+  }
+
+  try {
+    const getRes = await fetch(`${ADMIN_API}/adocoes/${id}`);
+    if (!getRes.ok) throw new Error('Adoção não encontrada');
+    const adocao = await getRes.json();
+    adocao.status = status;
+    const putRes = await fetch(`${ADMIN_API}/adocoes/${id}`, {
+      method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(adocao),
+    });
+    if (!putRes.ok) throw new Error(`Erro ${putRes.status}`);
+    if (adocao.idAnimal) {
+      try {
+        const animalRes = await fetch(`${ADMIN_API}/animais/${adocao.idAnimal}`);
+        if (animalRes.ok) {
+          const animal = await animalRes.json();
+          animal.statusAdocao = novoStatusAnimal;
+          await fetch(`${ADMIN_API}/animais/${adocao.idAnimal}`, {
+            method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(animal),
+          });
+        }
+      } catch {}
+      atualizarAnimalLocal(adocao.idAnimal);
+    }
+    showNotification('Status atualizado!', 'success');
+    loadAdoptionsTable();
+  } catch (err) {
+    showNotification('Erro ao atualizar: ' + err.message, 'error');
   }
 }
 
@@ -638,6 +772,7 @@ async function deleteVolunteer(id, name) {
     loadVolunteersTable();
   } catch { showNotification('Erro ao excluir','error'); }
 }
-</script>
+</script> 
+
 </body>
-</html>
+</html> 

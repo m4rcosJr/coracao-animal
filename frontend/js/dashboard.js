@@ -1,10 +1,10 @@
 /**
- * dashboard.js — Analytics Dashboard
+ * dashboard.js — Painel de Análises
  * Coracao Animal — PIM III UNIP
  *
- * Loads data from API (fallback: localStorage + simulated data).
- * Animates counters, renders bar chart.
- * Designed for future ML integration.
+ * Carrega dados da API (fallback: localStorage + dados simulados).
+ * Anima contadores, renderiza gráfico de barras.
+ * Projetado para integração futura com ML.
  */
 
 const DASH_API = 'http://localhost:5000/api';
@@ -74,7 +74,8 @@ function renderDashboard(stats) {
   const bar = document.getElementById('dash-rate-bar');
   if (bar) setTimeout(() => { bar.style.width = stats.adoptionRate + '%'; }, 400);
 
-  if (stats.simulated) {
+    // Se houver dados simulados
+    if (stats.simulated) {
     document.querySelectorAll('.dash-simulated-badge').forEach(el => {
       el.style.display = 'inline-flex';
     });

@@ -1,4 +1,3 @@
-// Importa as bibliotecas necessarias para o Controller funcionar
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CoracaoAnimal.API.Data;
@@ -6,166 +5,222 @@ using CoracaoAnimal.API.Models;
 
 namespace CoracaoAnimal.API.Controllers
 {
-	// Diz ao ASP.NET que essa classe e um Controller de API
-	// Ativa validacoes automaticas de dados recebidos
-	[ApiController]
+    /// <summary>
+    /// Controlador responsável pelos endpoints de Animais.
+    /// Suporta upload de imagem via multipart/form-data.
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AnimaisController : ControllerBase
+    {
+        // Conexão com o banco de dados
+        private readonly AppDbContext _context;
 
-	// Define o endereco (rota) desse Controller na API
-	// [controller] e substituido automaticamente por "animais"
-	// resultado: todos os endpoints comecam com api/animais
-	[Route("api/[controller]")]
+        // Ambiente da aplicação — usado para obter o caminho físico do wwwroot
+        private readonly IWebHostEnvironment _env;
 
-	// Herda de ControllerBase que ja tem metodos prontos
-	// como NotFound(), BadRequest(), NoContent()
-	public class AnimaisController : ControllerBase
-	{
-		// Variavel privada que guarda a conexao com o banco
-		// readonly = nao pode ser alterada depois de criada
-		// _ no inicio = convencao para variaveis privadas em C#
-		private readonly AppDbContext _context;
+        // Tipos de arquivo de imagem aceitos
+        private static readonly string[] _tiposPermitidos = { "image/jpeg", "image/png", "image/webp", "image/gif" };
 
-		// Construtor do Controller
-		// O ASP.NET injeta o AppDbContext automaticamente aqui
-		// nao precisamos criar o contexto manualmente
-		public AnimaisController(AppDbContext context)
-		{
-			// salva o contexto recebido na variavel privada
-			// assim todos os metodos abaixo podem usar o banco
-			_context = context;
-		}
+        // Tamanho máximo da imagem: 5MB
+        private const long TAMANHO_MAXIMO = 5 * 1024 * 1024;
 
-		// ─────────────────────────────────────────
-		// GET api/animais
-		// Retorna a lista completa de animais
-		// ─────────────────────────────────────────
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Animal>>> GetAnimais()
-		{
-			// busca todos os registros da tabela Animais
-			// ToListAsync = converte para lista de forma assincrona
-			// async/await = nao trava a API enquanto espera o banco
-			return await _context.Animais.ToListAsync();
-		}
+        // Construtor recebe o banco e o ambiente por injeção de dependência
+        public AnimaisController(AppDbContext context, IWebHostEnvironment env)
+        {
+            _context = context;
+            _env     = env;
+        }
 
-		// ─────────────────────────────────────────
-		// GET api/animais/1
-		// Retorna um animal especifico pelo ID
-		// ─────────────────────────────────────────
-		[HttpGet("{id}")]
-		public async Task<ActionResult<Animal>> GetAnimal(int id)
-		{
-			// busca o animal pelo id informado na URL
-			// ex: GET api/animais/1 busca o animal com id = 1
-			var animal = await _context.Animais.FindAsync(id);
+        // ─────────────────────────────────────────────────────────────
+        // GET api/animais
+        // Retorna todos os animais cadastrados
+        // ─────────────────────────────────────────────────────────────
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Animal>>> GetAnimais()
+        {
+            return await _context.Animais.ToListAsync();
+        }
 
-			// se nao encontrou, retorna erro 404 (nao encontrado)
-			if (animal == null)
-				return NotFound();
+        // ─────────────────────────────────────────────────────────────
+        // GET api/animais/1
+        // Retorna um animal específico pelo ID
+        // ─────────────────────────────────────────────────────────────
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Animal>> GetAnimal(int id)
+        {
+            var animal = await _context.Animais.FindAsync(id);
 
-			// se encontrou, retorna o animal com codigo 200 (OK)
-			return animal;
-		}
+            if (animal == null)
+                return NotFound(new { mensagem = $"Animal com ID {id} nao encontrado" });
 
-		// ─────────────────────────────────────────
-		// POST api/animais
-		// Cadastra um novo animal no banco
-		// ─────────────────────────────────────────
-		[HttpPost]
-		public async Task<ActionResult<Animal>> PostAnimal(Animal animal)
-		{
-			// Validação básica
-			if (string.IsNullOrWhiteSpace(animal.Nome))
-				return BadRequest(new { error = "Nome do animal é obrigatório" });
+            return animal;
+        }
 
-			if (string.IsNullOrWhiteSpace(animal.Especie))
-				return BadRequest(new { error = "Espécie é obrigatória" });
+        // ─────────────────────────────────────────────────────────────
+        // POST api/animais
+        //
+        // ANTES (não suportava imagem):
+        //   Recebia JSON simples: { "nome": "Rex", "fotoUrl": "http://..." }
+        //
+        // AGORA (suporta upload):
+        //   Recebe multipart/form-data com campos de texto + arquivo
+        //   O arquivo é salvo em wwwroot/uploads com nome único (GUID)
+        //   O banco salva apenas o caminho: "/uploads/abc123.jpg"
+        //
+        // Content-Type: multipart/form-data
+        // Campos: Nome, Especie, Raca, Idade, Porte, StatusAdocao, Descricao, Foto (file)
+        // ─────────────────────────────────────────────────────────────
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<Animal>> PostAnimal([FromForm] AnimalFormDto form)
+        {
+            // 1. Processa o upload da imagem (se enviada)
+            string? caminhoFoto = null;
 
-			if (string.IsNullOrWhiteSpace(animal.Porte))
-				return BadRequest(new { error = "Porte é obrigatório" });
+            if (form.Foto != null && form.Foto.Length > 0)
+            {
+                // Valida o tipo do arquivo
+                if (!_tiposPermitidos.Contains(form.Foto.ContentType.ToLower()))
+                    return BadRequest(new { mensagem = "Tipo de arquivo nao permitido. Use JPG, PNG, WEBP ou GIF." });
 
-			if (string.IsNullOrWhiteSpace(animal.Descricao))
-				return BadRequest(new { error = "Descrição é obrigatória" });
+                // Valida o tamanho do arquivo
+                if (form.Foto.Length > TAMANHO_MAXIMO)
+                    return BadRequest(new { mensagem = "Imagem muito grande. Tamanho maximo: 5MB." });
 
-			// Define valores padrão se não fornecidos
-			if (string.IsNullOrWhiteSpace(animal.StatusAdocao))
-				animal.StatusAdocao = "disponivel";
+                // Garante que a pasta wwwroot/uploads existe
+                var pastaUploads = Path.Combine(_env.WebRootPath, "uploads");
+                if (!Directory.Exists(pastaUploads))
+                    Directory.CreateDirectory(pastaUploads);
 
-			// IdAnimal sempre deve ser 0 para novos registros (identity auto-increment)
-			animal.IdAnimal = 0;
-			animal.DataEntrada = DateTime.Now;
+                // Gera nome unico para o arquivo (GUID + extensao original)
+                var extensao  = Path.GetExtension(form.Foto.FileName).ToLower();
+                var nomeArq   = $"{Guid.NewGuid()}{extensao}";
+                var caminhoFisico = Path.Combine(pastaUploads, nomeArq);
 
-			try
-			{
-				// adiciona o animal na lista de pendencias do EF
-				_context.Animais.Add(animal);
+                // Salva o arquivo no disco
+                using (var stream = new FileStream(caminhoFisico, FileMode.Create))
+                {
+                    await form.Foto.CopyToAsync(stream);
+                }
 
-				// salva efetivamente no banco de dados SQL
-				await _context.SaveChangesAsync();
+                // Salva no banco apenas o caminho web (nao o caminho fisico)
+                // Exemplo: "/uploads/a1b2c3d4.jpg"
+                caminhoFoto = $"/uploads/{nomeArq}";
+            }
 
-				// retorna codigo 201 (criado com sucesso)
-				// e o endereco onde o novo animal pode ser consultado
-				// ex: GET api/animais/1
-				return CreatedAtAction(
-					nameof(GetAnimal),        // nome do metodo de busca
-					new { id = animal.IdAnimal }, // id do animal criado
-					animal                    // dados do animal criado
-				);
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Erro ao salvar animal: {ex.Message}");
-				Console.WriteLine($"Stack trace: {ex.StackTrace}");
-				return BadRequest(new { error = $"Erro ao salvar: {ex.Message}" });
-			}
-		}
+            // 2. Cria o objeto Animal para salvar no banco
+            var animal = new Animal
+            {
+                Nome         = form.Nome,
+                Especie      = form.Especie,
+                Raca         = form.Raca,
+                Idade        = form.Idade,
+                Porte        = form.Porte,
+                StatusAdocao = form.StatusAdocao ?? "disponivel",
+                Descricao    = form.Descricao,
+                FotoUrl      = caminhoFoto,       // caminho da imagem salva
+                DataEntrada  = DateTime.Now
+            };
 
-		// ─────────────────────────────────────────
-		// PUT api/animais/1
-		// Atualiza os dados de um animal existente
-		// ─────────────────────────────────────────
-		[HttpPut("{id}")]
-		public async Task<IActionResult> PutAnimal(int id, Animal animal)
-		{
-			// verifica se o id da URL bate com o id do objeto recebido
-			// ex: PUT api/animais/1 mas o objeto tem IdAnimal = 2
-			// isso seria um erro — ids diferentes nao fazem sentido
-			if (id != animal.IdAnimal)
-				return BadRequest();
+            // 3. Salva no banco de dados
+            _context.Animais.Add(animal);
+            await _context.SaveChangesAsync();
 
-			// marca o animal como modificado no EF
-			// o EF vai gerar um UPDATE no banco automaticamente
-			_context.Entry(animal).State = EntityState.Modified;
+            // 4. Retorna o animal completo com o ID gerado e a URL da foto
+            return CreatedAtAction(
+                nameof(GetAnimal),
+                new { id = animal.IdAnimal },
+                animal
+            );
+        }
 
-			// salva as alteracoes no banco
-			await _context.SaveChangesAsync();
+        // ─────────────────────────────────────────────────────────────
+        // PUT api/animais/1
+        // Atualiza dados + permite trocar a foto
+        // ─────────────────────────────────────────────────────────────
+        [HttpPut("{id}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> PutAnimal(int id, [FromForm] AnimalFormDto form)
+        {
+            // Busca o animal existente
+            var animal = await _context.Animais.FindAsync(id);
+            if (animal == null)
+                return NotFound(new { mensagem = $"Animal com ID {id} não encontrado" });
 
-			// retorna codigo 204 (sucesso sem conteudo)
-			// significa: "atualizei mas nao tenho nada para retornar"
-			return NoContent();
-		}
+            // Atualiza os campos de texto
+            animal.Nome         = form.Nome;
+            animal.Especie      = form.Especie;
+            animal.Raca         = form.Raca;
+            animal.Idade        = form.Idade;
+            animal.Porte        = form.Porte;
+            animal.StatusAdocao = form.StatusAdocao ?? animal.StatusAdocao;
+            animal.Descricao    = form.Descricao;
 
-		// ─────────────────────────────────────────
-		// DELETE api/animais/1
-		// Remove um animal pelo ID
-		// ─────────────────────────────────────────
-		[HttpDelete("{id}")]
-		public async Task<IActionResult> DeleteAnimal(int id)
-		{
-			// busca o animal pelo id antes de deletar
-			var animal = await _context.Animais.FindAsync(id);
+            // Processa nova foto (se enviada)
+            if (form.Foto != null && form.Foto.Length > 0)
+            {
+                if (!_tiposPermitidos.Contains(form.Foto.ContentType.ToLower()))
+                    return BadRequest(new { mensagem = "Tipo de arquivo não permitido." });
 
-			// se nao encontrou, retorna erro 404
-			if (animal == null)
-				return NotFound();
+                if (form.Foto.Length > TAMANHO_MAXIMO)
+                    return BadRequest(new { mensagem = "Imagem muito grande. Tamanho máximo: 5MB." });
 
-			// remove o animal da tabela
-			_context.Animais.Remove(animal);
+                // Remove a foto antiga do disco (se existir)
+                if (!string.IsNullOrEmpty(animal.FotoUrl))
+                {
+                    var caminhoAntigo = Path.Combine(_env.WebRootPath, animal.FotoUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(caminhoAntigo))
+                        System.IO.File.Delete(caminhoAntigo);
+                }
 
-			// salva a remocao no banco
-			await _context.SaveChangesAsync();
+                // Salva a nova foto
+                var pastaUploads = Path.Combine(_env.WebRootPath, "uploads");
+                if (!Directory.Exists(pastaUploads))
+                    Directory.CreateDirectory(pastaUploads);
 
-			// retorna codigo 204 (sucesso sem conteudo)
-			return NoContent();
-		}
-	}
+                var extensao  = Path.GetExtension(form.Foto.FileName).ToLower();
+                var nomeArq   = $"{Guid.NewGuid()}{extensao}";
+                var caminhoFisico = Path.Combine(pastaUploads, nomeArq);
+
+                using (var stream = new FileStream(caminhoFisico, FileMode.Create))
+                {
+                    await form.Foto.CopyToAsync(stream);
+                }
+
+                animal.FotoUrl = $"/uploads/{nomeArq}";
+            }
+
+            // Salva as alterações no banco
+            _context.Entry(animal).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // DELETE api/animais/1
+        // Remove o animal e a foto do disco
+        // ─────────────────────────────────────────────────────────────
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAnimal(int id)
+        {
+            var animal = await _context.Animais.FindAsync(id);
+            if (animal == null)
+                return NotFound(new { mensagem = $"Animal com ID {id} não encontrado" });
+
+            // Remove a foto do disco ao deletar o animal
+            if (!string.IsNullOrEmpty(animal.FotoUrl))
+            {
+                var caminhoFisico = Path.Combine(_env.WebRootPath, animal.FotoUrl.TrimStart('/'));
+                if (System.IO.File.Exists(caminhoFisico))
+                    System.IO.File.Delete(caminhoFisico);
+            }
+
+            _context.Animais.Remove(animal);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+    }
 }
