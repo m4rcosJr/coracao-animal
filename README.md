@@ -31,7 +31,7 @@ O sistema web tem como objetivo facilitar a **adoção responsável de cães e g
 | Documentação da API | ✅ Concluído | Swagger disponível em /swagger |
 | Frontend | ✅ Concluído| HTML, CSS, JavaScript |
 | UX/UI Design | ✅ Concluído| Wireframes e personas |
-| Machine Learning | 🔄 Em desenvolvimento | Recomendação por perfil |
+| Machine Learning | ✅ Concluído | Recomendação por perfil |
 | LIBRAS / Acessibilidade | ✅ Concluído | Glossário e recursos inclusivos |
 
 ---
