@@ -41,6 +41,11 @@ namespace CoracaoAnimal.API.Data
 		public DbSet<Doacao> Doacoes { get; set; }
 
 		/// <summary>
+		/// Representa a tabela Usuarios no banco de dados
+		/// </summary>
+		public DbSet<Usuario> Usuarios { get; set; }
+
+		/// <summary>
 		/// Configurações de mapeamento entre classes C# e tabelas SQL
 		/// </summary>
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -138,6 +143,24 @@ namespace CoracaoAnimal.API.Data
                 .HasOne(d => d.Adotante)
                 .WithMany(a => a.Doacoes)
                 .HasForeignKey(d => d.IdAdotante);
+
+            // ─────────────────────────────────────────
+            // USUARIO
+            // ─────────────────────────────────────────
+            modelBuilder.Entity<Usuario>()
+                .ToTable("Usuarios")
+                .HasKey(u => u.IdUsuario);
+
+            modelBuilder.Entity<Usuario>().Property(u => u.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<Usuario>().Property(u => u.NomeCompleto).HasColumnName("nome_completo");
+            modelBuilder.Entity<Usuario>().Property(u => u.Email).HasColumnName("email");
+            modelBuilder.Entity<Usuario>().Property(u => u.SenhaHash).HasColumnName("senha_hash");
+            modelBuilder.Entity<Usuario>().Property(u => u.Tipo).HasColumnName("tipo");
+            modelBuilder.Entity<Usuario>().Property(u => u.DataCadastro).HasColumnName("data_cadastro");
+
+            modelBuilder.Entity<Usuario>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
         }
     }
 }

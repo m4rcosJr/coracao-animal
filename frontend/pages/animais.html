@@ -40,7 +40,7 @@
     .adopt-body { padding:1.5rem; }
     .adopt-animal-summary { background:var(--bg-muted);border-radius:12px;padding:1rem;display:flex;gap:14px;align-items:center;margin-bottom:1.5rem; }
     .adopt-animal-photo { width:70px;height:70px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg-muted); }
-    .adopt-footer { padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:var(--bg-card); }
+    .adopt-footer { padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;background:var(--bg-card); }
 
     /* ── Register animal modal ─────────── */
     #modalCadastro { display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px); }
@@ -48,7 +48,7 @@
     .cad-header { padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg-card);z-index:1; }
     .cad-title { font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text); }
     .cad-body { padding:1.5rem; }
-    .cad-footer { padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:var(--bg-card); }
+    .cad-footer { padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;background:var(--bg-card); }
     .photo-upload { border:2px dashed var(--border);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:var(--transition);margin-bottom:1rem;position:relative; }
     .photo-upload:hover { border-color:var(--laranja); }
     .photo-upload.has-photo { border-style:solid;border-color:var(--laranja);padding:0;height:180px;overflow:hidden; }
@@ -104,13 +104,14 @@
 <!-- ── NAVBAR ──────────────────────── -->
 <nav>
   <a href="../index.html" class="nav-logo">
-    <img src="../img/logo-coracao-animal.png" alt="Coração Animal" class="nav-logo-img" />
+    <div class="nav-logo-icon">🐾</div>
+    Coração Animal
   </a>
   <ul class="nav-links">
     <li><a href="../index.html">Sobre</a></li>
     <li><a href="animais.html" class="active">Adote</a></li>
     <li><a href="voluntarios.html">Como Ajudar</a></li>
-    <li><a href="doacoes.html">Doações</a></li>
+    <li><a href="doacoes.html">Contato</a></li>
   </ul>
   <div class="nav-actions">
     <button class="btn-tema" id="btnTema" onclick="alternarTema()"><span id="temaIcone">🌙</span></button>
@@ -145,7 +146,7 @@
   <a href="animais.html" class="active">Adote</a>
   <a href="voluntarios.html">Como Ajudar</a>
   <div class="nav-mobile-divider"></div>
-  <a href="doacoes.html">Doações</a>
+  <a href="doacoes.html">Contato</a>
 </div>
 
 <!-- ── LOGGED-IN ACTION BAR ──────────
@@ -407,7 +408,7 @@
       <li><a href="doacoes.html">Doações</a></li>
       <li><a href="voluntarios.html">Voluntários</a></li>
     </ul>
-    <div class="footer-copy">© 2026 Coração Animal · PIM III — UNIP</div>
+    <div class="footer-copy">© 2025 Coração Animal · PIM III — UNIP</div>
   </div>
 </footer>
 
@@ -421,7 +422,7 @@
   6. menu.js     — hamburger menu
 ────────────────────────────────────────────────────────── -->
 <script src="../js/tema.js"></script>
-<script src="../js/animais.js"></script>
+<script src="../js/animals.js"></script>
 <script src="../js/adoption.js"></script>
 <script src="../js/notifications.js"></script>
 <script src="../js/menu.js"></script>
@@ -436,7 +437,7 @@ let _allAnimals   = [];
 let _filters      = { species:'all', size:'all', status:'disponivel', search:'', sort:'name' };
 let _searchTimer  = null;
 let _currentDetail = null;
-let _photoFile    = null;
+let _photoBase64  = '';
 
 // ── Initialize ────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
@@ -563,7 +564,7 @@ function closeRegisterModal() {
   document.getElementById('photoUploadArea').classList.remove('has-photo');
   document.getElementById('photoPreview').src = '';
   document.getElementById('photoInput').value = '';
-  _photoFile = null;
+  _photoBase64 = '';
   const fb = document.getElementById('registerFeedback');
   if (fb) fb.className = 'modal-feedback';
 }
@@ -577,11 +578,10 @@ function handlePhotoInput(input) {
   if (file.size > 5 * 1024 * 1024) {
     showNotification('Imagem muito grande. Máximo 5MB.', 'error'); return;
   }
-  // Armazena o File objeto, não base64
-  _photoFile = file;
   const reader = new FileReader();
   reader.onload = e => {
-    document.getElementById('photoPreview').src = e.target.result;
+    _photoBase64 = e.target.result;
+    document.getElementById('photoPreview').src = _photoBase64;
     document.getElementById('photoUploadArea').classList.add('has-photo');
   };
   reader.readAsDataURL(file);
@@ -625,7 +625,7 @@ async function submitRegisterAnimal() {
   btn.disabled = true; btn.textContent = 'Salvando...';
 
   try {
-    const saved = await addAnimal({ nome, especie, raca, idade, porte, statusAdocao: status, descricao }, _photoFile);
+    const saved = await addAnimal({ nome, especie, raca, idade, porte, statusAdocao: status, descricao, fotoUrl: _photoBase64 || '' });
 
     const fb = document.getElementById('registerFeedback');
     fb.textContent = `✅ ${saved.nome} cadastrado com sucesso!`;
