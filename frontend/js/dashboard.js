@@ -25,58 +25,61 @@ let _dashStats = null;  // cache dos dados para redesenhar o gráfico
  * @returns {Promise<Object>} estatísticas calculadas
  */
 async function loadDashboardData() {
-  mostrarLoading(true);
+    mostrarLoading(true);
 
-  let animais = [], adotantes = [], adocoes = [], doacoes = [];
-  let usouAPI = false;
+    let animais = [], adotantes = [], adocoes = [], doacoes = [];
+    let usouAPI = false;
 
-  try {
-    console.log('[Dashboard] Buscando dados da API...');
+    try {
+        console.log('[Dashboard] Buscando dados da API...');
 
-    // Busca os 4 endpoints em paralelo para ser mais rápido
-    const resultados = await Promise.allSettled([
-      fetch(`${DASH_API}/animais`,    { signal: AbortSignal.timeout(5000) }).then(r => r.ok ? r.json() : []),
-      fetch(`${DASH_API}/adotantes`,  { signal: AbortSignal.timeout(5000) }).then(r => r.ok ? r.json() : []),
-      fetch(`${DASH_API}/adocoes`,    { signal: AbortSignal.timeout(5000) }).then(r => r.ok ? r.json() : []),
-      fetch(`${DASH_API}/doacoes`,    { signal: AbortSignal.timeout(5000) }).then(r => r.ok ? r.json() : []),
-    ]);
+        const authHeader = { 'Authorization': `Bearer ${getToken()}` };
 
-    // Extrai valor ou array vazio para cada endpoint
-    animais   = resultados[0].status === 'fulfilled' ? resultados[0].value : [];
-    adotantes = resultados[1].status === 'fulfilled' ? resultados[1].value : [];
-    adocoes   = resultados[2].status === 'fulfilled' ? resultados[2].value : [];
-    doacoes   = resultados[3].status === 'fulfilled' ? resultados[3].value : [];
+        // Busca os 4 endpoints em paralelo para ser mais rápido
+        // animais e publico (sem header); os outros 3 exigem login de admin
+        const resultados = await Promise.allSettled([
+            fetch(`${DASH_API}/animais`, { signal: AbortSignal.timeout(5000) }).then(r => r.ok ? r.json() : []),
+            fetch(`${DASH_API}/adotantes`, { signal: AbortSignal.timeout(5000), headers: authHeader }).then(r => r.ok ? r.json() : []),
+            fetch(`${DASH_API}/adocoes`, { signal: AbortSignal.timeout(5000), headers: authHeader }).then(r => r.ok ? r.json() : []),
+            fetch(`${DASH_API}/doacoes`, { signal: AbortSignal.timeout(5000), headers: authHeader }).then(r => r.ok ? r.json() : []),
+        ]);
 
-    // Considera que usou a API se pelo menos animais respondeu
-    usouAPI = animais.length > 0 || adocoes.length > 0;
+        animais = resultados[0].status === 'fulfilled' ? resultados[0].value : [];
+        adotantes = resultados[1].status === 'fulfilled' ? resultados[1].value : [];
+        adocoes = resultados[2].status === 'fulfilled' ? resultados[2].value : [];
+        doacoes = resultados[3].status === 'fulfilled' ? resultados[3].value : [];
 
-    console.log('[Dashboard] API respondeu:', {
-      animais: animais.length,
-      adotantes: adotantes.length,
-      adocoes: adocoes.length,
-      doacoes: doacoes.length,
-    });
+        usouAPI = animais.length > 0 || adocoes.length > 0;
 
-  } catch (erro) {
-    console.warn('[Dashboard] API indisponível:', erro.message);
-  }
+        console.log('[Dashboard] API respondeu:', {
+            animais: animais.length,
+            adotantes: adotantes.length,
+            adocoes: adocoes.length,
+            doacoes: doacoes.length,
+        });
 
-  // Mescla dados da API com registros locais (adoções feitas pelo formulário do site)
-  const adocoesLocais = JSON.parse(localStorage.getItem('ca_adoptions') || '[]');
-  const animaisLocais = JSON.parse(localStorage.getItem('ca_animals')   || '[]');
+    } catch (erro) {
+        console.warn('[Dashboard] API indisponível:', erro.message);
+    }
 
-  // Se a API não retornou nada, usa o localStorage
-  if (!usouAPI) {
-    animais = animaisLocais;
-    adocoes = adocoesLocais;
-    console.log('[Dashboard] Usando dados do localStorage');
-  } else {
-    // Mescla: adiciona adoções locais que não vieram da API
-    const idsAPI = new Set(adocoes.map(a => a.idAdocao));
-    adocoesLocais.forEach(local => {
-      if (!idsAPI.has(local.id)) adocoes.push(local);
-    });
-  }
+    const adocoesLocais = JSON.parse(localStorage.getItem('ca_adoptions') || '[]');
+    const animaisLocais = JSON.parse(localStorage.getItem('ca_animals') || '[]');
+
+    if (!usouAPI) {
+        animais = animaisLocais;
+        adocoes = adocoesLocais;
+        console.log('[Dashboard] Usando dados do localStorage');
+    } else {
+        const idsAPI = new Set(adocoes.map(a => a.idAdocao));
+        adocoesLocais.forEach(local => {
+            if (!idsAPI.has(local.id)) adocoes.push(local);
+        });
+    }
+
+    const stats = calcularEstatisticas(animais, adotantes, adocoes, doacoes, !usouAPI);
+    mostrarLoading(false);
+    return stats;
+}
 
   // Calcula as estatísticas
   const stats = calcularEstatisticas(animais, adotantes, adocoes, doacoes, !usouAPI);
