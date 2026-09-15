@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login — Coração Animal</title>
+    <title>Criar conta — Coração Animal</title>
     <link rel="stylesheet" href="../css/style.css" />
     <style>
         body {
@@ -27,23 +27,8 @@
         }
 
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px)
-            }
-
-            to {
-                opacity: 1;
-                transform: none
-            }
-        }
-
-        .login-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 2rem;
+            from { opacity: 0; transform: translateY(20px) }
+            to { opacity: 1; transform: none }
         }
 
         .login-card .nav-logo {
@@ -59,17 +44,6 @@
             width: auto;
             object-fit: contain;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        }
-
-        .login-logo-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--laranja);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
         }
 
         .login-logo-text {
@@ -96,39 +70,18 @@
             font-family: 'DM Sans',sans-serif;
         }
 
-        .login-msg {
-            display: none;
-            background: rgba(224,92,42,0.08);
-            border: 1px solid rgba(224,92,42,0.25);
-            border-radius: 10px;
-            padding: 10px 14px;
+        .form-grupo { margin-bottom: 1rem; }
+
+        .form-grupo label {
+            display: block;
             font-size: 13px;
-            color: var(--laranja);
-            margin-bottom: 1rem;
-            text-align: center;
+            font-weight: 500;
+            color: var(--text-sec);
+            margin-bottom: 6px;
             font-family: 'DM Sans',sans-serif;
         }
 
-            .login-msg.visible {
-                display: block;
-            }
-
-        .form-grupo {
-            margin-bottom: 1rem;
-        }
-
-            .form-grupo label {
-                display: block;
-                font-size: 13px;
-                font-weight: 500;
-                color: var(--text-sec);
-                margin-bottom: 6px;
-                font-family: 'DM Sans',sans-serif;
-            }
-
-        .input-wrap {
-            position: relative;
-        }
+        .input-wrap { position: relative; }
 
         .input-icon {
             position: absolute;
@@ -152,15 +105,15 @@
             font-family: 'DM Sans',sans-serif;
         }
 
-            .form-grupo input:focus {
-                border-color: var(--laranja);
-                box-shadow: 0 0 0 3px rgba(224,92,42,.12);
-            }
+        .form-grupo input:focus {
+            border-color: var(--laranja);
+            box-shadow: 0 0 0 3px rgba(224,92,42,.12);
+        }
 
-            .form-grupo input.invalid {
-                border-color: #e53935;
-                box-shadow: 0 0 0 3px rgba(229,57,53,.1);
-            }
+        .form-grupo input.invalid {
+            border-color: #e53935;
+            box-shadow: 0 0 0 3px rgba(229,57,53,.1);
+        }
 
         .btn-eye {
             position: absolute;
@@ -189,9 +142,7 @@
             font-family: 'DM Sans',sans-serif;
         }
 
-            .login-error.visible {
-                display: block;
-            }
+        .login-error.visible { display: block; }
 
         .btn-login {
             width: 100%;
@@ -212,17 +163,14 @@
             margin-top: .5rem;
         }
 
-            .btn-login:hover {
-                background: var(--laranja-hover);
-                transform: translateY(-1px);
-            }
+        .btn-login:hover { background: var(--laranja-hover); transform: translateY(-1px); }
 
-            .btn-login:disabled {
-                background: var(--bg-muted);
-                color: var(--text-muted);
-                cursor: not-allowed;
-                transform: none;
-            }
+        .btn-login:disabled {
+            background: var(--bg-muted);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
 
         .btn-spinner {
             display: none;
@@ -234,11 +182,7 @@
             animation: spin .7s linear infinite;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg)
-            }
-        }
+        @keyframes spin { to { transform: rotate(360deg) } }
 
         .login-back {
             display: flex;
@@ -253,9 +197,7 @@
             transition: var(--transition);
         }
 
-            .login-back:hover {
-                color: var(--laranja);
-            }
+        .login-back:hover { color: var(--laranja); }
 
         .login-hint {
             margin-top: 1.25rem;
@@ -265,11 +207,11 @@
             font-family: 'DM Sans',sans-serif;
         }
 
-            .login-hint a {
-                color: var(--laranja);
-                text-decoration: none;
-                font-weight: 600;
-            }
+        .login-hint a {
+            color: var(--laranja);
+            text-decoration: none;
+            font-weight: 600;
+        }
 
         .theme-btn {
             position: fixed;
@@ -299,19 +241,24 @@
             <img src="../img/logo-coracao-animal.png" alt="Coração Animal" class="nav-logo-img" />
             <div class="login-logo-text">Coração Animal</div>
         </div>
-        <div class="login-title">Bem-vindo de volta</div>
-        <div class="login-sub">Faça login para continuar</div>
+        <div class="login-title">Criar conta</div>
+        <div class="login-sub">Cadastre-se para acompanhar suas adoções</div>
 
-        <div class="login-msg" id="loginMsg"></div>
+        <div class="login-error" id="loginError">❌ Erro ao criar conta</div>
 
-        <div class="login-error" id="loginError">❌ E-mail ou senha incorretos</div>
+        <div class="form-grupo">
+            <label for="inputNome">Nome completo</label>
+            <div class="input-wrap">
+                <span class="input-icon">👤</span>
+                <input type="text" id="inputNome" placeholder="Digite seu nome completo" />
+            </div>
+        </div>
 
         <div class="form-grupo">
             <label for="inputEmail">E-mail</label>
             <div class="input-wrap">
-                <span class="input-icon">👤</span>
-                <input type="email" id="inputEmail" placeholder="Digite seu e-mail"
-                       onkeydown="if(event.key==='Enter') handleLogin()" />
+                <span class="input-icon">✉️</span>
+                <input type="email" id="inputEmail" placeholder="Digite seu e-mail" />
             </div>
         </div>
 
@@ -319,20 +266,20 @@
             <label for="inputPassword">Senha</label>
             <div class="input-wrap">
                 <span class="input-icon">🔒</span>
-                <input type="password" id="inputPassword" placeholder="Digite sua senha"
-                       onkeydown="if(event.key==='Enter') handleLogin()" />
+                <input type="password" id="inputPassword" placeholder="Crie uma senha"
+                       onkeydown="if(event.key==='Enter') handleRegister()" />
                 <button class="btn-eye" onclick="togglePassword()" type="button">
                     <span id="eyeIcon">👁️</span>
                 </button>
             </div>
         </div>
 
-        <button class="btn-login" id="btnLogin" onclick="handleLogin()">
-            <div class="btn-spinner" id="loginSpinner"></div>
-            <span id="loginBtnText">Entrar</span>
+        <button class="btn-login" id="btnRegister" onclick="handleRegister()">
+            <div class="btn-spinner" id="registerSpinner"></div>
+            <span id="registerBtnText">Criar conta</span>
         </button>
 
-        <div class="login-hint">Não tem conta? <a href="cadastro.html">Cadastre-se</a></div>
+        <div class="login-hint">Já tem conta? <a href="login.html">Fazer login</a></div>
 
         <a href="../index.html" class="login-back">← Voltar ao site</a>
     </div>
@@ -341,71 +288,52 @@
     <script src="../js/tema.js"></script>
     <script src="../js/notifications.js"></script>
     <script>
-        function init() {
-            const msg = localStorage.getItem('ca_login_msg');
-            if (msg) {
-                const el = document.getElementById('loginMsg');
-                el.textContent = '🔐 ' + msg;
-                el.classList.add('visible');
-                localStorage.removeItem('ca_login_msg');
-            }
-
-            if (isLoggedIn()) {
-                redirectAfterLogin();
-            }
-        }
-
-        async function handleLogin() {
+        async function handleRegister() {
+            const nome = document.getElementById('inputNome').value.trim();
             const email = document.getElementById('inputEmail').value.trim();
             const password = document.getElementById('inputPassword').value;
             const errorEl = document.getElementById('loginError');
-            const btn = document.getElementById('btnLogin');
-            const spinner = document.getElementById('loginSpinner');
-            const btnText = document.getElementById('loginBtnText');
+            const btn = document.getElementById('btnRegister');
+            const spinner = document.getElementById('registerSpinner');
+            const btnText = document.getElementById('registerBtnText');
 
             errorEl.classList.remove('visible');
+            document.getElementById('inputNome').classList.remove('invalid');
             document.getElementById('inputEmail').classList.remove('invalid');
             document.getElementById('inputPassword').classList.remove('invalid');
 
-            if (!email || !password) {
-                errorEl.textContent = '❌ Preencha o e-mail e a senha';
+            if (!nome || !email || !password) {
+                errorEl.textContent = '❌ Preencha todos os campos';
                 errorEl.classList.add('visible');
+                if (!nome) document.getElementById('inputNome').classList.add('invalid');
                 if (!email) document.getElementById('inputEmail').classList.add('invalid');
                 if (!password) document.getElementById('inputPassword').classList.add('invalid');
                 return;
             }
 
+            if (password.length < 6) {
+                errorEl.textContent = '❌ A senha precisa ter pelo menos 6 caracteres';
+                errorEl.classList.add('visible');
+                document.getElementById('inputPassword').classList.add('invalid');
+                return;
+            }
+
             btn.disabled = true;
             spinner.style.display = 'block';
-            btnText.textContent = 'Verificando...';
+            btnText.textContent = 'Criando conta...';
 
-            const result = await attemptLogin(email, password);
+            const result = await attemptRegister(nome, email, password);
 
             if (result.success) {
-                btnText.textContent = '✓ Entrando...';
-                showNotification('Login realizado com sucesso!', 'success', 1500);
-                setTimeout(() => redirectAfterLogin(), 800);
+                btnText.textContent = '✓ Conta criada!';
+                showNotification('Conta criada com sucesso!', 'success', 1500);
+                setTimeout(() => window.location.href = '../index.html', 800);
             } else {
                 spinner.style.display = 'none';
                 btn.disabled = false;
-                btnText.textContent = 'Entrar';
+                btnText.textContent = 'Criar conta';
                 errorEl.textContent = '❌ ' + result.message;
                 errorEl.classList.add('visible');
-                document.getElementById('inputPassword').value = '';
-                document.getElementById('inputPassword').classList.add('invalid');
-                document.getElementById('inputPassword').focus();
-            }
-        }
-
-        /** Redireciona apos login — pra admin.html se for admin, senao pro index */
-        function redirectAfterLogin() {
-            const saved = localStorage.getItem('ca_redirect');
-            localStorage.removeItem('ca_redirect');
-
-            if (isAdmin()) {
-                window.location.href = saved || 'admin.html';
-            } else {
-                window.location.href = saved || '../index.html';
             }
         }
 
@@ -415,8 +343,6 @@
             input.type = input.type === 'password' ? 'text' : 'password';
             icon.textContent = input.type === 'password' ? '👁️' : '🙈';
         }
-
-        init();
     </script>
 </body>
 </html>
