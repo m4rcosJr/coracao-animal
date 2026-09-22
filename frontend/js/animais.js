@@ -17,7 +17,10 @@
  *   definido em auth.js.
  */
 
-const API_BASE = 'http://localhost:5000/api';
+if (typeof window.API_BASE === 'undefined') {
+  window.API_BASE = 'http://localhost:5000/api';
+}
+const API_BASE  = window.API_BASE;
 const LOCAL_KEY = 'ca_animals';
 
 // Cache em memoria — evita chamadas repetidas na mesma sessao
