@@ -531,6 +531,11 @@ function openAnimalModal() {
   document.getElementById('animalModal').classList.add('open');
 }
 
+function closeAnimalModal() {
+  document.getElementById('animalModal').classList.remove('open');
+  clearFoto();
+}
+
 async function editAnimal(id) {
   const animals = await fetchAnimals();
   const animal = (window._animalsMap||{})[id] || animals.find(a => a.idAnimal === id);
