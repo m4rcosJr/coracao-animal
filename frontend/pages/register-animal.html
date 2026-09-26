@@ -107,7 +107,7 @@
       2. FileReader exibe preview local (sem fazer upload ainda)
       3. Ao submeter o form, o arquivo e enviado via FormData
       4. A API salva em wwwroot/uploads/ e retorna o caminho
-      5. O frontend exibe a imagem usando http://localhost:5000/uploads/nome.jpg
+      5. O frontend exibe a imagem usando https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/uploads/nome.jpg
     -->
     <div class="form-grupo">
       <label>Foto do animal</label>
@@ -199,7 +199,7 @@
   <!-- ── RESULTADO APOS CADASTRO ────────── -->
   <!--
     Exibe o animal cadastrado com a foto servida pelo servidor.
-    URL: http://localhost:5000/uploads/nome-do-arquivo.jpg
+    URL: https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/uploads/nome-do-arquivo.jpg
   -->
   <div class="result-card" id="resultCard">
     <div class="result-photo">
@@ -239,7 +239,7 @@
  * 5. fetch() envia POST /api/animais
  * 6. API salva arquivo em wwwroot/uploads/
  * 7. API retorna { idAnimal, nome, fotoUrl: "/uploads/abc.jpg", ... }
- * 8. Frontend exibe: <img src="http://localhost:5000/uploads/abc.jpg"/>
+ * 8. Frontend exibe: <img src="https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/uploads/abc.jpg"/>
  */
 
 // Arquivo selecionado (objeto File do browser)
@@ -389,7 +389,7 @@ async function submitAnimalForm() {
  * Exibe o resultado do cadastro com a imagem do servidor.
  *
  * fotoUrl retornada pela API: "/uploads/abc123.jpg"
- * URL completa para o <img>: "http://localhost:5000/uploads/abc123.jpg"
+ * URL completa para o <img>: "https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/uploads/abc123.jpg"
  *
  * O ASP.NET Core serve arquivos estáticos de wwwroot/ automaticamente
  * quando app.UseStaticFiles() está configurado no Program.cs.
@@ -407,7 +407,7 @@ function showResult(animal) {
   if (animal.fotoUrl) {
     // Monta a URL completa para exibir a imagem do servidor
     const urlCompleta = animal.fotoUrl.startsWith('/uploads/')
-      ? `http://localhost:5000${animal.fotoUrl}`   // vinda da API
+      ? `https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net${animal.fotoUrl}`   // vinda da API
       : animal.fotoUrl;                             // base64 (offline)
 
     photo.src = urlCompleta;

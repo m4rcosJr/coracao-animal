@@ -7,7 +7,7 @@
  * usuario/senha e o tipo (admin/user) e sempre o backend.
  */
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/api';
 
 // ─── Chaves de Armazenamento ────────────────────────
 const AUTH_KEYS = {

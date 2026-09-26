@@ -10,7 +10,7 @@
  *  - Sem JSON no HTML (usa _animalsMap de animals.js)
  */
 
-const ADOPTION_API  = 'http://localhost:5000/api';
+const ADOPTION_API  = 'https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/api';
 const ADOPTIONS_KEY = 'ca_adoptions';
 
 // Animal atualmente selecionado para adoção

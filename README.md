@@ -150,7 +150,7 @@ dotnet run
 
 **5. Acesse o Swagger**
 ```
-http://localhost:5000/swagger
+https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/swagger
 ```
 
 **6. Abra o frontend**

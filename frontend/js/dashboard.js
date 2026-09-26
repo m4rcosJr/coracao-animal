@@ -2,7 +2,7 @@
  * dashboard.js — Dashboard Analítico Funcional
  * Coração Animal — PIM III UNIP
  *
- * Busca dados REAIS da API em localhost:5000.
+ * Busca dados REAIS da API hospedada no Azure.
  * Fallback automático para localStorage quando API está offline.
  *
  * IDs dos elementos no index.html:
@@ -12,7 +12,7 @@
  *   monthlyChart (canvas do gráfico)
  */
 
-const DASH_API = 'http://localhost:5000/api';
+const DASH_API = 'https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/api';
 
 // ─── Estado ────────────────────────────────────────────────────────
 let _dashStats = null;  // cache dos dados para redesenhar o gráfico
@@ -79,12 +79,6 @@ async function loadDashboardData() {
     const stats = calcularEstatisticas(animais, adotantes, adocoes, doacoes, !usouAPI);
     mostrarLoading(false);
     return stats;
-}
-
-  // Calcula as estatísticas
-  const stats = calcularEstatisticas(animais, adotantes, adocoes, doacoes, !usouAPI);
-  mostrarLoading(false);
-  return stats;
 }
 
 // ─── 2. CÁLCULO DAS ESTATÍSTICAS ───────────────────────────────────

@@ -11,7 +11,7 @@
  *  - Todos os botoes de acao exigem login
  */
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/api';
 
 let todosAnimais  = [];
 let filtroEspecie = 'todos';
@@ -37,7 +37,7 @@ async function carregarAnimais() {
       <div class="empty" style="grid-column:1/-1">
         <div style="font-size:48px;margin-bottom:12px">🔌</div>
         <p style="font-weight:600;margin-bottom:6px">API não conectada</p>
-        <p style="font-size:13px;color:var(--text-muted)">Verifique se o backend está rodando em localhost:5000</p>
+        <p style="font-size:13px;color:var(--text-muted)">A API hospedada está indisponível no momento. Tente novamente mais tarde.</p>
       </div>`;
   }
 }

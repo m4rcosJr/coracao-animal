@@ -37,7 +37,7 @@ namespace CoracaoAnimal.API.Models
         /// <summary>
         /// Caminho da foto salva em wwwroot/uploads.
         /// Exemplo: "/uploads/abc123.jpg"
-        /// Para exibir no frontend: http://localhost:5000/uploads/abc123.jpg
+        /// Para exibir no frontend: https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/uploads/abc123.jpg
         /// NUNCA salvar o binario da imagem aqui — apenas o caminho.
         /// </summary>
         public string? FotoUrl { get; set; }

@@ -5,7 +5,7 @@
            envio para API e tela de sucesso
 ───────────────────────────────────────── */
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/api';
 
 // Valor selecionado pelo usuario (em reais)
 let valorSelecionado = 0;

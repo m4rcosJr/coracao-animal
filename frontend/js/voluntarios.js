@@ -5,7 +5,7 @@
            envio para API, lista de voluntarios
 ───────────────────────────────────────── */
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/api';
 
 // Area de atuacao selecionada pelo usuario
 let areaSelecionada = '';

@@ -18,7 +18,7 @@
  */
 
 if (typeof window.API_BASE === 'undefined') {
-  window.API_BASE = 'http://localhost:5000/api';
+    window.API_BASE = 'https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/api';
 }
 const API_BASE  = window.API_BASE;
 const LOCAL_KEY = 'ca_animals';
@@ -258,7 +258,7 @@ function generateAnimalCard(animal, showAdoptBtn = true) {
 
     const fotoSrc = animal.fotoUrl
         ? (animal.fotoUrl.startsWith('/uploads/')
-            ? 'http://localhost:5000' + animal.fotoUrl
+            ? 'https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net' + animal.fotoUrl
             : animal.fotoUrl)
         : null;
 
