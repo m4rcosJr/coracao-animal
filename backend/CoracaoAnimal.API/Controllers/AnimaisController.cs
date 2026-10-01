@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using CoracaoAnimal.API.Data;
 using CoracaoAnimal.API.Models;
@@ -29,12 +30,13 @@ namespace CoracaoAnimal.API.Controllers
         public AnimaisController(AppDbContext context, IWebHostEnvironment env)
         {
             _context = context;
-            _env     = env;
+            _env = env;
         }
 
         // ─────────────────────────────────────────────────────────────
         // GET api/animais
         // Retorna todos os animais cadastrados
+        // PUBLICO — qualquer visitante pode ver o catalogo
         // ─────────────────────────────────────────────────────────────
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Animal>>> GetAnimais()
@@ -45,6 +47,7 @@ namespace CoracaoAnimal.API.Controllers
         // ─────────────────────────────────────────────────────────────
         // GET api/animais/1
         // Retorna um animal específico pelo ID
+        // PUBLICO — qualquer visitante pode ver o detalhe
         // ─────────────────────────────────────────────────────────────
         [HttpGet("{id}")]
         public async Task<ActionResult<Animal>> GetAnimal(int id)
@@ -59,6 +62,7 @@ namespace CoracaoAnimal.API.Controllers
 
         // ─────────────────────────────────────────────────────────────
         // POST api/animais
+        // SOMENTE ADMIN — so a equipe da ONG cadastra animais no catalogo
         //
         // ANTES (não suportava imagem):
         //   Recebia JSON simples: { "nome": "Rex", "fotoUrl": "http://..." }
@@ -72,6 +76,7 @@ namespace CoracaoAnimal.API.Controllers
         // Campos: Nome, Especie, Raca, Idade, Porte, StatusAdocao, Descricao, Foto (file)
         // ─────────────────────────────────────────────────────────────
         [HttpPost]
+        [Authorize(Roles = "admin")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<Animal>> PostAnimal([FromForm] AnimalFormDto form)
         {
@@ -94,8 +99,8 @@ namespace CoracaoAnimal.API.Controllers
                     Directory.CreateDirectory(pastaUploads);
 
                 // Gera nome unico para o arquivo (GUID + extensao original)
-                var extensao  = Path.GetExtension(form.Foto.FileName).ToLower();
-                var nomeArq   = $"{Guid.NewGuid()}{extensao}";
+                var extensao = Path.GetExtension(form.Foto.FileName).ToLower();
+                var nomeArq = $"{Guid.NewGuid()}{extensao}";
                 var caminhoFisico = Path.Combine(pastaUploads, nomeArq);
 
                 // Salva o arquivo no disco
@@ -112,15 +117,15 @@ namespace CoracaoAnimal.API.Controllers
             // 2. Cria o objeto Animal para salvar no banco
             var animal = new Animal
             {
-                Nome         = form.Nome,
-                Especie      = form.Especie,
-                Raca         = form.Raca,
-                Idade        = form.Idade,
-                Porte        = form.Porte,
+                Nome = form.Nome,
+                Especie = form.Especie,
+                Raca = form.Raca,
+                Idade = form.Idade,
+                Porte = form.Porte,
                 StatusAdocao = form.StatusAdocao ?? "disponivel",
-                Descricao    = form.Descricao,
-                FotoUrl      = caminhoFoto,       // caminho da imagem salva
-                DataEntrada  = DateTime.Now
+                Descricao = form.Descricao,
+                FotoUrl = caminhoFoto,       // caminho da imagem salva
+                DataEntrada = DateTime.Now
             };
 
             // 3. Salva no banco de dados
@@ -138,8 +143,10 @@ namespace CoracaoAnimal.API.Controllers
         // ─────────────────────────────────────────────────────────────
         // PUT api/animais/1
         // Atualiza dados + permite trocar a foto
+        // SOMENTE ADMIN
         // ─────────────────────────────────────────────────────────────
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> PutAnimal(int id, [FromForm] AnimalFormDto form)
         {
@@ -149,13 +156,13 @@ namespace CoracaoAnimal.API.Controllers
                 return NotFound(new { mensagem = $"Animal com ID {id} não encontrado" });
 
             // Atualiza os campos de texto
-            animal.Nome         = form.Nome;
-            animal.Especie      = form.Especie;
-            animal.Raca         = form.Raca;
-            animal.Idade        = form.Idade;
-            animal.Porte        = form.Porte;
+            animal.Nome = form.Nome;
+            animal.Especie = form.Especie;
+            animal.Raca = form.Raca;
+            animal.Idade = form.Idade;
+            animal.Porte = form.Porte;
             animal.StatusAdocao = form.StatusAdocao ?? animal.StatusAdocao;
-            animal.Descricao    = form.Descricao;
+            animal.Descricao = form.Descricao;
 
             // Processa nova foto (se enviada)
             if (form.Foto != null && form.Foto.Length > 0)
@@ -179,8 +186,8 @@ namespace CoracaoAnimal.API.Controllers
                 if (!Directory.Exists(pastaUploads))
                     Directory.CreateDirectory(pastaUploads);
 
-                var extensao  = Path.GetExtension(form.Foto.FileName).ToLower();
-                var nomeArq   = $"{Guid.NewGuid()}{extensao}";
+                var extensao = Path.GetExtension(form.Foto.FileName).ToLower();
+                var nomeArq = $"{Guid.NewGuid()}{extensao}";
                 var caminhoFisico = Path.Combine(pastaUploads, nomeArq);
 
                 using (var stream = new FileStream(caminhoFisico, FileMode.Create))
@@ -201,8 +208,10 @@ namespace CoracaoAnimal.API.Controllers
         // ─────────────────────────────────────────────────────────────
         // DELETE api/animais/1
         // Remove o animal e a foto do disco
+        // SOMENTE ADMIN
         // ─────────────────────────────────────────────────────────────
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteAnimal(int id)
         {
             var animal = await _context.Animais.FindAsync(id);
