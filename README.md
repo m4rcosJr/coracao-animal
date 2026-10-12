@@ -8,8 +8,8 @@
 </p>
 
 <h1 align="center">🐾 Coração Animal</h1>
-<p align="center">Sistema web para divulgação e adoção responsável de cães e gatos</p>
-<p align="center"><em>Projeto Integrado Multidisciplinar III — Análise e Desenvolvimento de Sistemas — UNIP</em></p>
+<p align="center">Solução integrada web, Android e Windows para divulgação e adoção responsável de cães e gatos</p>
+<p align="center"><em>Projeto Integrado Multidisciplinar IV — Análise e Desenvolvimento de Sistemas — UNIP</em></p>
 
 ---
 
@@ -30,6 +30,8 @@ O sistema web tem como objetivo facilitar a **adoção responsável de cães e g
 | API REST (Backend) | ✅ Concluído | 25 endpoints em 5 Controllers |
 | Documentação da API | ✅ Concluído | Swagger disponível em /swagger |
 | Frontend | ✅ Concluído| HTML, CSS, JavaScript |
+| Aplicativo Android | ✅ Concluído | .NET MAUI integrado à API no Azure |
+| Aplicativo Windows | ✅ Concluído | Aplicativo desktop integrado à API no Azure |
 | UX/UI Design | ✅ Concluído| Wireframes e personas |
 | Machine Learning | ✅ Concluído | Recomendação por perfil |
 | LIBRAS / Acessibilidade | ✅ Concluído | Glossário e recursos inclusivos |
@@ -56,6 +58,8 @@ O sistema web tem como objetivo facilitar a **adoção responsável de cães e g
 | Banco de Dados | SQL Server 2026 Express (SSMS) |
 | ORM | Entity Framework Core |
 | Frontend | HTML5, CSS3, JavaScript |
+| Aplicativo Android | .NET MAUI / C# |
+| Aplicativo Windows | Windows Forms / C# |
 | Documentação API | Swagger / Swashbuckle |
 | Machine Learning | Python (scikit-learn) |
 | Versionamento | Git + GitHub |
@@ -157,6 +161,21 @@ https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net/swa
 
 Abra o arquivo `frontend/index.html` no navegador.
 
+### Aplicativos Android e Windows
+
+Os códigos-fonte dos dois aplicativos estão na pasta `apps/`. Ambos usam automaticamente a API publicada no Azure:
+
+```text
+https://coracaoanimal-api-fqegfpe7avcda5cy.chilecentral-01.azurewebsites.net
+```
+
+- Android: `apps/CoracaoAnimal.App`
+- Windows: `apps/CoracaoAnimal.Windows`
+- Cliente compartilhado da API: `apps/CoracaoAnimal.Client`
+- Modelos e regras compartilhados: `apps/CoracaoAnimal.Core`
+
+Os arquivos prontos para instalação (`.apk` e `.exe`) ficam disponíveis na seção **Releases** do GitHub.
+
 ---
 
 ## 📁 Estrutura do Repositório
@@ -194,6 +213,12 @@ coracao-animal/
 │   ├── css/
 │   ├── js/
 │   └── pages/
+│
+├── apps/
+│   ├── CoracaoAnimal.App/       # Android (.NET MAUI)
+│   ├── CoracaoAnimal.Windows/   # Aplicativo Windows
+│   ├── CoracaoAnimal.Client/    # Comunicação compartilhada com a API
+│   └── CoracaoAnimal.Core/      # Modelos e regras compartilhados
 │
 ├── ml/
 │   └── recomendacao.py
